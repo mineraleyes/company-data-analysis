@@ -216,3 +216,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# OS / Office temp files
+.DS_Store
+Thumbs.db
+~$*
+.~lock.*
+
+# Project
+_to_delete/
+outputs/*.png
