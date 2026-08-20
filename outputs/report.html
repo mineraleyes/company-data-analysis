@@ -272,6 +272,18 @@ footer {
 .tip b { font-weight: 600; }
 .tip .k { color: #b9b9b9; }
 
+/* ---- line chart ---- */
+.linewrap { position: relative; }
+.linewrap svg { display: block; width: 100%; height: 300px; overflow: visible; }
+.linewrap .grid { stroke: var(--axis); stroke-width: 1; }
+.linewrap .axis-txt { fill: var(--ink-faint); font-size: 11px; }
+.linewrap .ser { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.linewrap .dot { stroke: #fff; stroke-width: 2; }
+.linewrap .endlab { font-size: 11px; font-weight: 550; }
+.linewrap .cross { stroke: #b8b8b8; stroke-width: 1; }
+.linewrap .partial { stroke: #c9c9c9; stroke-width: 1; stroke-dasharray: 3 3; }
+.linewrap .hit { fill: transparent; cursor: crosshair; }
+
 /* ---- heatmap ---- */
 .heat { overflow-x: auto; }
 .heat table { border-collapse: separate; border-spacing: 2px; font-size: 12px; width: auto; }
@@ -939,6 +951,27 @@ details.tbl summary:hover { color: var(--ink); }
 </div>
 
 <div class="chart">
+  <h3>Companies by listing year</h3>
+  <p class="note">Companies that listed in each year <strong>and are still listed
+  today</strong>. Failed and delisted companies are absent from the source file
+  entirely, so early years are undercounted and part of the upward slope is
+  survivorship rather than growth. 30 surviving companies listed before 2000
+  and are not shown; 224 TSXV companies have no listing date at all.
+  2026 is a part-year — the data stops at 30 June.</p>
+  <div class="ctrl-group" style="margin:0 0 14px">
+    <span class="ctrl-label">Split by</span>
+    <div class="seg">
+      <button data-split="none" aria-pressed="true">Total</button>
+      <button data-split="commodity" aria-pressed="false">Commodity</button>
+      <button data-split="region" aria-pressed="false">Region</button>
+    </div>
+  </div>
+  <div class="legend" id="line-legend"></div>
+  <div class="linewrap" id="chart-lines"></div>
+  <details class="tbl"><summary>Show as table</summary><div id="table-lines"></div></details>
+</div>
+
+<div class="chart">
   <h3>Commodity by region</h3>
   <p class="note">Number of companies holding each commodity in each region. Follows
   the board filter; company counts only, since a median or ratio on cells this small
@@ -953,7 +986,7 @@ details.tbl summary:hover { color: var(--ink); }
 
 </div>
 
-<script>window.__VIZ__ = {"commodity": [{"label": "Gold", "TSX": {"n": 118, "mcap": 839385221759.9349, "median": 1539365750.7350001, "turnover": 0.39468122827250485, "traded": 331289590318.0}, "TSXV": {"n": 540, "mcap": 53275641992.162, "median": 20136944.275, "turnover": 0.23992698797286285, "traded": 12782264315.5}, "ALL": {"n": 658, "mcap": 892660863752.097, "median": 35170147.5025, "turnover": 0.38544521061142095, "traded": 344071854633.5}}, {"label": "Silver", "TSX": {"n": 52, "mcap": 433915541199.26996, "median": 1838067166.655, "turnover": 0.3501021717800957, "traded": 151914773343.0}, "TSXV": {"n": 171, "mcap": 23934412436.497, "median": 34982629.605, "turnover": 0.30874418035563567, "traded": 7389610550.0}, "ALL": {"n": 223, "mcap": 457849953635.76697, "median": 57096611.715, "turnover": 0.34794015512717796, "traded": 159304383893.0}}, {"label": "Copper", "TSX": {"n": 62, "mcap": 571757699261.895, "median": 1610292570.515, "turnover": 0.37657501581518166, "traded": 215309664642.0}, "TSXV": {"n": 291, "mcap": 20906292568.488, "median": 18794470.5, "turnover": 0.18399439586902328, "traded": 3846640671.0}, "ALL": {"n": 353, "mcap": 592663991830.383, "median": 27724976.16, "turnover": 0.3697817116173328, "traded": 219156305313.0}}, {"label": "Nickel", "TSX": {"n": 11, "mcap": 132914631412.98999, "median": 912274641.72, "turnover": 0.32611936911833256, "traded": 43346035743.0}, "TSXV": {"n": 75, "mcap": 4197288253.6000004, "median": 14595197.4, "turnover": 0.19370743081623074, "traded": 813045924.0}, "ALL": {"n": 86, "mcap": 137111919666.58998, "median": 17394939.075, "turnover": 0.32206595731705906, "traded": 44159081667.0}}, {"label": "Diamond", "TSX": {"n": 4, "mcap": 9126136810.050001, "median": 342647137.825, "turnover": 0.3290926782614762, "traded": 3003344805.0}, "TSXV": {"n": 17, "mcap": 224083990.03, "median": 3983453.22, "turnover": 0.3818978700287471, "traded": 85577198.5}, "ALL": {"n": 21, "mcap": 9350220800.079998, "median": 8278892.82, "turnover": 0.3303581882765348, "traded": 3088922003.5}}, {"label": "Molybdenum", "TSX": {"n": 8, "mcap": 77524852832.01999, "median": 773823181.0300001, "turnover": 0.34680523238472116, "traded": 26886024602.0}, "TSXV": {"n": 26, "mcap": 2779302305.955, "median": 36033519.32, "turnover": 0.160334873988053, "traded": 445619085.0}, "ALL": {"n": 34, "mcap": 80304155137.975, "median": 66161137.11750001, "turnover": 0.3403515501786924, "traded": 27331643687.0}}, {"label": "Platinum/PGM", "TSX": {"n": 8, "mcap": 75619615441.81999, "median": 353590556.62, "turnover": 0.3250213507222838, "traded": 24577989552.0}, "TSXV": {"n": 31, "mcap": 1058929565.1849998, "median": 13780623.12, "turnover": 0.23261032376309856, "traded": 246317949.0}, "ALL": {"n": 39, "mcap": 76678545007.00499, "median": 19304855.0, "turnover": 0.3237451558155175, "traded": 24824307501.0}}, {"label": "Iron", "TSX": {"n": 10, "mcap": 12736802795.135, "median": 1120612236.5, "turnover": 0.2716823291259353, "traded": 3460364249.0}, "TSXV": {"n": 12, "mcap": 301660694.09000003, "median": 8874574.469999999, "turnover": 0.16774859135245052, "traded": 50603156.5}, "ALL": {"n": 22, "mcap": 13038463489.225, "median": 27278322.665, "turnover": 0.26927769582677186, "traded": 3510967405.5}}, {"label": "Lead", "TSX": {"n": 10, "mcap": 91508155392.79, "median": 2740460846.2200003, "turnover": 0.3007177414229484, "traded": 27518125811.5}, "TSXV": {"n": 28, "mcap": 2081533684.2949998, "median": 23782402.299999997, "turnover": 0.2205603992690107, "traded": 459103900.5}, "ALL": {"n": 38, "mcap": 93589689077.08498, "median": 35715872.64749999, "turnover": 0.2989349573429676, "traded": 27977229712.0}}, {"label": "Zinc", "TSX": {"n": 19, "mcap": 157417036895.88, "median": 1890534333.31, "turnover": 0.3793025647757109, "traded": 59708685834.0}, "TSXV": {"n": 67, "mcap": 6045011675.124999, "median": 15971171.985, "turnover": 0.2932253932269448, "traded": 1772550925.5}, "ALL": {"n": 86, "mcap": 163462048571.005, "median": 28981469.46, "turnover": 0.376119333490389, "traded": 61481236759.5}}, {"label": "Rare Earths", "TSX": {"n": 3, "mcap": 1767172679.68, "median": 638978629.12, "turnover": 0.06363666906641162, "traded": 112456983.0}, "TSXV": {"n": 32, "mcap": 2269769016.285, "median": 22732388.42, "turnover": 0.2473975567430566, "traded": 561535309.0}, "ALL": {"n": 35, "mcap": 4036941695.965, "median": 25588022.26, "turnover": 0.16695616205546593, "traded": 673992292.0}}, {"label": "Potash", "TSX": {"n": 5, "mcap": 46438093470.380005, "median": 40639481.28, "turnover": 0.49057372401670174, "traded": 22781308450.0}, "TSXV": {"n": 5, "mcap": 348366239.745, "median": 39543523.43, "turnover": 0.47465899571967146, "traded": 165355169.5}, "ALL": {"n": 10, "mcap": 46786459710.12501, "median": 40091502.355000004, "turnover": 0.4904552249020487, "traded": 22946663619.5}}, {"label": "Lithium", "TSX": {"n": 7, "mcap": 9272686038.51, "median": 1080327673.81, "turnover": 0.3830004907154897, "traded": 3551443303.0}, "TSXV": {"n": 97, "mcap": 7273959719.105, "median": 10216747.805, "turnover": 0.19439439075887308, "traded": 1414016968.0}, "ALL": {"n": 104, "mcap": 16546645757.615002, "median": 13047626.002500001, "turnover": 0.3000886308764315, "traded": 4965460271.0}}, {"label": "Uranium", "TSX": {"n": 14, "mcap": 93488893260.97998, "median": 1374084279.645, "turnover": 0.3519918418933164, "traded": 32907327735.5}, "TSXV": {"n": 36, "mcap": 1876036453.285, "median": 21162994.535, "turnover": 0.40675321588971025, "traded": 763083860.5}, "ALL": {"n": 50, "mcap": 95364929714.265, "median": 44742042.47, "turnover": 0.3530691177237188, "traded": 33670411596.0}}, {"label": "Coal", "TSX": {"n": 2, "mcap": 1111817448.0900002, "median": 555908724.0450001, "turnover": 0.028224119034926158, "traded": 31380068.0}, "TSXV": {"n": 5, "mcap": 542290935.2099999, "median": 15176382.4, "turnover": 0.12488551643182834, "traded": 67724283.5}, "ALL": {"n": 7, "mcap": 1654108383.3000002, "median": 89095399.8, "turnover": 0.059914061557613044, "traded": 99104351.5}}, {"label": "Tungsten", "TSX": {"n": 3, "mcap": 3409080439.3300004, "median": 1602245843.88, "turnover": 0.2037620466463738, "traded": 694641207.5}, "TSXV": {"n": 7, "mcap": 1104337995.065, "median": 48105137.5, "turnover": 0.1640727465773151, "traded": 181191768.0}, "ALL": {"n": 10, "mcap": 4513418434.3949995, "median": 112134625.11, "turnover": 0.19405091467381327, "traded": 875832975.5}}], "region": [{"label": "Canada", "TSX": {"n": 61, "mcap": 579423531649.7849, "median": 1391502602.08, "turnover": 0.4112029974914956, "traded": 238260693031.5}, "TSXV": {"n": 452, "mcap": 33148615163.672005, "median": 13272047.555, "turnover": 0.2595639275280929, "traded": 8604184744.0}, "ALL": {"n": 513, "mcap": 612572146813.4569, "median": 16881356.97, "turnover": 0.40299722907688185, "traded": 246864877775.5}}, {"label": "Latin America", "TSX": {"n": 66, "mcap": 467438270876.27, "median": 1754017579.205, "turnover": 0.4792423640848968, "traded": 224016221998.5}, "TSXV": {"n": 199, "mcap": 25621891625.61, "median": 33653979.345, "turnover": 0.26802071704323305, "traded": 6867197765.5}, "ALL": {"n": 265, "mcap": 493060162501.88, "median": 70730828.75, "turnover": 0.4682662225081298, "traded": 230883419764.0}}, {"label": "USA", "TSX": {"n": 50, "mcap": 349799964816.34, "median": 1767490451.145, "turnover": 0.46834113201530914, "traded": 163825711501.0}, "TSXV": {"n": 182, "mcap": 16448240806.237999, "median": 20005781.935, "turnover": 0.2563360698975769, "traded": 4216277405.0}, "ALL": {"n": 232, "mcap": 366248205622.578, "median": 47230299.7225, "turnover": 0.4588199650571633, "traded": 168041988906.0}}, {"label": "Africa", "TSX": {"n": 26, "mcap": 250019447419.77, "median": 3408497504.085, "turnover": 0.4960912318342812, "traded": 124032455653.0}, "TSXV": {"n": 55, "mcap": 6747094111.985, "median": 34969643.8, "turnover": 0.17955400390044143, "traded": 1211467762.5}, "ALL": {"n": 81, "mcap": 256766541531.75504, "median": 72354926.325, "turnover": 0.4877735341542182, "traded": 125243923415.5}}, {"label": "UK / Europe", "TSX": {"n": 18, "mcap": 235217142768.10504, "median": 2533390077.955, "turnover": 0.3815750983506561, "traded": 89753004385.5}, "TSXV": {"n": 42, "mcap": 2377017574.4199996, "median": 12106440.524999999, "turnover": 0.16252963468066375, "traded": 386335798.0}, "ALL": {"n": 60, "mcap": 237594160342.52502, "median": 37196913.3625, "turnover": 0.3793836517427516, "traded": 90139340183.5}}, {"label": "Aus / NZ / PNG", "TSX": {"n": 15, "mcap": 148952864439.60498, "median": 1890534333.31, "turnover": 0.4673672382260675, "traded": 69615688879.0}, "TSXV": {"n": 26, "mcap": 1975385685.8099997, "median": 15754670.76, "turnover": 0.11937423774704882, "traded": 235810160.5}, "ALL": {"n": 41, "mcap": 150928250125.415, "median": 50170513.82, "turnover": 0.46281262110609744, "traded": 69851499039.5}}, {"label": "Asia", "TSX": {"n": 12, "mcap": 93605196434.65002, "median": 1266467883.415, "turnover": 0.35512587056219114, "traded": 33241626873.0}, "TSXV": {"n": 19, "mcap": 1080363205.675, "median": 29206944.875, "turnover": 0.16669811370286233, "traded": 180094508.5}, "ALL": {"n": 31, "mcap": 94685559640.325, "median": 59777636.78, "turnover": 0.3529759079257345, "traded": 33421721381.5}}, {"label": "Other", "TSX": {"n": 1, "mcap": 86745601490.1, "median": 86745601490.1, "turnover": 0.5210994482891318, "traded": 45203085078.0}, "TSXV": {"n": 1, "mcap": 67785214.52, "median": 67785214.52, "turnover": 0.038154006272812194, "traded": 2586277.5}, "ALL": {"n": 2, "mcap": 86813386704.62001, "median": 43406693352.310005, "turnover": 0.5207223571326731, "traded": 45205671355.5}}], "heat": {"commodities": ["Gold", "Silver", "Copper", "Nickel", "Diamond", "Molybdenum", "Platinum/PGM", "Iron", "Lead", "Zinc", "Rare Earths", "Potash", "Lithium", "Uranium", "Coal", "Tungsten"], "regions": ["Canada", "Latin America", "USA", "Africa", "UK / Europe", "Aus / NZ / PNG", "Asia", "Other"], "cells": [[{"TSX": 40, "TSXV": 291}, {"TSX": 15, "TSXV": 71}, {"TSX": 22, "TSXV": 156}, {"TSX": 3, "TSXV": 57}, {"TSX": 1, "TSXV": 13}, {"TSX": 6, "TSXV": 19}, {"TSX": 2, "TSXV": 26}, {"TSX": 3, "TSXV": 10}, {"TSX": 6, "TSXV": 19}, {"TSX": 8, "TSXV": 42}, {"TSX": 1, "TSXV": 22}, {"TSX": 3, "TSXV": 2}, {"TSX": 3, "TSXV": 63}, {"TSX": 6, "TSXV": 26}, {"TSX": 0, "TSXV": 1}, {"TSX": 1, "TSXV": 5}], [{"TSX": 50, "TSXV": 137}, {"TSX": 32, "TSXV": 75}, {"TSX": 28, "TSXV": 75}, {"TSX": 2, "TSXV": 4}, {"TSX": 0, "TSXV": 1}, {"TSX": 4, "TSXV": 6}, {"TSX": 0, "TSXV": 3}, {"TSX": 0, "TSXV": 1}, {"TSX": 5, "TSXV": 5}, {"TSX": 8, "TSXV": 9}, {"TSX": 1, "TSXV": 4}, {"TSX": 1, "TSXV": 1}, {"TSX": 1, "TSXV": 20}, {"TSX": 1, "TSXV": 4}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}], [{"TSX": 34, "TSXV": 117}, {"TSX": 17, "TSXV": 42}, {"TSX": 18, "TSXV": 68}, {"TSX": 3, "TSXV": 10}, {"TSX": 0, "TSXV": 1}, {"TSX": 3, "TSXV": 6}, {"TSX": 1, "TSXV": 4}, {"TSX": 2, "TSXV": 1}, {"TSX": 5, "TSXV": 8}, {"TSX": 10, "TSXV": 12}, {"TSX": 1, "TSXV": 4}, {"TSX": 0, "TSXV": 2}, {"TSX": 2, "TSXV": 26}, {"TSX": 5, "TSXV": 11}, {"TSX": 1, "TSXV": 0}, {"TSX": 0, "TSXV": 1}], [{"TSX": 17, "TSXV": 33}, {"TSX": 4, "TSXV": 2}, {"TSX": 5, "TSXV": 15}, {"TSX": 1, "TSXV": 7}, {"TSX": 1, "TSXV": 4}, {"TSX": 3, "TSXV": 0}, {"TSX": 3, "TSXV": 3}, {"TSX": 0, "TSXV": 1}, {"TSX": 2, "TSXV": 1}, {"TSX": 4, "TSXV": 1}, {"TSX": 0, "TSXV": 5}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 3}, {"TSX": 4, "TSXV": 1}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 0}], [{"TSX": 14, "TSXV": 24}, {"TSX": 8, "TSXV": 3}, {"TSX": 13, "TSXV": 19}, {"TSX": 2, "TSXV": 3}, {"TSX": 0, "TSXV": 1}, {"TSX": 4, "TSXV": 1}, {"TSX": 1, "TSXV": 1}, {"TSX": 2, "TSXV": 1}, {"TSX": 3, "TSXV": 0}, {"TSX": 5, "TSXV": 6}, {"TSX": 1, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 3}, {"TSX": 2, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}], [{"TSX": 11, "TSXV": 17}, {"TSX": 1, "TSXV": 0}, {"TSX": 5, "TSXV": 9}, {"TSX": 0, "TSXV": 2}, {"TSX": 0, "TSXV": 0}, {"TSX": 2, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 1, "TSXV": 1}, {"TSX": 1, "TSXV": 2}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 2}, {"TSX": 5, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 1}], [{"TSX": 10, "TSXV": 13}, {"TSX": 4, "TSXV": 2}, {"TSX": 7, "TSXV": 8}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 1, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 2}, {"TSX": 2, "TSXV": 0}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 0}], [{"TSX": 1, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}]]}, "totals": {"TSX": {"n": 183, "mcap": 1053620676993.7151}, "TSXV": {"n": 896, "mcap": 82013130988.182}}, "gaps": {"no_commodity": 92, "no_property": 70}};</script>
+<script>window.__VIZ__ = {"commodity": [{"label": "Gold", "TSX": {"n": 118, "mcap": 839385221759.9349, "median": 1539365750.7350001, "turnover": 0.39468122827250485, "traded": 331289590318.0}, "TSXV": {"n": 540, "mcap": 53275641992.162, "median": 20136944.275, "turnover": 0.23992698797286285, "traded": 12782264315.5}, "ALL": {"n": 658, "mcap": 892660863752.097, "median": 35170147.5025, "turnover": 0.38544521061142095, "traded": 344071854633.5}}, {"label": "Silver", "TSX": {"n": 52, "mcap": 433915541199.26996, "median": 1838067166.655, "turnover": 0.3501021717800957, "traded": 151914773343.0}, "TSXV": {"n": 171, "mcap": 23934412436.497, "median": 34982629.605, "turnover": 0.30874418035563567, "traded": 7389610550.0}, "ALL": {"n": 223, "mcap": 457849953635.76697, "median": 57096611.715, "turnover": 0.34794015512717796, "traded": 159304383893.0}}, {"label": "Copper", "TSX": {"n": 62, "mcap": 571757699261.895, "median": 1610292570.515, "turnover": 0.37657501581518166, "traded": 215309664642.0}, "TSXV": {"n": 291, "mcap": 20906292568.488, "median": 18794470.5, "turnover": 0.18399439586902328, "traded": 3846640671.0}, "ALL": {"n": 353, "mcap": 592663991830.383, "median": 27724976.16, "turnover": 0.3697817116173328, "traded": 219156305313.0}}, {"label": "Nickel", "TSX": {"n": 11, "mcap": 132914631412.98999, "median": 912274641.72, "turnover": 0.32611936911833256, "traded": 43346035743.0}, "TSXV": {"n": 75, "mcap": 4197288253.6000004, "median": 14595197.4, "turnover": 0.19370743081623074, "traded": 813045924.0}, "ALL": {"n": 86, "mcap": 137111919666.58998, "median": 17394939.075, "turnover": 0.32206595731705906, "traded": 44159081667.0}}, {"label": "Diamond", "TSX": {"n": 4, "mcap": 9126136810.050001, "median": 342647137.825, "turnover": 0.3290926782614762, "traded": 3003344805.0}, "TSXV": {"n": 17, "mcap": 224083990.03, "median": 3983453.22, "turnover": 0.3818978700287471, "traded": 85577198.5}, "ALL": {"n": 21, "mcap": 9350220800.079998, "median": 8278892.82, "turnover": 0.3303581882765348, "traded": 3088922003.5}}, {"label": "Molybdenum", "TSX": {"n": 8, "mcap": 77524852832.01999, "median": 773823181.0300001, "turnover": 0.34680523238472116, "traded": 26886024602.0}, "TSXV": {"n": 26, "mcap": 2779302305.955, "median": 36033519.32, "turnover": 0.160334873988053, "traded": 445619085.0}, "ALL": {"n": 34, "mcap": 80304155137.975, "median": 66161137.11750001, "turnover": 0.3403515501786924, "traded": 27331643687.0}}, {"label": "Platinum/PGM", "TSX": {"n": 8, "mcap": 75619615441.81999, "median": 353590556.62, "turnover": 0.3250213507222838, "traded": 24577989552.0}, "TSXV": {"n": 31, "mcap": 1058929565.1849998, "median": 13780623.12, "turnover": 0.23261032376309856, "traded": 246317949.0}, "ALL": {"n": 39, "mcap": 76678545007.00499, "median": 19304855.0, "turnover": 0.3237451558155175, "traded": 24824307501.0}}, {"label": "Iron", "TSX": {"n": 10, "mcap": 12736802795.135, "median": 1120612236.5, "turnover": 0.2716823291259353, "traded": 3460364249.0}, "TSXV": {"n": 12, "mcap": 301660694.09000003, "median": 8874574.469999999, "turnover": 0.16774859135245052, "traded": 50603156.5}, "ALL": {"n": 22, "mcap": 13038463489.225, "median": 27278322.665, "turnover": 0.26927769582677186, "traded": 3510967405.5}}, {"label": "Lead", "TSX": {"n": 10, "mcap": 91508155392.79, "median": 2740460846.2200003, "turnover": 0.3007177414229484, "traded": 27518125811.5}, "TSXV": {"n": 28, "mcap": 2081533684.2949998, "median": 23782402.299999997, "turnover": 0.2205603992690107, "traded": 459103900.5}, "ALL": {"n": 38, "mcap": 93589689077.08498, "median": 35715872.64749999, "turnover": 0.2989349573429676, "traded": 27977229712.0}}, {"label": "Zinc", "TSX": {"n": 19, "mcap": 157417036895.88, "median": 1890534333.31, "turnover": 0.3793025647757109, "traded": 59708685834.0}, "TSXV": {"n": 67, "mcap": 6045011675.124999, "median": 15971171.985, "turnover": 0.2932253932269448, "traded": 1772550925.5}, "ALL": {"n": 86, "mcap": 163462048571.005, "median": 28981469.46, "turnover": 0.376119333490389, "traded": 61481236759.5}}, {"label": "Rare Earths", "TSX": {"n": 3, "mcap": 1767172679.68, "median": 638978629.12, "turnover": 0.06363666906641162, "traded": 112456983.0}, "TSXV": {"n": 32, "mcap": 2269769016.285, "median": 22732388.42, "turnover": 0.2473975567430566, "traded": 561535309.0}, "ALL": {"n": 35, "mcap": 4036941695.965, "median": 25588022.26, "turnover": 0.16695616205546593, "traded": 673992292.0}}, {"label": "Potash", "TSX": {"n": 5, "mcap": 46438093470.380005, "median": 40639481.28, "turnover": 0.49057372401670174, "traded": 22781308450.0}, "TSXV": {"n": 5, "mcap": 348366239.745, "median": 39543523.43, "turnover": 0.47465899571967146, "traded": 165355169.5}, "ALL": {"n": 10, "mcap": 46786459710.12501, "median": 40091502.355000004, "turnover": 0.4904552249020487, "traded": 22946663619.5}}, {"label": "Lithium", "TSX": {"n": 7, "mcap": 9272686038.51, "median": 1080327673.81, "turnover": 0.3830004907154897, "traded": 3551443303.0}, "TSXV": {"n": 97, "mcap": 7273959719.105, "median": 10216747.805, "turnover": 0.19439439075887308, "traded": 1414016968.0}, "ALL": {"n": 104, "mcap": 16546645757.615002, "median": 13047626.002500001, "turnover": 0.3000886308764315, "traded": 4965460271.0}}, {"label": "Uranium", "TSX": {"n": 14, "mcap": 93488893260.97998, "median": 1374084279.645, "turnover": 0.3519918418933164, "traded": 32907327735.5}, "TSXV": {"n": 36, "mcap": 1876036453.285, "median": 21162994.535, "turnover": 0.40675321588971025, "traded": 763083860.5}, "ALL": {"n": 50, "mcap": 95364929714.265, "median": 44742042.47, "turnover": 0.3530691177237188, "traded": 33670411596.0}}, {"label": "Coal", "TSX": {"n": 2, "mcap": 1111817448.0900002, "median": 555908724.0450001, "turnover": 0.028224119034926158, "traded": 31380068.0}, "TSXV": {"n": 5, "mcap": 542290935.2099999, "median": 15176382.4, "turnover": 0.12488551643182834, "traded": 67724283.5}, "ALL": {"n": 7, "mcap": 1654108383.3000002, "median": 89095399.8, "turnover": 0.059914061557613044, "traded": 99104351.5}}, {"label": "Tungsten", "TSX": {"n": 3, "mcap": 3409080439.3300004, "median": 1602245843.88, "turnover": 0.2037620466463738, "traded": 694641207.5}, "TSXV": {"n": 7, "mcap": 1104337995.065, "median": 48105137.5, "turnover": 0.1640727465773151, "traded": 181191768.0}, "ALL": {"n": 10, "mcap": 4513418434.3949995, "median": 112134625.11, "turnover": 0.19405091467381327, "traded": 875832975.5}}], "region": [{"label": "Canada", "TSX": {"n": 61, "mcap": 579423531649.7849, "median": 1391502602.08, "turnover": 0.4112029974914956, "traded": 238260693031.5}, "TSXV": {"n": 452, "mcap": 33148615163.672005, "median": 13272047.555, "turnover": 0.2595639275280929, "traded": 8604184744.0}, "ALL": {"n": 513, "mcap": 612572146813.4569, "median": 16881356.97, "turnover": 0.40299722907688185, "traded": 246864877775.5}}, {"label": "Latin America", "TSX": {"n": 66, "mcap": 467438270876.27, "median": 1754017579.205, "turnover": 0.4792423640848968, "traded": 224016221998.5}, "TSXV": {"n": 199, "mcap": 25621891625.61, "median": 33653979.345, "turnover": 0.26802071704323305, "traded": 6867197765.5}, "ALL": {"n": 265, "mcap": 493060162501.88, "median": 70730828.75, "turnover": 0.4682662225081298, "traded": 230883419764.0}}, {"label": "USA", "TSX": {"n": 50, "mcap": 349799964816.34, "median": 1767490451.145, "turnover": 0.46834113201530914, "traded": 163825711501.0}, "TSXV": {"n": 182, "mcap": 16448240806.237999, "median": 20005781.935, "turnover": 0.2563360698975769, "traded": 4216277405.0}, "ALL": {"n": 232, "mcap": 366248205622.578, "median": 47230299.7225, "turnover": 0.4588199650571633, "traded": 168041988906.0}}, {"label": "Africa", "TSX": {"n": 26, "mcap": 250019447419.77, "median": 3408497504.085, "turnover": 0.4960912318342812, "traded": 124032455653.0}, "TSXV": {"n": 55, "mcap": 6747094111.985, "median": 34969643.8, "turnover": 0.17955400390044143, "traded": 1211467762.5}, "ALL": {"n": 81, "mcap": 256766541531.75504, "median": 72354926.325, "turnover": 0.4877735341542182, "traded": 125243923415.5}}, {"label": "UK / Europe", "TSX": {"n": 18, "mcap": 235217142768.10504, "median": 2533390077.955, "turnover": 0.3815750983506561, "traded": 89753004385.5}, "TSXV": {"n": 42, "mcap": 2377017574.4199996, "median": 12106440.524999999, "turnover": 0.16252963468066375, "traded": 386335798.0}, "ALL": {"n": 60, "mcap": 237594160342.52502, "median": 37196913.3625, "turnover": 0.3793836517427516, "traded": 90139340183.5}}, {"label": "Aus / NZ / PNG", "TSX": {"n": 15, "mcap": 148952864439.60498, "median": 1890534333.31, "turnover": 0.4673672382260675, "traded": 69615688879.0}, "TSXV": {"n": 26, "mcap": 1975385685.8099997, "median": 15754670.76, "turnover": 0.11937423774704882, "traded": 235810160.5}, "ALL": {"n": 41, "mcap": 150928250125.415, "median": 50170513.82, "turnover": 0.46281262110609744, "traded": 69851499039.5}}, {"label": "Asia", "TSX": {"n": 12, "mcap": 93605196434.65002, "median": 1266467883.415, "turnover": 0.35512587056219114, "traded": 33241626873.0}, "TSXV": {"n": 19, "mcap": 1080363205.675, "median": 29206944.875, "turnover": 0.16669811370286233, "traded": 180094508.5}, "ALL": {"n": 31, "mcap": 94685559640.325, "median": 59777636.78, "turnover": 0.3529759079257345, "traded": 33421721381.5}}, {"label": "Other", "TSX": {"n": 1, "mcap": 86745601490.1, "median": 86745601490.1, "turnover": 0.5210994482891318, "traded": 45203085078.0}, "TSXV": {"n": 1, "mcap": 67785214.52, "median": 67785214.52, "turnover": 0.038154006272812194, "traded": 2586277.5}, "ALL": {"n": 2, "mcap": 86813386704.62001, "median": 43406693352.310005, "turnover": 0.5207223571326731, "traded": 45205671355.5}}], "heat": {"commodities": ["Gold", "Silver", "Copper", "Nickel", "Diamond", "Molybdenum", "Platinum/PGM", "Iron", "Lead", "Zinc", "Rare Earths", "Potash", "Lithium", "Uranium", "Coal", "Tungsten"], "regions": ["Canada", "Latin America", "USA", "Africa", "UK / Europe", "Aus / NZ / PNG", "Asia", "Other"], "cells": [[{"TSX": 40, "TSXV": 291}, {"TSX": 15, "TSXV": 71}, {"TSX": 22, "TSXV": 156}, {"TSX": 3, "TSXV": 57}, {"TSX": 1, "TSXV": 13}, {"TSX": 6, "TSXV": 19}, {"TSX": 2, "TSXV": 26}, {"TSX": 3, "TSXV": 10}, {"TSX": 6, "TSXV": 19}, {"TSX": 8, "TSXV": 42}, {"TSX": 1, "TSXV": 22}, {"TSX": 3, "TSXV": 2}, {"TSX": 3, "TSXV": 63}, {"TSX": 6, "TSXV": 26}, {"TSX": 0, "TSXV": 1}, {"TSX": 1, "TSXV": 5}], [{"TSX": 50, "TSXV": 137}, {"TSX": 32, "TSXV": 75}, {"TSX": 28, "TSXV": 75}, {"TSX": 2, "TSXV": 4}, {"TSX": 0, "TSXV": 1}, {"TSX": 4, "TSXV": 6}, {"TSX": 0, "TSXV": 3}, {"TSX": 0, "TSXV": 1}, {"TSX": 5, "TSXV": 5}, {"TSX": 8, "TSXV": 9}, {"TSX": 1, "TSXV": 4}, {"TSX": 1, "TSXV": 1}, {"TSX": 1, "TSXV": 20}, {"TSX": 1, "TSXV": 4}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}], [{"TSX": 34, "TSXV": 117}, {"TSX": 17, "TSXV": 42}, {"TSX": 18, "TSXV": 68}, {"TSX": 3, "TSXV": 10}, {"TSX": 0, "TSXV": 1}, {"TSX": 3, "TSXV": 6}, {"TSX": 1, "TSXV": 4}, {"TSX": 2, "TSXV": 1}, {"TSX": 5, "TSXV": 8}, {"TSX": 10, "TSXV": 12}, {"TSX": 1, "TSXV": 4}, {"TSX": 0, "TSXV": 2}, {"TSX": 2, "TSXV": 26}, {"TSX": 5, "TSXV": 11}, {"TSX": 1, "TSXV": 0}, {"TSX": 0, "TSXV": 1}], [{"TSX": 17, "TSXV": 33}, {"TSX": 4, "TSXV": 2}, {"TSX": 5, "TSXV": 15}, {"TSX": 1, "TSXV": 7}, {"TSX": 1, "TSXV": 4}, {"TSX": 3, "TSXV": 0}, {"TSX": 3, "TSXV": 3}, {"TSX": 0, "TSXV": 1}, {"TSX": 2, "TSXV": 1}, {"TSX": 4, "TSXV": 1}, {"TSX": 0, "TSXV": 5}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 3}, {"TSX": 4, "TSXV": 1}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 0}], [{"TSX": 14, "TSXV": 24}, {"TSX": 8, "TSXV": 3}, {"TSX": 13, "TSXV": 19}, {"TSX": 2, "TSXV": 3}, {"TSX": 0, "TSXV": 1}, {"TSX": 4, "TSXV": 1}, {"TSX": 1, "TSXV": 1}, {"TSX": 2, "TSXV": 1}, {"TSX": 3, "TSXV": 0}, {"TSX": 5, "TSXV": 6}, {"TSX": 1, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 3}, {"TSX": 2, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}], [{"TSX": 11, "TSXV": 17}, {"TSX": 1, "TSXV": 0}, {"TSX": 5, "TSXV": 9}, {"TSX": 0, "TSXV": 2}, {"TSX": 0, "TSXV": 0}, {"TSX": 2, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 1, "TSXV": 1}, {"TSX": 1, "TSXV": 2}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 2}, {"TSX": 5, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 1}], [{"TSX": 10, "TSXV": 13}, {"TSX": 4, "TSXV": 2}, {"TSX": 7, "TSXV": 8}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 1, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 2}, {"TSX": 2, "TSXV": 0}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 0}], [{"TSX": 1, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}]]}, "lines": {"years": [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026], "missing": 224, "before": 30, "partial": 2026, "none": [{"label": "All mining", "byBoard": {"TSX": [2, 1, 0, 1, 10, 7, 10, 9, 5, 2, 8, 12, 5, 1, 4, 0, 5, 4, 8, 2, 5, 7, 4, 7, 10, 13, 17], "TSXV": [1, 3, 0, 5, 1, 27, 19, 44, 21, 25, 36, 64, 28, 29, 14, 9, 15, 31, 32, 12, 35, 51, 39, 24, 34, 39, 28]}}], "commodity": [{"label": "Gold", "byBoard": {"TSX": [2, 1, 0, 1, 6, 3, 5, 6, 4, 2, 5, 5, 1, 1, 3, 0, 3, 1, 5, 1, 4, 5, 3, 4, 5, 10, 13], "TSXV": [1, 2, 0, 3, 1, 16, 13, 26, 15, 16, 22, 42, 16, 19, 6, 8, 8, 23, 22, 8, 23, 29, 22, 7, 21, 22, 16]}}, {"label": "Copper", "byBoard": {"TSX": [1, 0, 0, 0, 7, 2, 5, 4, 1, 0, 1, 2, 2, 0, 1, 0, 1, 2, 2, 0, 2, 1, 4, 2, 3, 4, 6], "TSXV": [0, 1, 0, 3, 1, 8, 11, 14, 7, 9, 12, 18, 9, 9, 4, 3, 4, 9, 15, 4, 14, 16, 16, 4, 10, 13, 8]}}, {"label": "Silver", "byBoard": {"TSX": [0, 0, 0, 0, 4, 2, 3, 2, 2, 0, 3, 2, 0, 1, 1, 0, 0, 0, 2, 0, 2, 1, 1, 4, 2, 5, 9], "TSXV": [1, 1, 0, 2, 0, 11, 6, 9, 2, 5, 7, 9, 4, 4, 3, 2, 4, 6, 5, 4, 6, 12, 2, 0, 8, 9, 6]}}, {"label": "Lithium", "byBoard": {"TSX": [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0], "TSXV": [0, 0, 0, 1, 0, 3, 1, 5, 1, 4, 1, 8, 3, 5, 4, 0, 0, 1, 4, 2, 3, 6, 5, 2, 4, 2, 2]}}, {"label": "Nickel", "byBoard": {"TSX": [0, 0, 0, 0, 2, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1], "TSXV": [0, 0, 0, 0, 0, 1, 0, 5, 0, 2, 1, 7, 3, 2, 3, 0, 4, 5, 3, 1, 2, 6, 5, 1, 5, 3, 0]}}, {"label": "Other", "byBoard": {"TSX": [0, 0, 0, 0, 2, 2, 3, 1, 0, 0, 1, 6, 2, 0, 1, 0, 2, 1, 2, 1, 0, 1, 0, 1, 3, 2, 1], "TSXV": [0, 0, 0, 0, 0, 4, 3, 10, 3, 3, 8, 6, 4, 3, 4, 0, 2, 7, 2, 1, 6, 7, 5, 13, 2, 9, 5]}}], "region": [{"label": "Canada", "byBoard": {"TSX": [1, 0, 0, 0, 6, 0, 3, 1, 3, 0, 2, 2, 1, 0, 2, 0, 2, 1, 4, 1, 3, 0, 0, 0, 4, 4, 5], "TSXV": [0, 1, 0, 2, 1, 11, 12, 27, 10, 13, 14, 36, 15, 17, 9, 1, 7, 12, 15, 6, 14, 23, 11, 9, 18, 15, 10]}}, {"label": "Latin America", "byBoard": {"TSX": [1, 0, 0, 0, 6, 1, 3, 3, 2, 1, 4, 3, 2, 1, 1, 0, 2, 1, 3, 1, 1, 3, 1, 3, 4, 6, 5], "TSXV": [1, 2, 0, 2, 0, 8, 5, 4, 7, 3, 11, 11, 5, 3, 2, 6, 3, 5, 7, 3, 8, 13, 13, 3, 6, 14, 8]}}, {"label": "USA", "byBoard": {"TSX": [0, 0, 0, 0, 6, 2, 4, 4, 2, 2, 0, 2, 1, 0, 0, 0, 0, 2, 2, 1, 0, 1, 3, 1, 1, 2, 6], "TSXV": [0, 1, 0, 2, 0, 12, 4, 8, 4, 8, 8, 9, 7, 8, 3, 1, 3, 8, 5, 3, 5, 11, 8, 4, 5, 9, 5]}}, {"label": "Africa", "byBoard": {"TSX": [1, 1, 0, 1, 0, 2, 1, 1, 2, 0, 3, 2, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 2, 1], "TSXV": [0, 0, 0, 0, 0, 0, 0, 2, 1, 3, 2, 8, 2, 3, 1, 1, 2, 3, 2, 0, 2, 4, 1, 1, 1, 4, 2]}}, {"label": "UK / Europe", "byBoard": {"TSX": [1, 0, 0, 0, 4, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 3, 1], "TSXV": [0, 0, 0, 0, 0, 1, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 2, 2, 3, 0, 1, 2, 4, 1, 1, 2, 2]}}, {"label": "Other", "byBoard": {"TSX": [0, 0, 0, 0, 1, 2, 3, 2, 0, 0, 1, 2, 0, 0, 1, 0, 0, 0, 2, 0, 1, 2, 0, 2, 2, 1, 2], "TSXV": [0, 0, 0, 0, 0, 2, 2, 5, 2, 0, 3, 7, 1, 2, 2, 1, 2, 6, 1, 2, 9, 7, 5, 6, 5, 1, 2]}}]}, "totals": {"TSX": {"n": 183, "mcap": 1053620676993.7151}, "TSXV": {"n": 896, "mcap": 82013130988.182}}, "gaps": {"no_commodity": 92, "no_property": 70}};</script>
 <script>
 (function () {
   const D = window.__VIZ__;
@@ -1051,6 +1084,124 @@ details.tbl summary:hover { color: var(--ink); }
       '</tbody></table>';
   }
 
+  // ---- listings per year ----
+  // Six categorical slots, validated for line use. Colour follows the label,
+  // never its rank, so changing the board filter never repaints a series.
+  const LINE_HUES = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#4a3aa7'];
+  let split = 'none';
+
+  function drawLines() {
+    const L = D.lines;
+    const sel = [...boards];
+    const series = L[split].map((s, i) => ({
+      label: s.label,
+      colour: split === 'none' ? '#2a78d6' : LINE_HUES[i % LINE_HUES.length],
+      vals: L.years.map((_, yi) => sel.reduce((t, b) => t + s.byBoard[b][yi], 0)),
+    }));
+
+    const W = 820, H = 300, ml = 34, mr = 74, mt = 12, mb = 26;
+    const iw = W - ml - mr, ih = H - mt - mb;
+    const maxV = Math.max(4, ...series.flatMap(s => s.vals));
+    const step = maxV > 60 ? 20 : maxV > 30 ? 10 : 5;
+    const top = Math.ceil(maxV / step) * step;
+
+    const x = i => ml + (i / (L.years.length - 1)) * iw;
+    const y = v => mt + ih - (v / top) * ih;
+
+    let g = '';
+    for (let v = 0; v <= top; v += step) {
+      g += `<line class="grid" x1="${ml}" x2="${ml + iw}" y1="${y(v)}" y2="${y(v)}"/>` +
+           `<text class="axis-txt" x="${ml - 8}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+    }
+    L.years.forEach((yr, i) => {
+      if (yr % 5 === 0 || i === L.years.length - 1)
+        g += `<text class="axis-txt" x="${x(i)}" y="${H - 6}" text-anchor="middle">${yr}</text>`;
+    });
+
+    // the final year is a part-year — the file stops at 30 June
+    const px = x(L.years.length - 1);
+    g += `<line class="partial" x1="${px}" x2="${px}" y1="${mt}" y2="${mt + ih}"/>`;
+
+    // End labels: nudge apart so they never overlap. The dot stays on the
+    // true value; only the text moves, so the data is never misplaced.
+    const GAP = 13;
+    const ends = series
+      .map((s, i) => ({ i, yTrue: y(s.vals[s.vals.length - 1]), yLab: 0 }))
+      .sort((a, b) => a.yTrue - b.yTrue);
+    ends.forEach((e, k) => {
+      const want = e.yTrue + 4;   // +4 puts the baseline level with the dot
+      e.yLab = k === 0 ? want : Math.max(want, ends[k - 1].yLab + GAP);
+    });
+    // if pushing down overflowed the plot, pull the whole stack back up
+    const over = ends.length ? ends[ends.length - 1].yLab - (mt + ih) : 0;
+    if (over > 0) ends.forEach(e => (e.yLab -= over));
+    const labY = {};
+    ends.forEach(e => (labY[e.i] = e.yLab));
+
+    const paths = series.map((s, si) => {
+      const d = s.vals.map((v, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
+      const li = s.vals.length - 1;
+      const yv = y(s.vals[li]);
+      const ly = labY[si];
+      // a hairline connects the dot to its label when the label has moved
+      const leader = Math.abs(ly - yv) > 2
+        ? `<line x1="${x(li) + 5}" y1="${yv}" x2="${x(li) + 8}" y2="${ly - 4}"
+             stroke="${s.colour}" stroke-width="1" opacity=".5"/>` : '';
+      return `<path class="ser" d="${d}" stroke="${s.colour}"/>` +
+             `<circle class="dot" cx="${x(li)}" cy="${yv}" r="4" fill="${s.colour}"/>` +
+             leader +
+             `<text class="endlab" x="${x(li) + 9}" y="${ly}" fill="${s.colour}">${s.label}</text>`;
+    }).join('');
+
+    const hit = L.years.map((yr, i) =>
+      `<rect class="hit" x="${x(i) - iw / (L.years.length - 1) / 2}" y="${mt}"
+         width="${iw / (L.years.length - 1)}" height="${ih}" data-i="${i}"/>`).join('');
+
+    const host = document.getElementById('chart-lines');
+    host.innerHTML =
+      `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+         ${g}<g id="crosshair"></g>${paths}${hit}</svg>`;
+
+    host.querySelectorAll('.hit').forEach(r => {
+      r.addEventListener('mousemove', e => {
+        const i = +r.dataset.i;
+        document.getElementById('crosshair').innerHTML =
+          `<line class="cross" x1="${x(i)}" x2="${x(i)}" y1="${mt}" y2="${mt + ih}"/>`;
+        const rows = series
+          .filter(s => s.vals[i] > 0)
+          .map(s => `<span class="k">${s.label}</span> ${s.vals[i]}`)
+          .join('<br>') || '<span class="k">none</span>';
+        showTip(e, `<b>${L.years[i]}</b>${L.years[i] === L.partial ? ' <span class="k">(part-year)</span>' : ''}<br>${rows}`);
+      });
+      r.addEventListener('mouseleave', () => {
+        document.getElementById('crosshair').innerHTML = '';
+        hideTip();
+      });
+    });
+
+    document.getElementById('line-legend').innerHTML =
+      split === 'none' ? '' :
+      series.map(s => `<span><i style="background:${s.colour}"></i>${s.label}</span>`).join('');
+
+    document.getElementById('table-lines').innerHTML =
+      '<table><thead><tr><th>Year</th>' +
+      series.map(s => `<th class="num">${s.label}</th>`).join('') +
+      '</tr></thead><tbody>' +
+      L.years.map((yr, i) =>
+        `<tr><td>${yr}${yr === L.partial ? ' *' : ''}</td>` +
+        series.map(s => `<td class="num">${s.vals[i]}</td>`).join('') + '</tr>'
+      ).join('') + '</tbody></table>';
+  }
+
+  document.querySelectorAll('[data-split]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      split = btn.dataset.split;
+      document.querySelectorAll('[data-split]').forEach(b =>
+        b.setAttribute('aria-pressed', b.dataset.split === split));
+      drawLines();
+    });
+  });
+
   // ---- heatmap: commodity x region, company counts ----
   const RAMP = ['#cde2fb', '#9ec5f4', '#6da7ec', '#3987e5', '#256abf', '#104281'];
 
@@ -1110,6 +1261,7 @@ details.tbl summary:hover { color: var(--ink); }
     draw('commodity');
     draw('region');
     drawHeat();
+    drawLines();
   }
 
   document.querySelectorAll('[data-board]').forEach(btn => {

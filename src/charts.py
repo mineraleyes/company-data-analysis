@@ -124,6 +124,9 @@ def build_data():
         ],
     }
 
+    # ---- listings per year, optionally split ----
+    lines = build_lines(df)
+
     totals = {
         b: {
             "n": int((df["board"] == b).sum()),
@@ -142,8 +145,64 @@ def build_data():
         "commodity": commodity,
         "region": region,
         "heat": heat,
+        "lines": lines,
         "totals": totals,
         "gaps": gaps,
+    }
+
+
+# Listing-date chart starts here — only 30 surviving companies list before 2000,
+# so earlier years are a long flat tail that squashes the readable part.
+FIRST_YEAR = 2000
+
+# Top 5 by company count, plus an "Other" catch-all. Capped because a line
+# chart cannot carry more than a handful of series legibly.
+TOP_COMMODITIES = ["Gold", "Copper", "Silver", "Lithium", "Nickel"]
+TOP_REGIONS = ["prop_canada", "prop_latin_america", "prop_usa",
+               "prop_africa", "prop_uk_europe"]
+
+
+def build_lines(df):
+    """Companies by listing year, whole and split two ways.
+
+    Counts are of companies that listed in a given year AND ARE STILL LISTED.
+    Failures are absent from the source file entirely, so early years are
+    systematically undercounted — the upward slope is part real, part
+    survivorship. Stated on the chart.
+    """
+    d = df.dropna(subset=["lyear"]).copy()
+    d["lyear"] = d["lyear"].astype(int)
+    d = d[d["lyear"] >= FIRST_YEAR]
+    years = list(range(FIRST_YEAR, int(d["lyear"].max()) + 1))
+
+    def counts(sub):
+        by = {b: [0] * len(years) for b in BOARDS}
+        for (yr, board), n in sub.groupby(["lyear", "board"]).size().items():
+            if yr in years:
+                by[board][years.index(yr)] = int(n)
+        return by
+
+    def split(masks, labels):
+        out = []
+        covered = pd.Series(False, index=d.index)
+        for mask, label in zip(masks, labels):
+            out.append({"label": label, "byBoard": counts(d[mask])})
+            covered |= mask
+        out.append({"label": "Other", "byBoard": counts(d[~covered])})
+        return out
+
+    com_masks = [d[_slug(c)].fillna(False) for c in TOP_COMMODITIES]
+    reg_masks = [d[r].fillna(False) for r in TOP_REGIONS]
+
+    return {
+        "years": years,
+        "missing": int(df["lyear"].isna().sum()),
+        "before": int(df["lyear"].notna().sum()
+                      - (df["lyear"] >= FIRST_YEAR).sum()),
+        "partial": years[-1],
+        "none": [{"label": "All mining", "byBoard": counts(d)}],
+        "commodity": split(com_masks, TOP_COMMODITIES),
+        "region": split(reg_masks, [REGION_LABELS[r] for r in TOP_REGIONS]),
     }
 
 
@@ -250,6 +309,18 @@ CSS = """
 }
 .tip b { font-weight: 600; }
 .tip .k { color: #b9b9b9; }
+
+/* ---- line chart ---- */
+.linewrap { position: relative; }
+.linewrap svg { display: block; width: 100%; height: 300px; overflow: visible; }
+.linewrap .grid { stroke: var(--axis); stroke-width: 1; }
+.linewrap .axis-txt { fill: var(--ink-faint); font-size: 11px; }
+.linewrap .ser { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.linewrap .dot { stroke: #fff; stroke-width: 2; }
+.linewrap .endlab { font-size: 11px; font-weight: 550; }
+.linewrap .cross { stroke: #b8b8b8; stroke-width: 1; }
+.linewrap .partial { stroke: #c9c9c9; stroke-width: 1; stroke-dasharray: 3 3; }
+.linewrap .hit { fill: transparent; cursor: crosshair; }
 
 /* ---- heatmap ---- */
 .heat { overflow-x: auto; }
@@ -394,6 +465,124 @@ JS = """
       '</tbody></table>';
   }
 
+  // ---- listings per year ----
+  // Six categorical slots, validated for line use. Colour follows the label,
+  // never its rank, so changing the board filter never repaints a series.
+  const LINE_HUES = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#4a3aa7'];
+  let split = 'none';
+
+  function drawLines() {
+    const L = D.lines;
+    const sel = [...boards];
+    const series = L[split].map((s, i) => ({
+      label: s.label,
+      colour: split === 'none' ? '#2a78d6' : LINE_HUES[i % LINE_HUES.length],
+      vals: L.years.map((_, yi) => sel.reduce((t, b) => t + s.byBoard[b][yi], 0)),
+    }));
+
+    const W = 820, H = 300, ml = 34, mr = 74, mt = 12, mb = 26;
+    const iw = W - ml - mr, ih = H - mt - mb;
+    const maxV = Math.max(4, ...series.flatMap(s => s.vals));
+    const step = maxV > 60 ? 20 : maxV > 30 ? 10 : 5;
+    const top = Math.ceil(maxV / step) * step;
+
+    const x = i => ml + (i / (L.years.length - 1)) * iw;
+    const y = v => mt + ih - (v / top) * ih;
+
+    let g = '';
+    for (let v = 0; v <= top; v += step) {
+      g += `<line class="grid" x1="${ml}" x2="${ml + iw}" y1="${y(v)}" y2="${y(v)}"/>` +
+           `<text class="axis-txt" x="${ml - 8}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+    }
+    L.years.forEach((yr, i) => {
+      if (yr % 5 === 0 || i === L.years.length - 1)
+        g += `<text class="axis-txt" x="${x(i)}" y="${H - 6}" text-anchor="middle">${yr}</text>`;
+    });
+
+    // the final year is a part-year — the file stops at 30 June
+    const px = x(L.years.length - 1);
+    g += `<line class="partial" x1="${px}" x2="${px}" y1="${mt}" y2="${mt + ih}"/>`;
+
+    // End labels: nudge apart so they never overlap. The dot stays on the
+    // true value; only the text moves, so the data is never misplaced.
+    const GAP = 13;
+    const ends = series
+      .map((s, i) => ({ i, yTrue: y(s.vals[s.vals.length - 1]), yLab: 0 }))
+      .sort((a, b) => a.yTrue - b.yTrue);
+    ends.forEach((e, k) => {
+      const want = e.yTrue + 4;   // +4 puts the baseline level with the dot
+      e.yLab = k === 0 ? want : Math.max(want, ends[k - 1].yLab + GAP);
+    });
+    // if pushing down overflowed the plot, pull the whole stack back up
+    const over = ends.length ? ends[ends.length - 1].yLab - (mt + ih) : 0;
+    if (over > 0) ends.forEach(e => (e.yLab -= over));
+    const labY = {};
+    ends.forEach(e => (labY[e.i] = e.yLab));
+
+    const paths = series.map((s, si) => {
+      const d = s.vals.map((v, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
+      const li = s.vals.length - 1;
+      const yv = y(s.vals[li]);
+      const ly = labY[si];
+      // a hairline connects the dot to its label when the label has moved
+      const leader = Math.abs(ly - yv) > 2
+        ? `<line x1="${x(li) + 5}" y1="${yv}" x2="${x(li) + 8}" y2="${ly - 4}"
+             stroke="${s.colour}" stroke-width="1" opacity=".5"/>` : '';
+      return `<path class="ser" d="${d}" stroke="${s.colour}"/>` +
+             `<circle class="dot" cx="${x(li)}" cy="${yv}" r="4" fill="${s.colour}"/>` +
+             leader +
+             `<text class="endlab" x="${x(li) + 9}" y="${ly}" fill="${s.colour}">${s.label}</text>`;
+    }).join('');
+
+    const hit = L.years.map((yr, i) =>
+      `<rect class="hit" x="${x(i) - iw / (L.years.length - 1) / 2}" y="${mt}"
+         width="${iw / (L.years.length - 1)}" height="${ih}" data-i="${i}"/>`).join('');
+
+    const host = document.getElementById('chart-lines');
+    host.innerHTML =
+      `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+         ${g}<g id="crosshair"></g>${paths}${hit}</svg>`;
+
+    host.querySelectorAll('.hit').forEach(r => {
+      r.addEventListener('mousemove', e => {
+        const i = +r.dataset.i;
+        document.getElementById('crosshair').innerHTML =
+          `<line class="cross" x1="${x(i)}" x2="${x(i)}" y1="${mt}" y2="${mt + ih}"/>`;
+        const rows = series
+          .filter(s => s.vals[i] > 0)
+          .map(s => `<span class="k">${s.label}</span> ${s.vals[i]}`)
+          .join('<br>') || '<span class="k">none</span>';
+        showTip(e, `<b>${L.years[i]}</b>${L.years[i] === L.partial ? ' <span class="k">(part-year)</span>' : ''}<br>${rows}`);
+      });
+      r.addEventListener('mouseleave', () => {
+        document.getElementById('crosshair').innerHTML = '';
+        hideTip();
+      });
+    });
+
+    document.getElementById('line-legend').innerHTML =
+      split === 'none' ? '' :
+      series.map(s => `<span><i style="background:${s.colour}"></i>${s.label}</span>`).join('');
+
+    document.getElementById('table-lines').innerHTML =
+      '<table><thead><tr><th>Year</th>' +
+      series.map(s => `<th class="num">${s.label}</th>`).join('') +
+      '</tr></thead><tbody>' +
+      L.years.map((yr, i) =>
+        `<tr><td>${yr}${yr === L.partial ? ' *' : ''}</td>` +
+        series.map(s => `<td class="num">${s.vals[i]}</td>`).join('') + '</tr>'
+      ).join('') + '</tbody></table>';
+  }
+
+  document.querySelectorAll('[data-split]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      split = btn.dataset.split;
+      document.querySelectorAll('[data-split]').forEach(b =>
+        b.setAttribute('aria-pressed', b.dataset.split === split));
+      drawLines();
+    });
+  });
+
   // ---- heatmap: commodity x region, company counts ----
   const RAMP = ['#cde2fb', '#9ec5f4', '#6da7ec', '#3987e5', '#256abf', '#104281'];
 
@@ -453,6 +642,7 @@ JS = """
     draw('commodity');
     draw('region');
     drawHeat();
+    drawLines();
   }
 
   document.querySelectorAll('[data-board]').forEach(btn => {
@@ -487,6 +677,7 @@ JS = """
 def section_html():
     data = build_data()
     g = data["gaps"]
+    L = data["lines"]
 
     return f"""
 <div class="viz-root">
@@ -535,6 +726,27 @@ def section_html():
   </div>
   <div class="rows" id="chart-region"></div>
   <details class="tbl"><summary>Show as table</summary><div id="table-region"></div></details>
+</div>
+
+<div class="chart">
+  <h3>Companies by listing year</h3>
+  <p class="note">Companies that listed in each year <strong>and are still listed
+  today</strong>. Failed and delisted companies are absent from the source file
+  entirely, so early years are undercounted and part of the upward slope is
+  survivorship rather than growth. {L['before']} surviving companies listed before 2000
+  and are not shown; {L['missing']} TSXV companies have no listing date at all.
+  {L['partial']} is a part-year — the data stops at 30 June.</p>
+  <div class="ctrl-group" style="margin:0 0 14px">
+    <span class="ctrl-label">Split by</span>
+    <div class="seg">
+      <button data-split="none" aria-pressed="true">Total</button>
+      <button data-split="commodity" aria-pressed="false">Commodity</button>
+      <button data-split="region" aria-pressed="false">Region</button>
+    </div>
+  </div>
+  <div class="legend" id="line-legend"></div>
+  <div class="linewrap" id="chart-lines"></div>
+  <details class="tbl"><summary>Show as table</summary><div id="table-lines"></div></details>
 </div>
 
 <div class="chart">
