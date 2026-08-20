@@ -1,0 +1,557 @@
+"""
+Chart section for the report: commodity and asset-region breakdowns.
+
+Reads data/processed/mining_enriched.csv and emits a self-contained HTML
+fragment — data as inline JSON, rendering in vanilla JS, no CDN.
+
+Two controls, applied to both charts:
+  - Board     TSX / TSXV, either or both
+  - Measure   one of four, in two families:
+
+              ADDITIVE  (companies, market cap) — boards stack, because a
+                        company sits on exactly one board and the parts sum
+                        to the whole.
+              STATISTIC (typical size, turnover) — boards sit SIDE BY SIDE.
+                        A median or a ratio cannot be stacked: median gold
+                        market cap is C$1,539M on TSX and C$20M on TSXV, but
+                        C$35M combined. Stacking those would be nonsense.
+
+Value traded is deliberately absent — it ranks identically to market cap
+(Spearman 1.0 across commodities), so it would be a duplicate chart.
+
+Commodity and region flags OVERLAP — a company can hold gold and copper, or
+ground in Canada and Peru. So a bar reads "companies with gold exposure" and
+the bars deliberately sum to more than the sector total. That is why these are
+bars and not a pie: a pie of overlapping shares would total ~240%.
+"""
+
+import json
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path(__file__).resolve().parents[1]
+DATA = ROOT / "data" / "processed" / "mining_enriched.csv"
+
+SPECIFIC_COMMODITIES = [
+    "Gold", "Silver", "Copper", "Nickel", "Diamond", "Molybdenum",
+    "Platinum/PGM", "Iron", "Lead", "Zinc", "Rare Earths", "Potash",
+    "Lithium", "Uranium", "Coal", "Tungsten",
+]
+
+REGION_LABELS = {
+    "prop_canada": "Canada",
+    "prop_latin_america": "Latin America",
+    "prop_usa": "USA",
+    "prop_africa": "Africa",
+    "prop_uk_europe": "UK / Europe",
+    "prop_aus_nz_png": "Aus / NZ / PNG",
+    "prop_asia": "Asia",
+    "prop_other": "Other",
+}
+
+BOARDS = ["TSX", "TSXV"]
+
+
+def _slug(commodity):
+    return "comm_" + (
+        commodity.lower().replace(" & ", "_").replace("/", "_").replace(" ", "_")
+    )
+
+
+def _stats(sub):
+    """Everything a measure might need, per board per category."""
+    traded = float(sub["value_ytd"].fillna(0).sum())
+    mcap = float(sub["mcap"].sum())
+    return {
+        "n": int(len(sub)),
+        "mcap": mcap,
+        "median": float(sub["mcap"].median()) if len(sub) else 0.0,
+        # aggregate turnover: money traded per dollar of market cap
+        "turnover": (traded / mcap) if mcap else 0.0,
+        "traded": traded,
+    }
+
+
+def _series(df, flag_col, label):
+    row = {"label": label}
+    mask = df[flag_col].fillna(False)
+    for board in BOARDS:
+        row[board] = _stats(df[mask & (df["board"] == board)])
+    row["ALL"] = _stats(df[mask])       # for non-additive measures on both boards
+    return row
+
+
+def build_data():
+    df = pd.read_csv(DATA)
+
+    commodity = [
+        _series(df, _slug(c), c)
+        for c in SPECIFIC_COMMODITIES
+        if _slug(c) in df.columns
+    ]
+    commodity = [r for r in commodity if sum(r[b]["n"] for b in BOARDS) > 0]
+
+    region = [
+        _series(df, col, label)
+        for col, label in REGION_LABELS.items()
+        if col in df.columns
+    ]
+    region = [r for r in region if sum(r[b]["n"] for b in BOARDS) > 0]
+
+    # Commodity x region — counts only; a cell is "companies with this
+    # commodity AND ground in this region", so rows and columns both overlap.
+    heat_com = [c for c in SPECIFIC_COMMODITIES if _slug(c) in df.columns]
+    heat_reg = [c for c in REGION_LABELS if c in df.columns]
+    heat = {
+        "commodities": heat_com,
+        "regions": [REGION_LABELS[c] for c in heat_reg],
+        "cells": [
+            [
+                {
+                    b: int(
+                        (
+                            df[_slug(c)].fillna(False)
+                            & df[r].fillna(False)
+                            & (df["board"] == b)
+                        ).sum()
+                    )
+                    for b in BOARDS
+                }
+                for c in heat_com
+            ]
+            for r in heat_reg
+        ],
+    }
+
+    totals = {
+        b: {
+            "n": int((df["board"] == b).sum()),
+            "mcap": float(df.loc[df["board"] == b, "mcap"].sum()),
+        }
+        for b in BOARDS
+    }
+
+    # Companies with no commodity / no property disclosed — the bars can't show
+    # these, so they're reported as a footnote instead of a silent omission.
+    gaps = {
+        "no_commodity": int(df["no_disclosed_commodity"].sum()),
+        "no_property": int(df["no_disclosed_property"].sum()),
+    }
+    return {
+        "commodity": commodity,
+        "region": region,
+        "heat": heat,
+        "totals": totals,
+        "gaps": gaps,
+    }
+
+
+CSS = """
+.viz-root {
+  color-scheme: light;
+  --surface-1: #ffffff;
+  --series-TSX: #2a78d6;
+  --series-TSXV: #eb6834;
+  --axis: #e4e4e4;
+}
+
+.ctrls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 26px;
+  align-items: center;
+  padding: 14px 0 18px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 5;
+}
+.ctrl-group { display: flex; align-items: center; gap: 8px; }
+.ctrl-label {
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.seg { display: flex; gap: 4px; }
+.seg button {
+  appearance: none;
+  font: inherit;
+  font-size: 13px;
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink-soft);
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.seg button:hover { border-color: #c9c9c9; color: var(--ink); }
+.seg button[aria-pressed="true"] { color: var(--ink); border-color: #b0b0b0; font-weight: 550; }
+.seg button .dot {
+  width: 9px; height: 9px; border-radius: 2px;
+  background: currentColor; opacity: .25;
+}
+.seg button[aria-pressed="true"] .dot { opacity: 1; }
+.seg button[data-board="TSX"] .dot { color: var(--series-TSX); }
+.seg button[data-board="TSXV"] .dot { color: var(--series-TSXV); }
+
+.chart { margin: 30px 0 8px; }
+.chart h3 { margin: 0 0 2px; font-size: 17px; font-weight: 600; }
+.chart .note { margin: 0 0 16px; font-size: 13px; color: var(--ink-faint); }
+
+.legend { display: flex; gap: 16px; margin: 0 0 14px; font-size: 13px; }
+.legend span { display: inline-flex; align-items: center; gap: 7px; color: var(--ink-soft); }
+.legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+.rows { display: flex; flex-direction: column; gap: 9px; }
+.row { display: grid; grid-template-columns: 108px 1fr auto; align-items: center; gap: 12px; }
+.row .cat { font-size: 13px; color: var(--ink); text-align: right; }
+.track { position: relative; height: 20px; }
+.bar { display: flex; height: 100%; gap: 2px; }
+.seg-fill {
+  height: 100%;
+  border-radius: 0;
+  transition: opacity .12s;
+}
+.bar .seg-fill:last-child { border-radius: 0 4px 4px 0; }
+.bar .seg-fill:only-child  { border-radius: 0 4px 4px 0; }
+
+/* non-additive measures: one thin bar per board, side by side */
+.bar.grouped { flex-direction: column; gap: 3px; }
+.bar.grouped .seg-fill { height: calc(50% - 1.5px); border-radius: 0 3px 3px 0; }
+.row .val {
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+  min-width: 72px;
+  text-align: right;
+}
+.row:hover .seg-fill { opacity: .75; }
+
+.tip {
+  position: fixed;
+  pointer-events: none;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.45;
+  padding: 7px 10px;
+  border-radius: 5px;
+  opacity: 0;
+  transition: opacity .1s;
+  z-index: 40;
+  white-space: nowrap;
+}
+.tip b { font-weight: 600; }
+.tip .k { color: #b9b9b9; }
+
+/* ---- heatmap ---- */
+.heat { overflow-x: auto; }
+.heat table { border-collapse: separate; border-spacing: 2px; font-size: 12px; width: auto; }
+.heat th {
+  font-weight: 500;
+  font-size: 10px;
+  color: var(--ink-faint);
+  text-transform: none;
+  letter-spacing: 0;
+  border: 0;
+  padding: 2px 4px;
+  white-space: nowrap;
+}
+.heat thead th { text-align: center; vertical-align: bottom; }
+.heat tbody th { text-align: right; }
+.heat td {
+  border: 0;
+  padding: 0;
+  width: 36px;
+  height: 28px;
+  text-align: center;
+  border-radius: 3px;
+  font-variant-numeric: tabular-nums;
+  cursor: default;
+}
+.heat td.z { color: #c4c4c4; background: #fafafa; }
+.heat tbody th { max-width: 92px; white-space: normal; line-height: 1.25; }
+.scale { display: flex; align-items: center; gap: 8px; margin: 12px 0 0; font-size: 11px; color: var(--ink-faint); }
+.scale i { width: 22px; height: 10px; border-radius: 2px; display: inline-block; }
+
+details.tbl { margin: 14px 0 0; }
+details.tbl summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--ink-faint);
+  padding: 4px 0;
+}
+details.tbl summary:hover { color: var(--ink); }
+
+@media (max-width: 640px) {
+  .row { grid-template-columns: 84px 1fr; }
+  .row .val { grid-column: 2; text-align: left; font-size: 12px; }
+  .ctrls { gap: 16px; }
+}
+"""
+
+JS = """
+(function () {
+  const D = window.__VIZ__;
+  const boards = new Set(['TSX', 'TSXV']);
+  let measure = 'n';
+
+  // Additive measures stack the boards; statistics sit side by side, because
+  // a median or a ratio of the parts is not the value for the whole.
+  const ADDITIVE = { n: true, mcap: true, median: false, turnover: false };
+
+  const fmtN = v => v.toLocaleString('en-US');
+  const fmtM = v =>
+    v >= 1e9 ? 'C$' + (v / 1e9).toFixed(1) + 'B'
+             : v >= 1e6 ? 'C$' + Math.round(v / 1e6).toLocaleString('en-US') + 'M'
+                        : 'C$' + Math.round(v / 1e3).toLocaleString('en-US') + 'k';
+  const fmt = v =>
+    measure === 'n' ? fmtN(v)
+      : measure === 'turnover' ? Math.round(v * 100) + '%'
+      : fmtM(v);
+
+  const tip = document.createElement('div');
+  tip.className = 'tip';
+  document.body.appendChild(tip);
+
+  function showTip(e, html) {
+    tip.innerHTML = html;
+    tip.style.opacity = 1;
+    const r = tip.getBoundingClientRect();
+    let x = e.clientX + 14;
+    if (x + r.width > innerWidth - 8) x = e.clientX - r.width - 14;
+    tip.style.left = x + 'px';
+    tip.style.top = Math.min(e.clientY + 14, innerHeight - r.height - 8) + 'px';
+  }
+  const hideTip = () => (tip.style.opacity = 0);
+
+  function draw(key) {
+    const host = document.getElementById('chart-' + key);
+    const additive = ADDITIVE[measure];
+    const sel = [...boards];
+
+    const rows = D[key]
+      .map(r => {
+        const parts = sel.map(b => ({ board: b, v: r[b][measure], n: r[b].n }));
+        // headline value: sum for additive, the combined figure otherwise
+        const total = additive
+          ? parts.reduce((s, p) => s + p.v, 0)
+          : (sel.length === 2 ? r.ALL[measure] : parts[0].v);
+        return { label: r.label, parts, total };
+      })
+      .sort((a, b) => b.total - a.total);
+
+    // additive bars scale to the stacked total; grouped bars to the largest part
+    const max = additive
+      ? Math.max(...rows.map(r => r.total))
+      : Math.max(...rows.flatMap(r => r.parts.map(p => p.v)));
+
+    host.innerHTML = rows
+      .map(r => {
+        const segs = r.parts
+          .filter(p => additive ? p.v > 0 : p.n > 0)
+          .map(p => {
+            const w = Math.max((p.v / (max || 1)) * 100, p.v > 0 ? 0.4 : 0);
+            return `<div class="seg-fill" style="width:${w}%;background:var(--series-${p.board})"
+                     data-label="${r.label}" data-board="${p.board}"
+                     data-v="${p.v}" data-n="${p.n}"></div>`;
+          })
+          .join('');
+        return `<div class="row"><div class="cat">${r.label}</div>
+                <div class="track"><div class="bar${additive ? '' : ' grouped'}">${segs}</div></div>
+                <div class="val">${fmt(r.total)}</div></div>`;
+      })
+      .join('');
+
+    host.querySelectorAll('.seg-fill').forEach(el => {
+      el.addEventListener('mousemove', e =>
+        showTip(e,
+          `<b>${el.dataset.label}</b><br>` +
+          `<span class="k">${el.dataset.board}</span> ${fmt(+el.dataset.v)}` +
+          `<br><span class="k">${(+el.dataset.n).toLocaleString('en-US')} companies</span>`)
+      );
+      el.addEventListener('mouseleave', hideTip);
+    });
+
+    // table view — the same numbers, always available
+    const tb = document.getElementById('table-' + key);
+    tb.innerHTML =
+      '<table><thead><tr><th></th>' +
+      [...boards].map(b => `<th class="num">${b}</th>`).join('') +
+      '<th class="num">Total</th></tr></thead><tbody>' +
+      rows.map(r =>
+        `<tr><td>${r.label}</td>` +
+        r.parts.map(p => `<td class="num">${fmt(p.v)}</td>`).join('') +
+        `<td class="num">${fmt(r.total)}</td></tr>`
+      ).join('') +
+      '</tbody></table>';
+  }
+
+  // ---- heatmap: commodity x region, company counts ----
+  const RAMP = ['#cde2fb', '#9ec5f4', '#6da7ec', '#3987e5', '#256abf', '#104281'];
+
+  function drawHeat() {
+    const H = D.heat;
+    const sel = [...boards];
+    const val = c => sel.reduce((s, b) => s + c[b], 0);
+    const max = Math.max(...H.cells.flatMap(row => row.map(val)));
+
+    const colour = v => {
+      if (!v) return null;
+      const i = Math.min(RAMP.length - 1, Math.floor((v / max) ** 0.5 * RAMP.length));
+      return RAMP[i];
+    };
+
+    const head =
+      '<tr><th></th>' +
+      H.commodities.map(c => `<th>${c.replace('/', '/<wbr>')}</th>`).join('') +
+      '</tr>';
+
+    const body = H.regions.map((r, ri) =>
+      `<tr><th>${r}</th>` +
+      H.cells[ri].map((cell, ci) => {
+        const v = val(cell);
+        const bg = colour(v);
+        // ink flips to white on the darker half of the ramp
+        const ink = v / max > 0.45 ? '#fff' : 'var(--ink)';
+        return v
+          ? `<td style="background:${bg};color:${ink}" data-r="${r}"
+                 data-c="${H.commodities[ci]}" data-v="${v}">${v}</td>`
+          : `<td class="z">·</td>`;
+      }).join('') +
+      '</tr>'
+    ).join('');
+
+    const host = document.getElementById('chart-heat');
+    host.innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
+    host.querySelectorAll('td[data-v]').forEach(td => {
+      td.addEventListener('mousemove', e =>
+        showTip(e, `<b>${td.dataset.c}</b> in <b>${td.dataset.r}</b><br>` +
+                   `<span class="k">${td.dataset.v} companies</span>`));
+      td.addEventListener('mouseleave', hideTip);
+    });
+  }
+
+  function drawAll() {
+    document.querySelectorAll('.legend span').forEach(s => {
+      s.style.display = boards.has(s.dataset.board) ? '' : 'none';
+    });
+    const note = document.getElementById('measure-note');
+    note.textContent =
+      measure === 'turnover'
+        ? 'Share of the companies\u2019 value that changed hands in the six months to 30 June \u2014 dollars traded \u00f7 market cap. Puts a C$3M shell and a C$100B producer on the same footing. Boards sit side by side; a ratio of the parts is not the ratio for the whole.'
+        : measure === 'median'
+        ? 'The middle company in each group, not the total \u2014 shows whether a commodity is a few big miners or a swarm of small ones. Boards sit side by side; a median of the parts is not the median for the whole.'
+        : '';
+    draw('commodity');
+    draw('region');
+    drawHeat();
+  }
+
+  document.querySelectorAll('[data-board]').forEach(btn => {
+    if (btn.tagName !== 'BUTTON') return;
+    btn.addEventListener('click', () => {
+      const b = btn.dataset.board;
+      if (boards.has(b)) {
+        if (boards.size === 1) return;   // never allow zero boards
+        boards.delete(b);
+      } else {
+        boards.add(b);
+      }
+      btn.setAttribute('aria-pressed', boards.has(b));
+      drawAll();
+    });
+  });
+
+  document.querySelectorAll('[data-measure]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      measure = btn.dataset.measure;
+      document.querySelectorAll('[data-measure]').forEach(b =>
+        b.setAttribute('aria-pressed', b.dataset.measure === measure));
+      drawAll();
+    });
+  });
+
+  drawAll();
+})();
+"""
+
+
+def section_html():
+    data = build_data()
+    g = data["gaps"]
+
+    return f"""
+<div class="viz-root">
+
+<div class="ctrls">
+  <div class="ctrl-group">
+    <span class="ctrl-label">Board</span>
+    <div class="seg">
+      <button data-board="TSX" aria-pressed="true"><i class="dot"></i>TSX</button>
+      <button data-board="TSXV" aria-pressed="true"><i class="dot"></i>TSXV</button>
+    </div>
+  </div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Measure</span>
+    <div class="seg">
+      <button data-measure="n" aria-pressed="true">Companies</button>
+      <button data-measure="mcap" aria-pressed="false">Market cap</button>
+      <button data-measure="median" aria-pressed="false">Typical size</button>
+      <button data-measure="turnover" aria-pressed="false">% traded</button>
+    </div>
+  </div>
+</div>
+<p class="note" id="measure-note" style="margin:-4px 0 0"></p>
+
+<div class="chart">
+  <h3>Commodity</h3>
+  <p class="note">Companies hold more than one commodity, so the bars sum to more
+  than the sector total. {g['no_commodity']} companies disclose no commodity and
+  appear in none of these bars.</p>
+  <div class="legend">
+    <span data-board="TSX"><i style="background:var(--series-TSX)"></i>TSX</span>
+    <span data-board="TSXV"><i style="background:var(--series-TSXV)"></i>TSXV</span>
+  </div>
+  <div class="rows" id="chart-commodity"></div>
+  <details class="tbl"><summary>Show as table</summary><div id="table-commodity"></div></details>
+</div>
+
+<div class="chart">
+  <h3>Where the assets are</h3>
+  <p class="note">Region of the company's properties, not its head office. Companies
+  with ground in several regions appear in each. {g['no_property']} companies
+  disclose no property location.</p>
+  <div class="legend">
+    <span data-board="TSX"><i style="background:var(--series-TSX)"></i>TSX</span>
+    <span data-board="TSXV"><i style="background:var(--series-TSXV)"></i>TSXV</span>
+  </div>
+  <div class="rows" id="chart-region"></div>
+  <details class="tbl"><summary>Show as table</summary><div id="table-region"></div></details>
+</div>
+
+<div class="chart">
+  <h3>Commodity by region</h3>
+  <p class="note">Number of companies holding each commodity in each region. Follows
+  the board filter; company counts only, since a median or ratio on cells this small
+  would be noise. A company with two commodities in two regions appears in four cells.</p>
+  <div class="heat" id="chart-heat"></div>
+  <div class="scale">
+    <span>fewer</span>
+    <i style="background:#cde2fb"></i><i style="background:#9ec5f4"></i><i style="background:#6da7ec"></i><i style="background:#3987e5"></i><i style="background:#256abf"></i><i style="background:#104281"></i>
+    <span>more companies</span>
+  </div>
+</div>
+
+</div>
+
+<script>window.__VIZ__ = {json.dumps(data)};</script>
+<script>{JS}</script>
+"""
