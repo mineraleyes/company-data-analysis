@@ -10,12 +10,16 @@
 |---|---|---|---|---|---|
 | TSX/TSXV issuer list | [Current Market Statistics → Issuer Lists](https://www.tsx.com/en/listings/current-market-statistics) | 30 Jun 2026 | 3,761 | 35 / 32 | 1,079 |
 | Mining companies list | [Sector Profiles → Mining](https://www.tsx.com/en/listings/listing-with-us/sector-and-product-profiles/mining) | 31 Jul 2026 | 1,074 | 53 / 52 | 1,074 |
+| Price history | Yahoo Finance, via `yfinance` | to 25 Aug 2026 | 595 priced | — | 595 |
+| Revenue and business summaries | Yahoo Finance, via `yfinance` | Aug 2026 | 1,079 | 4 | 1,079 |
 
 Both are published by TMX and free. The issuer-list page also hosts **archived monthly versions**, which is the source for any historical work (see Stage 2).
 
 The issuer list covers all listed companies with mining flagged by a `Sector` column. The mining list is pre-filtered to miners and adds the columns that matter most.
 
 **1,069 of 1,079 match across the two files.** The 10 that don't are companies that left the market between June and July.
+
+Prices were added later and are not a TMX product — see *What isn't in it* for what they can and cannot support.
 
 **Working universe: 1,079 companies.**
 
@@ -39,7 +43,9 @@ The issuer list covers all listed companies with mining flagged by a `Sector` co
 
 **20 commodity flags** — Gold, Silver, Copper, Nickel, Diamond, Molybdenum, Platinum/PGM, Iron, Lead, Zinc, Rare Earths, Potash, Lithium, Uranium, Coal, Tungsten, Oil and Gas, plus `Base & Precious Metals`, `Other Properties`, and `Royalty Streaming`. Multi-flag — most companies carry more than one.
 
-**8 property region columns** — Africa, Asia, Aus/NZ/PNG, Canada, Latin America, Other, UK/Europe, USA. These hold **jurisdiction text**, not flags: `"NU, ON"`, `"Cote D'Ivoire, Ethopia, Mali"`, `"ID, NV"`. 128 distinct jurisdictions.
+**8 property region columns** — Africa, Asia, Aus/NZ/PNG, Canada, Latin America, Other, UK/Europe, USA. These hold **jurisdiction text**, not flags: `"NU, ON"`, `"Cote D'Ivoire, Ethopia, Mali"`, `"ID, NV"`. 128 distinct jurisdictions, resolving to 86 countries.
+
+Jurisdiction tokens are only interpretable alongside the region column they came from — a bare `CA` is California under USA and would be misread as Canada on its own. `hq_country` and `property_countries` resolve both sides properly.
 
 **`Royalty Streaming`** doubles as a business-model flag — royalty and streaming companies own no mines and have completely different economics.
 
@@ -69,6 +75,7 @@ Listing history remains the weak spot, and only on the TSXV.
 | Average trade size | Value YTD ÷ Number of Trades |
 | Commodity set | fixed-order list of all commodities held |
 | Property regions / jurisdictions | fixed-order list of where the assets are |
+| Property countries | the same, resolved to country level |
 | HQ matches assets | does the company hold property where it is based |
 | Size band, days listed, dormancy | — |
 
@@ -76,15 +83,14 @@ Commodity is deliberately **not** collapsed to a single "primary" — that needs
 
 ## What isn't in it
 
-1. **Time series** — single snapshot. No returns, volatility or history.
+1. **Share counts over time** — the price feed gives price, not shares. Dilution and capital raised remain unmeasurable, so a company that halved its price while doubling its share count looks the same as one that simply fell.
 2. **Financials** — no cash, burn or debt. Can't distinguish funded from failing.
-3. **Stage** — no explorer / developer / producer split. The most valuable remaining gap.
+3. **Project stage beyond producing or not** — revenue separates producers cleanly, but nothing in either the TMX files or the free financial data says whether a non-producer has a feasibility study or a single drill hole. Developer is not recoverable.
 4. **Corporate actions** — no financings, placements or dilution history.
-5. **Price** — no OHLC, spread or 52-week range.
 6. **Delisted issuers** — live listings only, so survivorship-biased.
 7. **Project detail** — jurisdictions but no named projects, resources, grades or tonnages.
 
-*Commodity and asset location are no longer gaps — the mining properties file closed both.*
+*Commodity and asset location are no longer gaps — the mining properties file closed both. Producer versus non-producer is closed too, off reported revenue. Price history is partly closed: 595 of 1,079 companies have usable returns.*
 
 ## Handling notes
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TSX / TSXV Mining</title>
+<title>Listed Mining</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -107,6 +107,32 @@ li { margin: 5px 0; }
 code {
   font: 13px/1.4 ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
   background: var(--panel);
+}
+
+.head-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.seg.market { display: flex; gap: 4px; }
+.seg.market button {
+  appearance: none;
+  font: inherit;
+  font-size: 13px;
+  padding: 5px 14px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink-soft);
+  border-radius: 5px;
+  cursor: pointer;
+}
+.seg.market button:hover { border-color: #c9c9c9; color: var(--ink); }
+.seg.market button[aria-pressed="true"] {
+  color: var(--ink);
+  border-color: #b0b0b0;
+  font-weight: 550;
   border: 1px solid var(--line-soft);
   border-radius: 3px;
   padding: 1px 5px;
@@ -174,6 +200,11 @@ footer {
   --surface-1: #ffffff;
   --series-TSX: #2a78d6;
   --series-TSXV: #eb6834;
+  /* A share is not a board, so it must not borrow a board's colour. Slot 3 of
+     the validated categorical palette; passes CVD separation against both. */
+  --series-stage: #1baf7a;
+  /* A third market, not a third board — slot 6 of the same validated palette. */
+  --series-ASX: #4a3aa7;
   --axis: #e4e4e4;
 }
 
@@ -310,6 +341,8 @@ footer {
   cursor: default;
 }
 .heat td.z { color: #c4c4c4; background: #fafafa; }
+/* the diagonal: operating in your own country of domicile */
+.heat td.home { box-shadow: inset 0 0 0 1.5px #9a9a9a; }
 .heat tbody th { max-width: 92px; white-space: normal; line-height: 1.25; }
 .scale { display: flex; align-items: center; gap: 8px; margin: 12px 0 0; font-size: 11px; color: var(--ink-faint); }
 .scale i { width: 22px; height: 10px; border-radius: 2px; display: inline-block; }
@@ -334,12 +367,15 @@ details.tbl summary:hover { color: var(--ink); }
 
 <header>
   <div class="head-inner">
-    <h1 class="site">TSX / TSXV Mining</h1>
-    <nav role="tablist"><button role="tab" aria-selected="true" aria-controls="stage1-dataset">Stage 1 · Dataset</button><button role="tab" aria-selected="false" aria-controls="stage1-numbers">Stage 1 · Numbers</button><button role="tab" aria-selected="false" aria-controls="charts">Stage 1 · Charts</button><button role="tab" aria-selected="false" aria-controls="stage2">Stage 2</button></nav>
+    <div class="head-top">
+      <h1 class="site">Listed Mining</h1>
+      <div class="seg market"><button data-market="tsx" aria-pressed="true">TSX / TSXV</button><button data-market="asx" aria-pressed="false">ASX</button></div>
+    </div>
+    <nav role="tablist"><button role="tab" aria-selected="true" data-market="tsx" aria-controls="stage1-dataset">Stage 1 · Dataset</button><button role="tab" aria-selected="false" data-market="tsx" aria-controls="stage1-numbers">Stage 1 · Numbers</button><button role="tab" aria-selected="false" data-market="tsx" aria-controls="charts">Stage 1 · Charts</button><button role="tab" aria-selected="false" data-market="tsx" aria-controls="stage2">Stage 2</button><button role="tab" aria-selected="false" data-market="asx" hidden aria-controls="asx-dataset">Dataset</button><button role="tab" aria-selected="false" data-market="asx" hidden aria-controls="asx-numbers">Numbers</button></nav>
   </div>
 </header>
 
-<main><section id="stage1-dataset" role="tabpanel"><h1>Stage 1 — The dataset</h1>
+<main><section id="stage1-dataset" role="tabpanel" data-market="tsx"><h1>Stage 1 — The dataset</h1>
 <p><em>TMX data. One-off analysis.</em></p>
 <h2>What it is</h2>
 <p><strong>Two TMX files, joined on <code>Co_ID</code>. The issuer list gives size and trading; the mining properties list gives commodity and asset location.</strong></p>
@@ -349,7 +385,7 @@ details.tbl summary:hover { color: var(--ink); }
 <th>File</th>
 <th>Source</th>
 <th>As at</th>
-<th class="num">Rows</th>
+<th>Rows</th>
 <th class="num">Cols</th>
 <th class="num">Mining</th>
 </tr>
@@ -359,7 +395,7 @@ details.tbl summary:hover { color: var(--ink); }
 <td>TSX/TSXV issuer list</td>
 <td><a href="https://www.tsx.com/en/listings/current-market-statistics">Current Market Statistics → Issuer Lists</a></td>
 <td>30 Jun 2026</td>
-<td class="num">3,761</td>
+<td>3,761</td>
 <td class="num">35 / 32</td>
 <td class="num">1,079</td>
 </tr>
@@ -367,15 +403,32 @@ details.tbl summary:hover { color: var(--ink); }
 <td>Mining companies list</td>
 <td><a href="https://www.tsx.com/en/listings/listing-with-us/sector-and-product-profiles/mining">Sector Profiles → Mining</a></td>
 <td>31 Jul 2026</td>
-<td class="num">1,074</td>
+<td>1,074</td>
 <td class="num">53 / 52</td>
 <td class="num">1,074</td>
+</tr>
+<tr>
+<td>Price history</td>
+<td>Yahoo Finance, via <code>yfinance</code></td>
+<td>to 25 Aug 2026</td>
+<td>595 priced</td>
+<td class="num">—</td>
+<td class="num">595</td>
+</tr>
+<tr>
+<td>Revenue and business summaries</td>
+<td>Yahoo Finance, via <code>yfinance</code></td>
+<td>Aug 2026</td>
+<td>1,079</td>
+<td class="num">4</td>
+<td class="num">1,079</td>
 </tr>
 </tbody>
 </table></div>
 <p>Both are published by TMX and free. The issuer-list page also hosts <strong>archived monthly versions</strong>, which is the source for any historical work (see Stage 2).</p>
 <p>The issuer list covers all listed companies with mining flagged by a <code>Sector</code> column. The mining list is pre-filtered to miners and adds the columns that matter most.</p>
 <p><strong>1,069 of 1,079 match across the two files.</strong> The 10 that don't are companies that left the market between June and July.</p>
+<p>Prices were added later and are not a TMX product — see <em>What isn't in it</em> for what they can and cannot support.</p>
 <p><strong>Working universe: 1,079 companies.</strong></p>
 <h2>What the columns describe</h2>
 <h3>From the issuer list</h3>
@@ -387,7 +440,8 @@ details.tbl summary:hover { color: var(--ink); }
 <p><strong>Trading activity</strong> — <code>Volume</code>, <code>Value (C$)</code>, <code>Number of Trades</code>, YTD, plus months traded. Aggregates only.</p>
 <h3>From the mining properties list</h3>
 <p><strong>20 commodity flags</strong> — Gold, Silver, Copper, Nickel, Diamond, Molybdenum, Platinum/PGM, Iron, Lead, Zinc, Rare Earths, Potash, Lithium, Uranium, Coal, Tungsten, Oil and Gas, plus <code>Base &amp; Precious Metals</code>, <code>Other Properties</code>, and <code>Royalty Streaming</code>. Multi-flag — most companies carry more than one.</p>
-<p><strong>8 property region columns</strong> — Africa, Asia, Aus/NZ/PNG, Canada, Latin America, Other, UK/Europe, USA. These hold <strong>jurisdiction text</strong>, not flags: <code>"NU, ON"</code>, <code>"Cote D'Ivoire, Ethopia, Mali"</code>, <code>"ID, NV"</code>. 128 distinct jurisdictions.</p>
+<p><strong>8 property region columns</strong> — Africa, Asia, Aus/NZ/PNG, Canada, Latin America, Other, UK/Europe, USA. These hold <strong>jurisdiction text</strong>, not flags: <code>"NU, ON"</code>, <code>"Cote D'Ivoire, Ethopia, Mali"</code>, <code>"ID, NV"</code>. 128 distinct jurisdictions, resolving to 86 countries.</p>
+<p>Jurisdiction tokens are only interpretable alongside the region column they came from — a bare <code>CA</code> is California under USA and would be misread as Canada on its own. <code>hq_country</code> and <code>property_countries</code> resolve both sides properly.</p>
 <p><strong><code>Royalty Streaming</code></strong> doubles as a business-model flag — royalty and streaming companies own no mines and have completely different economics.</p>
 <h2>Coverage</h2>
 <div class="tw"><table>
@@ -477,6 +531,10 @@ details.tbl summary:hover { color: var(--ink); }
 <td>fixed-order list of where the assets are</td>
 </tr>
 <tr>
+<td>Property countries</td>
+<td>the same, resolved to country level</td>
+</tr>
+<tr>
 <td>HQ matches assets</td>
 <td>does the company hold property where it is based</td>
 </tr>
@@ -489,15 +547,14 @@ details.tbl summary:hover { color: var(--ink); }
 <p>Commodity is deliberately <strong>not</strong> collapsed to a single "primary" — that needs revenue data this file doesn't have. Instead there are two views: <code>commodities</code> as a fixed-order set that partitions the universe, and 20 <code>comm_*</code> booleans that overlap, so "any gold exposure" is answerable.</p>
 <h2>What isn't in it</h2>
 <ol>
-<li><strong>Time series</strong> — single snapshot. No returns, volatility or history.</li>
+<li><strong>Share counts over time</strong> — the price feed gives price, not shares. Dilution and capital raised remain unmeasurable, so a company that halved its price while doubling its share count looks the same as one that simply fell.</li>
 <li><strong>Financials</strong> — no cash, burn or debt. Can't distinguish funded from failing.</li>
-<li><strong>Stage</strong> — no explorer / developer / producer split. The most valuable remaining gap.</li>
+<li><strong>Project stage beyond producing or not</strong> — revenue separates producers cleanly, but nothing in either the TMX files or the free financial data says whether a non-producer has a feasibility study or a single drill hole. Developer is not recoverable.</li>
 <li><strong>Corporate actions</strong> — no financings, placements or dilution history.</li>
-<li><strong>Price</strong> — no OHLC, spread or 52-week range.</li>
 <li><strong>Delisted issuers</strong> — live listings only, so survivorship-biased.</li>
 <li><strong>Project detail</strong> — jurisdictions but no named projects, resources, grades or tonnages.</li>
 </ol>
-<p><em>Commodity and asset location are no longer gaps — the mining properties file closed both.</em></p>
+<p><em>Commodity and asset location are no longer gaps — the mining properties file closed both. Producer versus non-producer is closed too, off reported revenue. Price history is partly closed: 595 of 1,079 companies have usable returns.</em></p>
 <h2>Handling notes</h2>
 <ul>
 <li><strong>The two files are a month apart.</strong> Only commodity and property columns are joined across. Market cap, shares and trading stay on the 30-June basis so nothing mixes dates.</li>
@@ -505,7 +562,7 @@ details.tbl summary:hover { color: var(--ink); }
 <li><strong><code>CA</code> in a jurisdiction list is California</strong>, not Canada. Region attribution comes from the source column.</li>
 <li><code>HQ Location</code> mixes province, state and country codes.</li>
 <li>19 TSXV nulls in trading data — not zeros.</li>
-</ul></section><section id="stage1-numbers" role="tabpanel" hidden><h1>Stage 1 — The numbers</h1>
+</ul></section><section id="stage1-numbers" role="tabpanel" data-market="tsx" hidden><h1>Stage 1 — The numbers</h1>
 <p><em>1,079 mining companies. Size and trading as at 30 June 2026; commodity and property as at 31 July 2026.</em></p>
 <h2>Headline</h2>
 <p><strong>TSX holds 17% of the issuers and 92.8% of the market cap. These are two different populations sharing a sector label.</strong></p>
@@ -554,217 +611,103 @@ details.tbl summary:hover { color: var(--ink); }
 <li>TSXV top 10 = <strong>22.8%</strong></li>
 </ul>
 <p>Only two TSXV miners exceed C$2B (Artemis Gold, Sigma Lithium).</p>
+<h2>Lifecycle stage</h2>
+<p><strong>129 companies actually sell metal. They are 12% of the issuers and 72% of the sector's value.</strong></p>
+<div class="viz-root viz-static"><div class="legend"><span><i style="background:var(--series-TSX)"></i>TSX</span><span><i style="background:var(--series-TSXV)"></i>TSXV</span></div><div class="rows"><div class="row"><div class="cat">Producer</div><div class="track"><div class="bar"><div class="seg-fill" style="width:9.20%;background:var(--series-TSX)" title="TSX: 79"></div><div class="seg-fill" style="width:5.82%;background:var(--series-TSXV)" title="TSXV: 50"></div></div></div><div class="val">129</div></div><div class="row"><div class="cat">Royalty/Streamer</div><div class="track"><div class="bar"><div class="seg-fill" style="width:1.40%;background:var(--series-TSX)" title="TSX: 12"></div><div class="seg-fill" style="width:2.68%;background:var(--series-TSXV)" title="TSXV: 23"></div></div></div><div class="val">35</div></div><div class="row"><div class="cat">Explorer</div><div class="track"><div class="bar"><div class="seg-fill" style="width:10.24%;background:var(--series-TSX)" title="TSX: 88"></div><div class="seg-fill" style="width:89.76%;background:var(--series-TSXV)" title="TSXV: 771"></div></div></div><div class="val">859</div></div><div class="row"><div class="cat">Shell</div><div class="track"><div class="bar"><div class="seg-fill" style="width:0.47%;background:var(--series-TSX)" title="TSX: 4"></div><div class="seg-fill" style="width:5.47%;background:var(--series-TSXV)" title="TSXV: 47"></div></div></div><div class="val">51</div></div><div class="row"><div class="cat">Unknown</div><div class="track"><div class="bar"><div class="seg-fill" style="width:0.58%;background:var(--series-TSXV)" title="TSXV: 5"></div></div></div><div class="val">5</div></div></div><p class="note" style="margin-top:12px">Producer means the company reported revenue. Everything else without revenue is an explorer: Yahoo's business summaries name the commodity but not the project stage, so a separate developer bucket could not be built from them.</p></div>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th class="num">Companies</th>
+<th class="num">Median market cap</th>
+<th class="num">Share of sector value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Producer</td>
+<td class="num">129</td>
+<td class="num">C$841.2M</td>
+<td class="num">72.0%</td>
+</tr>
+<tr>
+<td>Royalty / streamer</td>
+<td class="num">35</td>
+<td class="num">C$116.2M</td>
+<td class="num">14.3%</td>
+</tr>
+<tr>
+<td>Explorer</td>
+<td class="num">859</td>
+<td class="num">C$21.9M</td>
+<td class="num">12.5%</td>
+</tr>
+<tr>
+<td>Shell</td>
+<td class="num">51</td>
+<td class="num">C$7.4M</td>
+<td class="num">1.2%</td>
+</tr>
+<tr>
+<td>Unknown</td>
+<td class="num">5</td>
+<td class="num">C$1.0M</td>
+<td class="num">0.0%</td>
+</tr>
+</tbody>
+</table></div>
+<p>The median producer is <strong>38× the size of the median explorer</strong>. Producers are also the only group not concentrated on one board — 79 on the TSX against 50 on the TSXV — while explorers are 90% TSXV.</p>
+<p><strong>Stage separates outcomes better than board does.</strong> Median return since listing:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th class="num">Companies priced</th>
+<th>Median return</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Producer</td>
+<td class="num">79</td>
+<td><strong>+136%</strong></td>
+</tr>
+<tr>
+<td>Royalty / streamer</td>
+<td class="num">22</td>
+<td>+21%</td>
+</tr>
+<tr>
+<td>Explorer</td>
+<td class="num">471</td>
+<td>−59%</td>
+</tr>
+<tr>
+<td>Shell</td>
+<td class="num">23</td>
+<td>−66%</td>
+</tr>
+</tbody>
+</table></div>
+<p>The board split says TSX beats TSXV. This says the same thing more precisely: the TSX is where the producers are. A TSXV producer and a TSX producer are closer to each other than either is to an explorer on the same board.</p>
+<p><strong>What the labels mean.</strong> <em>Producer</em> is a fact — the company reported revenue above C$1M. <em>Royalty / streamer</em> comes from TMX's own flag. <em>Shell</em> means no commodity and no property disclosed. <em>Explorer</em> is everything else, so it is a residual rather than a positive finding. <em>Unknown</em> is 5 companies Yahoo has no record of at all.</p>
+<p><strong>There is no developer bucket, and that is a source limit rather than a choice.</strong> Developer — a proven deposit being permitted and built — is a real and commercially interesting stage, but across all 1,079 Yahoo business summaries the word "feasibility" appears once and "construction" three times. The summaries name the commodity, not the project stage. Building the bucket anyway would have meant presenting a dozen lucky keyword matches as a count, so Seabridge and Skeena sit in Explorer alongside companies a hundredth their size. Market cap is the honest way to tell those apart.</p>
 <h2>Size distribution</h2>
 <p><strong>57% of the TSXV mining board is below C$25M and collectively worth C$4.2B — a rounding error against the TSX's C$984B in the top band.</strong></p>
-<div class="tw"><table>
-<thead>
-<tr>
-<th>Band</th>
-<th class="num">TSX</th>
-<th class="num">TSXV</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>&lt; C$5M</td>
-<td class="num">2</td>
-<td class="num">217</td>
-</tr>
-<tr>
-<td>C$5–25M</td>
-<td class="num">9</td>
-<td class="num">290</td>
-</tr>
-<tr>
-<td>C$25–100M</td>
-<td class="num">15</td>
-<td class="num">215</td>
-</tr>
-<tr>
-<td>C$100–500M</td>
-<td class="num">40</td>
-<td class="num">143</td>
-</tr>
-<tr>
-<td>C$500M–2B</td>
-<td class="num">50</td>
-<td class="num">29</td>
-</tr>
-<tr>
-<td>&gt; C$2B</td>
-<td class="num">67</td>
-<td class="num">2</td>
-</tr>
-</tbody>
-</table></div>
+<div class="viz-root viz-static"><div class="legend"><span><i style="background:var(--series-TSX)"></i>TSX</span><span><i style="background:var(--series-TSXV)"></i>TSXV</span></div><div class="rows"><div class="row"><div class="cat">&lt; C$5M</div><div class="track"><div class="bar"><div class="seg-fill" style="width:0.67%;background:var(--series-TSX)" title="TSX: 2"></div><div class="seg-fill" style="width:72.58%;background:var(--series-TSXV)" title="TSXV: 217"></div></div></div><div class="val">219</div></div><div class="row"><div class="cat">C$5–25M</div><div class="track"><div class="bar"><div class="seg-fill" style="width:3.01%;background:var(--series-TSX)" title="TSX: 9"></div><div class="seg-fill" style="width:96.99%;background:var(--series-TSXV)" title="TSXV: 290"></div></div></div><div class="val">299</div></div><div class="row"><div class="cat">C$25–100M</div><div class="track"><div class="bar"><div class="seg-fill" style="width:5.02%;background:var(--series-TSX)" title="TSX: 15"></div><div class="seg-fill" style="width:71.91%;background:var(--series-TSXV)" title="TSXV: 215"></div></div></div><div class="val">230</div></div><div class="row"><div class="cat">C$100–500M</div><div class="track"><div class="bar"><div class="seg-fill" style="width:13.38%;background:var(--series-TSX)" title="TSX: 40"></div><div class="seg-fill" style="width:47.83%;background:var(--series-TSXV)" title="TSXV: 143"></div></div></div><div class="val">183</div></div><div class="row"><div class="cat">C$500M–2B</div><div class="track"><div class="bar"><div class="seg-fill" style="width:16.72%;background:var(--series-TSX)" title="TSX: 50"></div><div class="seg-fill" style="width:9.70%;background:var(--series-TSXV)" title="TSXV: 29"></div></div></div><div class="val">79</div></div><div class="row"><div class="cat">&gt; C$2B</div><div class="track"><div class="bar"><div class="seg-fill" style="width:22.41%;background:var(--series-TSX)" title="TSX: 67"></div><div class="seg-fill" style="width:0.67%;background:var(--series-TSXV)" title="TSXV: 2"></div></div></div><div class="val">69</div></div></div></div>
 <p><strong>The boards overlap:</strong> 26 TSX names sit below C$100M and 174 TSXV names sit above it. Board is not a clean size proxy.</p>
-<p>Distribution spans six orders of magnitude — log scale is mandatory for any chart.</p>
+<p>Market caps span six orders of magnitude, from C$16k to C$112B.</p>
 <h2>Commodity</h2>
 <p><strong>This is a gold sector with a copper problem attached. 658 of 1,079 companies have gold exposure — 61% of the entire universe.</strong></p>
-<p>Exposure counts overlap, because most companies hold several commodities.</p>
-<div class="tw"><table>
-<thead>
-<tr>
-<th>Commodity</th>
-<th class="num">Companies</th>
-<th class="num">TSX</th>
-<th class="num">TSXV</th>
-<th class="num">Market cap</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Gold</td>
-<td class="num">658</td>
-<td class="num">118</td>
-<td class="num">540</td>
-<td class="num">C$892.7B</td>
-</tr>
-<tr>
-<td>Copper</td>
-<td class="num">353</td>
-<td class="num">62</td>
-<td class="num">291</td>
-<td class="num">C$592.7B</td>
-</tr>
-<tr>
-<td>Silver</td>
-<td class="num">223</td>
-<td class="num">52</td>
-<td class="num">171</td>
-<td class="num">C$457.8B</td>
-</tr>
-<tr>
-<td>Lithium</td>
-<td class="num">104</td>
-<td class="num">7</td>
-<td class="num">97</td>
-<td class="num">C$16.5B</td>
-</tr>
-<tr>
-<td>Nickel</td>
-<td class="num">86</td>
-<td class="num">11</td>
-<td class="num">75</td>
-<td class="num">C$137.1B</td>
-</tr>
-<tr>
-<td>Zinc</td>
-<td class="num">86</td>
-<td class="num">19</td>
-<td class="num">67</td>
-<td class="num">C$163.5B</td>
-</tr>
-<tr>
-<td>Uranium</td>
-<td class="num">50</td>
-<td class="num">14</td>
-<td class="num">36</td>
-<td class="num">C$95.4B</td>
-</tr>
-<tr>
-<td>Platinum/PGM</td>
-<td class="num">39</td>
-<td class="num">8</td>
-<td class="num">31</td>
-<td class="num">C$76.7B</td>
-</tr>
-<tr>
-<td>Rare Earths</td>
-<td class="num">35</td>
-<td class="num">3</td>
-<td class="num">32</td>
-<td class="num">C$4.0B</td>
-</tr>
-</tbody>
-</table></div>
+<div class="viz-root viz-static"><div class="legend"><span><i style="background:var(--series-TSX)"></i>TSX</span><span><i style="background:var(--series-TSXV)"></i>TSXV</span></div><div class="rows"><div class="row"><div class="cat">Gold</div><div class="track"><div class="bar"><div class="seg-fill" style="width:17.93%;background:var(--series-TSX)" title="TSX: 118"></div><div class="seg-fill" style="width:82.07%;background:var(--series-TSXV)" title="TSXV: 540"></div></div></div><div class="val">658</div></div><div class="row"><div class="cat">Copper</div><div class="track"><div class="bar"><div class="seg-fill" style="width:9.42%;background:var(--series-TSX)" title="TSX: 62"></div><div class="seg-fill" style="width:44.22%;background:var(--series-TSXV)" title="TSXV: 291"></div></div></div><div class="val">353</div></div><div class="row"><div class="cat">Silver</div><div class="track"><div class="bar"><div class="seg-fill" style="width:7.90%;background:var(--series-TSX)" title="TSX: 52"></div><div class="seg-fill" style="width:25.99%;background:var(--series-TSXV)" title="TSXV: 171"></div></div></div><div class="val">223</div></div><div class="row"><div class="cat">Lithium</div><div class="track"><div class="bar"><div class="seg-fill" style="width:1.06%;background:var(--series-TSX)" title="TSX: 7"></div><div class="seg-fill" style="width:14.74%;background:var(--series-TSXV)" title="TSXV: 97"></div></div></div><div class="val">104</div></div><div class="row"><div class="cat">Nickel</div><div class="track"><div class="bar"><div class="seg-fill" style="width:1.67%;background:var(--series-TSX)" title="TSX: 11"></div><div class="seg-fill" style="width:11.40%;background:var(--series-TSXV)" title="TSXV: 75"></div></div></div><div class="val">86</div></div><div class="row"><div class="cat">Zinc</div><div class="track"><div class="bar"><div class="seg-fill" style="width:2.89%;background:var(--series-TSX)" title="TSX: 19"></div><div class="seg-fill" style="width:10.18%;background:var(--series-TSXV)" title="TSXV: 67"></div></div></div><div class="val">86</div></div><div class="row"><div class="cat">Uranium</div><div class="track"><div class="bar"><div class="seg-fill" style="width:2.13%;background:var(--series-TSX)" title="TSX: 14"></div><div class="seg-fill" style="width:5.47%;background:var(--series-TSXV)" title="TSXV: 36"></div></div></div><div class="val">50</div></div><div class="row"><div class="cat">Platinum/PGM</div><div class="track"><div class="bar"><div class="seg-fill" style="width:1.22%;background:var(--series-TSX)" title="TSX: 8"></div><div class="seg-fill" style="width:4.71%;background:var(--series-TSXV)" title="TSXV: 31"></div></div></div><div class="val">39</div></div><div class="row"><div class="cat">Lead</div><div class="track"><div class="bar"><div class="seg-fill" style="width:1.52%;background:var(--series-TSX)" title="TSX: 10"></div><div class="seg-fill" style="width:4.26%;background:var(--series-TSXV)" title="TSXV: 28"></div></div></div><div class="val">38</div></div><div class="row"><div class="cat">Rare Earths</div><div class="track"><div class="bar"><div class="seg-fill" style="width:0.46%;background:var(--series-TSX)" title="TSX: 3"></div><div class="seg-fill" style="width:4.86%;background:var(--series-TSXV)" title="TSXV: 32"></div></div></div><div class="val">35</div></div><div class="row"><div class="cat">Molybdenum</div><div class="track"><div class="bar"><div class="seg-fill" style="width:1.22%;background:var(--series-TSX)" title="TSX: 8"></div><div class="seg-fill" style="width:3.95%;background:var(--series-TSXV)" title="TSXV: 26"></div></div></div><div class="val">34</div></div><div class="row"><div class="cat">Iron</div><div class="track"><div class="bar"><div class="seg-fill" style="width:1.52%;background:var(--series-TSX)" title="TSX: 10"></div><div class="seg-fill" style="width:1.82%;background:var(--series-TSXV)" title="TSXV: 12"></div></div></div><div class="val">22</div></div><div class="row"><div class="cat">Diamond</div><div class="track"><div class="bar"><div class="seg-fill" style="width:0.61%;background:var(--series-TSX)" title="TSX: 4"></div><div class="seg-fill" style="width:2.58%;background:var(--series-TSXV)" title="TSXV: 17"></div></div></div><div class="val">21</div></div><div class="row"><div class="cat">Potash</div><div class="track"><div class="bar"><div class="seg-fill" style="width:0.76%;background:var(--series-TSX)" title="TSX: 5"></div><div class="seg-fill" style="width:0.76%;background:var(--series-TSXV)" title="TSXV: 5"></div></div></div><div class="val">10</div></div><div class="row"><div class="cat">Tungsten</div><div class="track"><div class="bar"><div class="seg-fill" style="width:0.46%;background:var(--series-TSX)" title="TSX: 3"></div><div class="seg-fill" style="width:1.06%;background:var(--series-TSXV)" title="TSXV: 7"></div></div></div><div class="val">10</div></div><div class="row"><div class="cat">Coal</div><div class="track"><div class="bar"><div class="seg-fill" style="width:0.30%;background:var(--series-TSX)" title="TSX: 2"></div><div class="seg-fill" style="width:0.76%;background:var(--series-TSXV)" title="TSXV: 5"></div></div></div><div class="val">7</div></div></div><p class="note" style="margin-top:12px">Companies hold more than one commodity, so these bars sum to more than the sector total.</p></div>
 <p><strong>Most companies are polymetallic</strong> — 462 hold more than one commodity, 525 hold exactly one, 92 disclose none. There are 132 distinct commodity sets, but they're concentrated: Gold alone (286), Gold+Copper (113) and Gold+Silver (74) cover 44% of the universe.</p>
 <p><strong>Two commodities are almost entirely a TSXV story.</strong> Lithium is 97 TSXV against 7 TSX; rare earths 32 against 3. These are the speculative frontier — huge company counts, tiny market caps. Lithium's 104 companies are worth C$16.5B combined, less than a fifth of uranium's 50 companies at C$95.4B.</p>
 <p><strong>35 royalty and streaming companies hold C$161.9B — 14% of sector market cap.</strong> They own no mines. Any per-company comparison that treats them as operators is distorted.</p>
-<h2>Geography — where the offices are</h2>
-<p><strong>975 of 1,079 companies are headquartered in Canada, 650 of them in BC.</strong></p>
-<div class="tw"><table>
-<thead>
-<tr>
-<th>HQ</th>
-<th class="num">TSX</th>
-<th class="num">TSXV</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>BC</td>
-<td class="num">67</td>
-<td class="num">583</td>
-</tr>
-<tr>
-<td>ON</td>
-<td class="num">55</td>
-<td class="num">146</td>
-</tr>
-<tr>
-<td>QC</td>
-<td class="num">7</td>
-<td class="num">46</td>
-</tr>
-<tr>
-<td>AB</td>
-<td class="num">1</td>
-<td class="num">36</td>
-</tr>
-</tbody>
-</table></div>
-<p><strong>This number means much less than it appears to.</strong> See below.</p>
 <h2>Geography — where the assets are</h2>
 <p><strong>Only 513 of 1,079 companies hold Canadian property, against 975 headquartered in Canada. Vancouver is a financing hub, not a mining district.</strong></p>
-<div class="tw"><table>
-<thead>
-<tr>
-<th>Asset region</th>
-<th class="num">Companies</th>
-<th class="num">Market cap</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Canada</td>
-<td class="num">513</td>
-<td class="num">C$612.6B</td>
-</tr>
-<tr>
-<td>Latin America</td>
-<td class="num">265</td>
-<td class="num">C$493.1B</td>
-</tr>
-<tr>
-<td>USA</td>
-<td class="num">232</td>
-<td class="num">C$366.2B</td>
-</tr>
-<tr>
-<td>Africa</td>
-<td class="num">81</td>
-<td class="num">C$256.8B</td>
-</tr>
-<tr>
-<td>UK/Europe</td>
-<td class="num">60</td>
-<td class="num">C$237.6B</td>
-</tr>
-<tr>
-<td>Aus/NZ/PNG</td>
-<td class="num">41</td>
-<td class="num">C$150.9B</td>
-</tr>
-<tr>
-<td>Asia</td>
-<td class="num">31</td>
-<td class="num">C$94.7B</td>
-</tr>
-</tbody>
-</table></div>
+<div class="viz-root viz-static"><div class="legend"><span><i style="background:var(--series-TSX)"></i>TSX</span><span><i style="background:var(--series-TSXV)"></i>TSXV</span></div><div class="rows"><div class="row"><div class="cat">Canada</div><div class="track"><div class="bar"><div class="seg-fill" style="width:11.89%;background:var(--series-TSX)" title="TSX: 61"></div><div class="seg-fill" style="width:88.11%;background:var(--series-TSXV)" title="TSXV: 452"></div></div></div><div class="val">513</div></div><div class="row"><div class="cat">Latin America</div><div class="track"><div class="bar"><div class="seg-fill" style="width:12.87%;background:var(--series-TSX)" title="TSX: 66"></div><div class="seg-fill" style="width:38.79%;background:var(--series-TSXV)" title="TSXV: 199"></div></div></div><div class="val">265</div></div><div class="row"><div class="cat">USA</div><div class="track"><div class="bar"><div class="seg-fill" style="width:9.75%;background:var(--series-TSX)" title="TSX: 50"></div><div class="seg-fill" style="width:35.48%;background:var(--series-TSXV)" title="TSXV: 182"></div></div></div><div class="val">232</div></div><div class="row"><div class="cat">Africa</div><div class="track"><div class="bar"><div class="seg-fill" style="width:5.07%;background:var(--series-TSX)" title="TSX: 26"></div><div class="seg-fill" style="width:10.72%;background:var(--series-TSXV)" title="TSXV: 55"></div></div></div><div class="val">81</div></div><div class="row"><div class="cat">UK / Europe</div><div class="track"><div class="bar"><div class="seg-fill" style="width:3.51%;background:var(--series-TSX)" title="TSX: 18"></div><div class="seg-fill" style="width:8.19%;background:var(--series-TSXV)" title="TSXV: 42"></div></div></div><div class="val">60</div></div><div class="row"><div class="cat">Aus / NZ / PNG</div><div class="track"><div class="bar"><div class="seg-fill" style="width:2.92%;background:var(--series-TSX)" title="TSX: 15"></div><div class="seg-fill" style="width:5.07%;background:var(--series-TSXV)" title="TSXV: 26"></div></div></div><div class="val">41</div></div><div class="row"><div class="cat">Asia</div><div class="track"><div class="bar"><div class="seg-fill" style="width:2.34%;background:var(--series-TSX)" title="TSX: 12"></div><div class="seg-fill" style="width:3.70%;background:var(--series-TSXV)" title="TSXV: 19"></div></div></div><div class="val">31</div></div><div class="row"><div class="cat">Other</div><div class="track"><div class="bar"><div class="seg-fill" style="width:0.19%;background:var(--series-TSX)" title="TSX: 1"></div><div class="seg-fill" style="width:0.19%;background:var(--series-TSXV)" title="TSXV: 1"></div></div></div><div class="val">2</div></div></div><p class="note" style="margin-top:12px">Region of the company's properties, not its head office. Companies with ground in several regions appear in each.</p></div>
 <p><strong>Of the 650 BC-headquartered companies, only 314 (48%) hold any Canadian property.</strong> 159 hold Latin American assets, 150 US, 38 African. Ontario is the same story — 102 of 201.</p>
-<p><strong>Sector-wide, 514 of 1,079 companies (48%) hold no assets in the region they're based in.</strong></p>
+<p><strong>Sector-wide, 514 of 1,079 companies (48%) hold no assets in the region they're based in</strong>, and at country level 452 hold no property in their country of domicile.</p>
 <p>Top asset jurisdictions: BC (168), ON (149), QC (125), Nevada (111), Mexico (88), Peru (53), Yukon (53), Saskatchewan (47), Argentina (46), Chile (41).</p>
 <p>Most companies are single-jurisdiction — 668 of them. Versamet Royalties is the widest at 15, Barrick at 11.</p>
 <h2>Listing pathway</h2>
@@ -891,6 +834,54 @@ details.tbl summary:hover { color: var(--ink); }
 </tbody>
 </table></div>
 <p>Small average trade sizes on both boards suggest a retail-dominated tape.</p>
+<h2>What happens after listing</h2>
+<p><strong>The median mining listing loses money from week one and never recovers. By ten years it is down 82%, and 83% of them are underwater.</strong></p>
+<p>Share-price return against the average of a company's first five trading days.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>After listing</th>
+<th>Median return</th>
+<th class="num">Share negative</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 week</td>
+<td>−1.2%</td>
+<td class="num">56%</td>
+</tr>
+<tr>
+<td>3 months</td>
+<td>−10.3%</td>
+<td class="num">62%</td>
+</tr>
+<tr>
+<td>1 year</td>
+<td>−26.7%</td>
+<td class="num">65%</td>
+</tr>
+<tr>
+<td>2 years</td>
+<td>−47.9%</td>
+<td class="num">73%</td>
+</tr>
+<tr>
+<td>5 years</td>
+<td>−66.5%</td>
+<td class="num">74%</td>
+</tr>
+<tr>
+<td>10 years</td>
+<td>−82.3%</td>
+<td class="num">83%</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>The two boards are different asset classes.</strong> The TSX median is roughly flat for a full year — −0.4% at 12 months — before declining. The TSXV is negative from week one and reaches <strong>−96% at fifteen years</strong>, with 94% of companies below their listing price.</p>
+<p><strong>Consolidation is the mechanism.</strong> 227 of 595 priced companies (38%) have done a reverse split. Their median return is −91%; companies that never consolidated are at <strong>+10%</strong>. A company does not roll back its shares five times because things are going well.</p>
+<p><strong>But the median hides an enormous spread.</strong> At five years the middle half of TSXV companies runs from −89% to −18%, while the top decile is up 118%. It is a lottery-ticket distribution: most lose nearly everything, a minority make multiples.</p>
+<p>Based on 595 of 1,079 companies — 222 have no listing date to anchor to and 262 have no usable price history near it. <strong>All of them are survivors</strong>: companies that failed outright are absent from the source file entirely, so the real distribution is worse than this.</p>
 <h2>The disclosure floor</h2>
 <p><strong>51 companies disclose neither a commodity nor a property.</strong> Median market cap C$7.4M — but median turnover 0.128, so they are trading actively. Listed as miners, with nothing on record about what or where they mine.</p>
 <h2>Caveats</h2>
@@ -901,8 +892,12 @@ details.tbl summary:hover { color: var(--ink); }
 <li><strong>92 companies have no commodity disclosed</strong>, 70 no property</li>
 <li><strong>19 TSXV nulls in trading data</strong> — not zeros</li>
 <li><strong>10 companies</strong> in the June issuer file had left by the July mining file</li>
-</ul></section><section id="charts" role="tabpanel" hidden>
-<div class="viz-root">
+<li><strong>Returns cover 595 companies</strong>, are survivor-only, and each milestone is a smaller, more selected group than the last</li>
+<li><strong>Five companies have quotes discarded as impossible.</strong> Yahoo back-adjusts for distributions, so a company that returned more capital per share than the share was then worth ends up with a negative adjusted price. Those quotes are dropped, which costs those companies some milestones rather than reporting a negative price</li>
+<li><strong>Stage is derived, not disclosed</strong> — producer rests on reported revenue, explorer is the residual</li>
+<li>Prices come from Yahoo Finance and are adjusted for splits and dividends</li>
+</ul></section><section id="charts" role="tabpanel" data-market="tsx" hidden>
+<div class="viz-root viz-live">
 
 <div class="ctrls">
   <div class="ctrl-group">
@@ -912,7 +907,14 @@ details.tbl summary:hover { color: var(--ink); }
       <button data-board="TSXV" aria-pressed="true"><i class="dot"></i>TSXV</button>
     </div>
   </div>
-  <div class="ctrl-group">
+</div>
+
+<div class="chart">
+  <h3>Commodity</h3>
+  <p class="note">Companies hold more than one commodity, so the bars sum to more
+  than the sector total. 92 companies disclose no commodity and
+  appear in none of these bars.</p>
+  <div class="ctrl-group" style="margin:0 0 6px">
     <span class="ctrl-label">Measure</span>
     <div class="seg">
       <button data-measure="n" aria-pressed="true">Companies</button>
@@ -921,14 +923,7 @@ details.tbl summary:hover { color: var(--ink); }
       <button data-measure="turnover" aria-pressed="false">% traded</button>
     </div>
   </div>
-</div>
-<p class="note" id="measure-note" style="margin:-4px 0 0"></p>
-
-<div class="chart">
-  <h3>Commodity</h3>
-  <p class="note">Companies hold more than one commodity, so the bars sum to more
-  than the sector total. 92 companies disclose no commodity and
-  appear in none of these bars.</p>
+  <p class="note measure-note" style="margin:0 0 12px"></p>
   <div class="legend">
     <span data-board="TSX"><i style="background:var(--series-TSX)"></i>TSX</span>
     <span data-board="TSXV"><i style="background:var(--series-TSXV)"></i>TSXV</span>
@@ -942,12 +937,86 @@ details.tbl summary:hover { color: var(--ink); }
   <p class="note">Region of the company's properties, not its head office. Companies
   with ground in several regions appear in each. 70 companies
   disclose no property location.</p>
+  <div class="ctrl-group" style="margin:0 0 6px">
+    <span class="ctrl-label">Measure</span>
+    <div class="seg">
+      <button data-measure="n" aria-pressed="true">Companies</button>
+      <button data-measure="mcap" aria-pressed="false">Market cap</button>
+      <button data-measure="median" aria-pressed="false">Typical size</button>
+      <button data-measure="turnover" aria-pressed="false">% traded</button>
+    </div>
+  </div>
+  <p class="note measure-note" style="margin:0 0 12px"></p>
   <div class="legend">
     <span data-board="TSX"><i style="background:var(--series-TSX)"></i>TSX</span>
     <span data-board="TSXV"><i style="background:var(--series-TSXV)"></i>TSXV</span>
   </div>
   <div class="rows" id="chart-region"></div>
   <details class="tbl"><summary>Show as table</summary><div id="table-region"></div></details>
+</div>
+
+
+<div class="chart">
+  <h3>By stage</h3>
+  <p class="note">Producer means the company reported revenue; everything else
+  without revenue is an explorer. Switch the measure to <strong>% traded</strong>
+  for the question the counts can't answer — whether explorer trading is genuinely
+  thinner, or only looks that way because the companies are smaller.</p>
+  <div class="ctrl-group" style="margin:0 0 6px">
+    <span class="ctrl-label">Measure</span>
+    <div class="seg">
+      <button data-measure="n" aria-pressed="true">Companies</button>
+      <button data-measure="mcap" aria-pressed="false">Market cap</button>
+      <button data-measure="median" aria-pressed="false">Typical size</button>
+      <button data-measure="turnover" aria-pressed="false">% traded</button>
+    </div>
+  </div>
+  <p class="note measure-note" style="margin:0 0 12px"></p>
+  <div class="legend">
+    <span data-board="TSX"><i style="background:var(--series-TSX)"></i>TSX</span>
+    <span data-board="TSXV"><i style="background:var(--series-TSXV)"></i>TSXV</span>
+  </div>
+  <div class="rows" id="chart-stage_series"></div>
+  <details class="tbl"><summary>Show as table</summary><div id="table-stage_series"></div></details>
+</div>
+
+<div class="chart">
+  <h3>Size of the non-producers</h3>
+  <p class="note">Market cap of the companies that are not selling anything —
+  explorers, shells and the five with no data. Royalty companies are excluded;
+  they earn without operating. This is the honest substitute for a developer
+  bucket: the free data will not say who has a feasibility study, but the top
+  band is where the advanced projects are and the bottom band is where they
+  are not.</p>
+  <div class="ctrl-group" style="margin:0 0 6px">
+    <span class="ctrl-label">Measure</span>
+    <div class="seg">
+      <button data-measure="n" aria-pressed="true">Companies</button>
+      <button data-measure="mcap" aria-pressed="false">Market cap</button>
+      <button data-measure="median" aria-pressed="false">Typical size</button>
+      <button data-measure="turnover" aria-pressed="false">% traded</button>
+    </div>
+  </div>
+  <p class="note measure-note" style="margin:0 0 12px"></p>
+  <div class="legend">
+    <span data-board="TSX"><i style="background:var(--series-TSX)"></i>TSX</span>
+    <span data-board="TSXV"><i style="background:var(--series-TSXV)"></i>TSXV</span>
+  </div>
+  <div class="rows" id="chart-npsize"></div>
+  <details class="tbl"><summary>Show as table</summary><div id="table-npsize"></div></details>
+</div>
+
+<div class="chart">
+  <h3>How much of each commodity actually produces</h3>
+  <p class="note">Producing companies as a share of the companies holding that
+  commodity. Commodities with fewer than 15 companies on the selected boards are
+  dropped, since a share of six is not a rate. Companies holding several
+  commodities count in each, so this reads down the column, not across.</p>
+  <div class="legend">
+    <span><i style="background:var(--series-stage)"></i>Share producing</span>
+  </div>
+  <div class="rows" id="chart-prodshare"></div>
+  <details class="tbl"><summary>Show as table</summary><div id="table-prodshare"></div></details>
 </div>
 
 <div class="chart">
@@ -971,6 +1040,47 @@ details.tbl summary:hover { color: var(--ink); }
   <details class="tbl"><summary>Show as table</summary><div id="table-lines"></div></details>
 </div>
 
+
+<div class="chart">
+  <h3>What happens after listing</h3>
+  <p class="note">Median share-price return at each point in a company's own life,
+  measured against the average of its first five trading days. Based on
+  595 of 1079 companies — 222 have no listing date to anchor
+  to and 259 have no price history reaching back that far.
+  <strong>These are survivors only</strong>: companies that failed outright are
+  absent from the source file, so the real picture is worse than this. Each point
+  is also a different subset — only companies old enough to reach it — and the
+  count under each label shows how quickly that thins out. <strong>Spread</strong> shades the middle half of companies, 25th to 75th percentile — the median alone hides how wide this gets.</p>
+  <div class="ctrl-group" style="margin:0 0 14px">
+    <span class="ctrl-label">Show</span>
+    <div class="seg">
+      <button data-ret="median" aria-pressed="true">Median return</button>
+      <button data-ret="spread" aria-pressed="false">Spread</button>
+      <button data-ret="neg" aria-pressed="false">% underwater</button>
+    </div>
+  </div>
+  <div class="linewrap" id="chart-returns"></div>
+  <details class="tbl"><summary>Show as table</summary><div id="table-returns"></div></details>
+</div>
+
+
+
+<div class="chart">
+  <h3>Where companies are based vs where they mine</h3>
+  <p class="note">Rows are country of head office, columns are country of the
+  company's properties. A company with ground in three countries appears in three
+  cells, so the grid sums to more than 1009 companies. Outlined cells are
+  the diagonal — operating in the country you are based in.
+  <strong>452 companies hold no property in their own country of domicile.</strong></p>
+  <div class="heat" id="chart-geo"></div>
+  <div class="scale">
+    <span>fewer</span>
+    <i style="background:#cde2fb"></i><i style="background:#9ec5f4"></i><i style="background:#6da7ec"></i><i style="background:#3987e5"></i><i style="background:#256abf"></i><i style="background:#104281"></i>
+    <span>more companies</span>
+  </div>
+</div>
+
+
 <div class="chart">
   <h3>Commodity by region</h3>
   <p class="note">Number of companies holding each commodity in each region. Follows
@@ -986,7 +1096,7 @@ details.tbl summary:hover { color: var(--ink); }
 
 </div>
 
-<script>window.__VIZ__ = {"commodity": [{"label": "Gold", "TSX": {"n": 118, "mcap": 839385221759.9349, "median": 1539365750.7350001, "turnover": 0.39468122827250485, "traded": 331289590318.0}, "TSXV": {"n": 540, "mcap": 53275641992.162, "median": 20136944.275, "turnover": 0.23992698797286285, "traded": 12782264315.5}, "ALL": {"n": 658, "mcap": 892660863752.097, "median": 35170147.5025, "turnover": 0.38544521061142095, "traded": 344071854633.5}}, {"label": "Silver", "TSX": {"n": 52, "mcap": 433915541199.26996, "median": 1838067166.655, "turnover": 0.3501021717800957, "traded": 151914773343.0}, "TSXV": {"n": 171, "mcap": 23934412436.497, "median": 34982629.605, "turnover": 0.30874418035563567, "traded": 7389610550.0}, "ALL": {"n": 223, "mcap": 457849953635.76697, "median": 57096611.715, "turnover": 0.34794015512717796, "traded": 159304383893.0}}, {"label": "Copper", "TSX": {"n": 62, "mcap": 571757699261.895, "median": 1610292570.515, "turnover": 0.37657501581518166, "traded": 215309664642.0}, "TSXV": {"n": 291, "mcap": 20906292568.488, "median": 18794470.5, "turnover": 0.18399439586902328, "traded": 3846640671.0}, "ALL": {"n": 353, "mcap": 592663991830.383, "median": 27724976.16, "turnover": 0.3697817116173328, "traded": 219156305313.0}}, {"label": "Nickel", "TSX": {"n": 11, "mcap": 132914631412.98999, "median": 912274641.72, "turnover": 0.32611936911833256, "traded": 43346035743.0}, "TSXV": {"n": 75, "mcap": 4197288253.6000004, "median": 14595197.4, "turnover": 0.19370743081623074, "traded": 813045924.0}, "ALL": {"n": 86, "mcap": 137111919666.58998, "median": 17394939.075, "turnover": 0.32206595731705906, "traded": 44159081667.0}}, {"label": "Diamond", "TSX": {"n": 4, "mcap": 9126136810.050001, "median": 342647137.825, "turnover": 0.3290926782614762, "traded": 3003344805.0}, "TSXV": {"n": 17, "mcap": 224083990.03, "median": 3983453.22, "turnover": 0.3818978700287471, "traded": 85577198.5}, "ALL": {"n": 21, "mcap": 9350220800.079998, "median": 8278892.82, "turnover": 0.3303581882765348, "traded": 3088922003.5}}, {"label": "Molybdenum", "TSX": {"n": 8, "mcap": 77524852832.01999, "median": 773823181.0300001, "turnover": 0.34680523238472116, "traded": 26886024602.0}, "TSXV": {"n": 26, "mcap": 2779302305.955, "median": 36033519.32, "turnover": 0.160334873988053, "traded": 445619085.0}, "ALL": {"n": 34, "mcap": 80304155137.975, "median": 66161137.11750001, "turnover": 0.3403515501786924, "traded": 27331643687.0}}, {"label": "Platinum/PGM", "TSX": {"n": 8, "mcap": 75619615441.81999, "median": 353590556.62, "turnover": 0.3250213507222838, "traded": 24577989552.0}, "TSXV": {"n": 31, "mcap": 1058929565.1849998, "median": 13780623.12, "turnover": 0.23261032376309856, "traded": 246317949.0}, "ALL": {"n": 39, "mcap": 76678545007.00499, "median": 19304855.0, "turnover": 0.3237451558155175, "traded": 24824307501.0}}, {"label": "Iron", "TSX": {"n": 10, "mcap": 12736802795.135, "median": 1120612236.5, "turnover": 0.2716823291259353, "traded": 3460364249.0}, "TSXV": {"n": 12, "mcap": 301660694.09000003, "median": 8874574.469999999, "turnover": 0.16774859135245052, "traded": 50603156.5}, "ALL": {"n": 22, "mcap": 13038463489.225, "median": 27278322.665, "turnover": 0.26927769582677186, "traded": 3510967405.5}}, {"label": "Lead", "TSX": {"n": 10, "mcap": 91508155392.79, "median": 2740460846.2200003, "turnover": 0.3007177414229484, "traded": 27518125811.5}, "TSXV": {"n": 28, "mcap": 2081533684.2949998, "median": 23782402.299999997, "turnover": 0.2205603992690107, "traded": 459103900.5}, "ALL": {"n": 38, "mcap": 93589689077.08498, "median": 35715872.64749999, "turnover": 0.2989349573429676, "traded": 27977229712.0}}, {"label": "Zinc", "TSX": {"n": 19, "mcap": 157417036895.88, "median": 1890534333.31, "turnover": 0.3793025647757109, "traded": 59708685834.0}, "TSXV": {"n": 67, "mcap": 6045011675.124999, "median": 15971171.985, "turnover": 0.2932253932269448, "traded": 1772550925.5}, "ALL": {"n": 86, "mcap": 163462048571.005, "median": 28981469.46, "turnover": 0.376119333490389, "traded": 61481236759.5}}, {"label": "Rare Earths", "TSX": {"n": 3, "mcap": 1767172679.68, "median": 638978629.12, "turnover": 0.06363666906641162, "traded": 112456983.0}, "TSXV": {"n": 32, "mcap": 2269769016.285, "median": 22732388.42, "turnover": 0.2473975567430566, "traded": 561535309.0}, "ALL": {"n": 35, "mcap": 4036941695.965, "median": 25588022.26, "turnover": 0.16695616205546593, "traded": 673992292.0}}, {"label": "Potash", "TSX": {"n": 5, "mcap": 46438093470.380005, "median": 40639481.28, "turnover": 0.49057372401670174, "traded": 22781308450.0}, "TSXV": {"n": 5, "mcap": 348366239.745, "median": 39543523.43, "turnover": 0.47465899571967146, "traded": 165355169.5}, "ALL": {"n": 10, "mcap": 46786459710.12501, "median": 40091502.355000004, "turnover": 0.4904552249020487, "traded": 22946663619.5}}, {"label": "Lithium", "TSX": {"n": 7, "mcap": 9272686038.51, "median": 1080327673.81, "turnover": 0.3830004907154897, "traded": 3551443303.0}, "TSXV": {"n": 97, "mcap": 7273959719.105, "median": 10216747.805, "turnover": 0.19439439075887308, "traded": 1414016968.0}, "ALL": {"n": 104, "mcap": 16546645757.615002, "median": 13047626.002500001, "turnover": 0.3000886308764315, "traded": 4965460271.0}}, {"label": "Uranium", "TSX": {"n": 14, "mcap": 93488893260.97998, "median": 1374084279.645, "turnover": 0.3519918418933164, "traded": 32907327735.5}, "TSXV": {"n": 36, "mcap": 1876036453.285, "median": 21162994.535, "turnover": 0.40675321588971025, "traded": 763083860.5}, "ALL": {"n": 50, "mcap": 95364929714.265, "median": 44742042.47, "turnover": 0.3530691177237188, "traded": 33670411596.0}}, {"label": "Coal", "TSX": {"n": 2, "mcap": 1111817448.0900002, "median": 555908724.0450001, "turnover": 0.028224119034926158, "traded": 31380068.0}, "TSXV": {"n": 5, "mcap": 542290935.2099999, "median": 15176382.4, "turnover": 0.12488551643182834, "traded": 67724283.5}, "ALL": {"n": 7, "mcap": 1654108383.3000002, "median": 89095399.8, "turnover": 0.059914061557613044, "traded": 99104351.5}}, {"label": "Tungsten", "TSX": {"n": 3, "mcap": 3409080439.3300004, "median": 1602245843.88, "turnover": 0.2037620466463738, "traded": 694641207.5}, "TSXV": {"n": 7, "mcap": 1104337995.065, "median": 48105137.5, "turnover": 0.1640727465773151, "traded": 181191768.0}, "ALL": {"n": 10, "mcap": 4513418434.3949995, "median": 112134625.11, "turnover": 0.19405091467381327, "traded": 875832975.5}}], "region": [{"label": "Canada", "TSX": {"n": 61, "mcap": 579423531649.7849, "median": 1391502602.08, "turnover": 0.4112029974914956, "traded": 238260693031.5}, "TSXV": {"n": 452, "mcap": 33148615163.672005, "median": 13272047.555, "turnover": 0.2595639275280929, "traded": 8604184744.0}, "ALL": {"n": 513, "mcap": 612572146813.4569, "median": 16881356.97, "turnover": 0.40299722907688185, "traded": 246864877775.5}}, {"label": "Latin America", "TSX": {"n": 66, "mcap": 467438270876.27, "median": 1754017579.205, "turnover": 0.4792423640848968, "traded": 224016221998.5}, "TSXV": {"n": 199, "mcap": 25621891625.61, "median": 33653979.345, "turnover": 0.26802071704323305, "traded": 6867197765.5}, "ALL": {"n": 265, "mcap": 493060162501.88, "median": 70730828.75, "turnover": 0.4682662225081298, "traded": 230883419764.0}}, {"label": "USA", "TSX": {"n": 50, "mcap": 349799964816.34, "median": 1767490451.145, "turnover": 0.46834113201530914, "traded": 163825711501.0}, "TSXV": {"n": 182, "mcap": 16448240806.237999, "median": 20005781.935, "turnover": 0.2563360698975769, "traded": 4216277405.0}, "ALL": {"n": 232, "mcap": 366248205622.578, "median": 47230299.7225, "turnover": 0.4588199650571633, "traded": 168041988906.0}}, {"label": "Africa", "TSX": {"n": 26, "mcap": 250019447419.77, "median": 3408497504.085, "turnover": 0.4960912318342812, "traded": 124032455653.0}, "TSXV": {"n": 55, "mcap": 6747094111.985, "median": 34969643.8, "turnover": 0.17955400390044143, "traded": 1211467762.5}, "ALL": {"n": 81, "mcap": 256766541531.75504, "median": 72354926.325, "turnover": 0.4877735341542182, "traded": 125243923415.5}}, {"label": "UK / Europe", "TSX": {"n": 18, "mcap": 235217142768.10504, "median": 2533390077.955, "turnover": 0.3815750983506561, "traded": 89753004385.5}, "TSXV": {"n": 42, "mcap": 2377017574.4199996, "median": 12106440.524999999, "turnover": 0.16252963468066375, "traded": 386335798.0}, "ALL": {"n": 60, "mcap": 237594160342.52502, "median": 37196913.3625, "turnover": 0.3793836517427516, "traded": 90139340183.5}}, {"label": "Aus / NZ / PNG", "TSX": {"n": 15, "mcap": 148952864439.60498, "median": 1890534333.31, "turnover": 0.4673672382260675, "traded": 69615688879.0}, "TSXV": {"n": 26, "mcap": 1975385685.8099997, "median": 15754670.76, "turnover": 0.11937423774704882, "traded": 235810160.5}, "ALL": {"n": 41, "mcap": 150928250125.415, "median": 50170513.82, "turnover": 0.46281262110609744, "traded": 69851499039.5}}, {"label": "Asia", "TSX": {"n": 12, "mcap": 93605196434.65002, "median": 1266467883.415, "turnover": 0.35512587056219114, "traded": 33241626873.0}, "TSXV": {"n": 19, "mcap": 1080363205.675, "median": 29206944.875, "turnover": 0.16669811370286233, "traded": 180094508.5}, "ALL": {"n": 31, "mcap": 94685559640.325, "median": 59777636.78, "turnover": 0.3529759079257345, "traded": 33421721381.5}}, {"label": "Other", "TSX": {"n": 1, "mcap": 86745601490.1, "median": 86745601490.1, "turnover": 0.5210994482891318, "traded": 45203085078.0}, "TSXV": {"n": 1, "mcap": 67785214.52, "median": 67785214.52, "turnover": 0.038154006272812194, "traded": 2586277.5}, "ALL": {"n": 2, "mcap": 86813386704.62001, "median": 43406693352.310005, "turnover": 0.5207223571326731, "traded": 45205671355.5}}], "heat": {"commodities": ["Gold", "Silver", "Copper", "Nickel", "Diamond", "Molybdenum", "Platinum/PGM", "Iron", "Lead", "Zinc", "Rare Earths", "Potash", "Lithium", "Uranium", "Coal", "Tungsten"], "regions": ["Canada", "Latin America", "USA", "Africa", "UK / Europe", "Aus / NZ / PNG", "Asia", "Other"], "cells": [[{"TSX": 40, "TSXV": 291}, {"TSX": 15, "TSXV": 71}, {"TSX": 22, "TSXV": 156}, {"TSX": 3, "TSXV": 57}, {"TSX": 1, "TSXV": 13}, {"TSX": 6, "TSXV": 19}, {"TSX": 2, "TSXV": 26}, {"TSX": 3, "TSXV": 10}, {"TSX": 6, "TSXV": 19}, {"TSX": 8, "TSXV": 42}, {"TSX": 1, "TSXV": 22}, {"TSX": 3, "TSXV": 2}, {"TSX": 3, "TSXV": 63}, {"TSX": 6, "TSXV": 26}, {"TSX": 0, "TSXV": 1}, {"TSX": 1, "TSXV": 5}], [{"TSX": 50, "TSXV": 137}, {"TSX": 32, "TSXV": 75}, {"TSX": 28, "TSXV": 75}, {"TSX": 2, "TSXV": 4}, {"TSX": 0, "TSXV": 1}, {"TSX": 4, "TSXV": 6}, {"TSX": 0, "TSXV": 3}, {"TSX": 0, "TSXV": 1}, {"TSX": 5, "TSXV": 5}, {"TSX": 8, "TSXV": 9}, {"TSX": 1, "TSXV": 4}, {"TSX": 1, "TSXV": 1}, {"TSX": 1, "TSXV": 20}, {"TSX": 1, "TSXV": 4}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}], [{"TSX": 34, "TSXV": 117}, {"TSX": 17, "TSXV": 42}, {"TSX": 18, "TSXV": 68}, {"TSX": 3, "TSXV": 10}, {"TSX": 0, "TSXV": 1}, {"TSX": 3, "TSXV": 6}, {"TSX": 1, "TSXV": 4}, {"TSX": 2, "TSXV": 1}, {"TSX": 5, "TSXV": 8}, {"TSX": 10, "TSXV": 12}, {"TSX": 1, "TSXV": 4}, {"TSX": 0, "TSXV": 2}, {"TSX": 2, "TSXV": 26}, {"TSX": 5, "TSXV": 11}, {"TSX": 1, "TSXV": 0}, {"TSX": 0, "TSXV": 1}], [{"TSX": 17, "TSXV": 33}, {"TSX": 4, "TSXV": 2}, {"TSX": 5, "TSXV": 15}, {"TSX": 1, "TSXV": 7}, {"TSX": 1, "TSXV": 4}, {"TSX": 3, "TSXV": 0}, {"TSX": 3, "TSXV": 3}, {"TSX": 0, "TSXV": 1}, {"TSX": 2, "TSXV": 1}, {"TSX": 4, "TSXV": 1}, {"TSX": 0, "TSXV": 5}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 3}, {"TSX": 4, "TSXV": 1}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 0}], [{"TSX": 14, "TSXV": 24}, {"TSX": 8, "TSXV": 3}, {"TSX": 13, "TSXV": 19}, {"TSX": 2, "TSXV": 3}, {"TSX": 0, "TSXV": 1}, {"TSX": 4, "TSXV": 1}, {"TSX": 1, "TSXV": 1}, {"TSX": 2, "TSXV": 1}, {"TSX": 3, "TSXV": 0}, {"TSX": 5, "TSXV": 6}, {"TSX": 1, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 3}, {"TSX": 2, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}], [{"TSX": 11, "TSXV": 17}, {"TSX": 1, "TSXV": 0}, {"TSX": 5, "TSXV": 9}, {"TSX": 0, "TSXV": 2}, {"TSX": 0, "TSXV": 0}, {"TSX": 2, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 1, "TSXV": 1}, {"TSX": 1, "TSXV": 2}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 2}, {"TSX": 5, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 1}], [{"TSX": 10, "TSXV": 13}, {"TSX": 4, "TSXV": 2}, {"TSX": 7, "TSXV": 8}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 1, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 2}, {"TSX": 2, "TSXV": 0}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 0}], [{"TSX": 1, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}]]}, "lines": {"years": [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026], "missing": 224, "before": 30, "partial": 2026, "none": [{"label": "All mining", "byBoard": {"TSX": [2, 1, 0, 1, 10, 7, 10, 9, 5, 2, 8, 12, 5, 1, 4, 0, 5, 4, 8, 2, 5, 7, 4, 7, 10, 13, 17], "TSXV": [1, 3, 0, 5, 1, 27, 19, 44, 21, 25, 36, 64, 28, 29, 14, 9, 15, 31, 32, 12, 35, 51, 39, 24, 34, 39, 28]}}], "commodity": [{"label": "Gold", "byBoard": {"TSX": [2, 1, 0, 1, 6, 3, 5, 6, 4, 2, 5, 5, 1, 1, 3, 0, 3, 1, 5, 1, 4, 5, 3, 4, 5, 10, 13], "TSXV": [1, 2, 0, 3, 1, 16, 13, 26, 15, 16, 22, 42, 16, 19, 6, 8, 8, 23, 22, 8, 23, 29, 22, 7, 21, 22, 16]}}, {"label": "Copper", "byBoard": {"TSX": [1, 0, 0, 0, 7, 2, 5, 4, 1, 0, 1, 2, 2, 0, 1, 0, 1, 2, 2, 0, 2, 1, 4, 2, 3, 4, 6], "TSXV": [0, 1, 0, 3, 1, 8, 11, 14, 7, 9, 12, 18, 9, 9, 4, 3, 4, 9, 15, 4, 14, 16, 16, 4, 10, 13, 8]}}, {"label": "Silver", "byBoard": {"TSX": [0, 0, 0, 0, 4, 2, 3, 2, 2, 0, 3, 2, 0, 1, 1, 0, 0, 0, 2, 0, 2, 1, 1, 4, 2, 5, 9], "TSXV": [1, 1, 0, 2, 0, 11, 6, 9, 2, 5, 7, 9, 4, 4, 3, 2, 4, 6, 5, 4, 6, 12, 2, 0, 8, 9, 6]}}, {"label": "Lithium", "byBoard": {"TSX": [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0], "TSXV": [0, 0, 0, 1, 0, 3, 1, 5, 1, 4, 1, 8, 3, 5, 4, 0, 0, 1, 4, 2, 3, 6, 5, 2, 4, 2, 2]}}, {"label": "Nickel", "byBoard": {"TSX": [0, 0, 0, 0, 2, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1], "TSXV": [0, 0, 0, 0, 0, 1, 0, 5, 0, 2, 1, 7, 3, 2, 3, 0, 4, 5, 3, 1, 2, 6, 5, 1, 5, 3, 0]}}, {"label": "Other", "byBoard": {"TSX": [0, 0, 0, 0, 2, 2, 3, 1, 0, 0, 1, 6, 2, 0, 1, 0, 2, 1, 2, 1, 0, 1, 0, 1, 3, 2, 1], "TSXV": [0, 0, 0, 0, 0, 4, 3, 10, 3, 3, 8, 6, 4, 3, 4, 0, 2, 7, 2, 1, 6, 7, 5, 13, 2, 9, 5]}}], "region": [{"label": "Canada", "byBoard": {"TSX": [1, 0, 0, 0, 6, 0, 3, 1, 3, 0, 2, 2, 1, 0, 2, 0, 2, 1, 4, 1, 3, 0, 0, 0, 4, 4, 5], "TSXV": [0, 1, 0, 2, 1, 11, 12, 27, 10, 13, 14, 36, 15, 17, 9, 1, 7, 12, 15, 6, 14, 23, 11, 9, 18, 15, 10]}}, {"label": "Latin America", "byBoard": {"TSX": [1, 0, 0, 0, 6, 1, 3, 3, 2, 1, 4, 3, 2, 1, 1, 0, 2, 1, 3, 1, 1, 3, 1, 3, 4, 6, 5], "TSXV": [1, 2, 0, 2, 0, 8, 5, 4, 7, 3, 11, 11, 5, 3, 2, 6, 3, 5, 7, 3, 8, 13, 13, 3, 6, 14, 8]}}, {"label": "USA", "byBoard": {"TSX": [0, 0, 0, 0, 6, 2, 4, 4, 2, 2, 0, 2, 1, 0, 0, 0, 0, 2, 2, 1, 0, 1, 3, 1, 1, 2, 6], "TSXV": [0, 1, 0, 2, 0, 12, 4, 8, 4, 8, 8, 9, 7, 8, 3, 1, 3, 8, 5, 3, 5, 11, 8, 4, 5, 9, 5]}}, {"label": "Africa", "byBoard": {"TSX": [1, 1, 0, 1, 0, 2, 1, 1, 2, 0, 3, 2, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 2, 1], "TSXV": [0, 0, 0, 0, 0, 0, 0, 2, 1, 3, 2, 8, 2, 3, 1, 1, 2, 3, 2, 0, 2, 4, 1, 1, 1, 4, 2]}}, {"label": "UK / Europe", "byBoard": {"TSX": [1, 0, 0, 0, 4, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 3, 1], "TSXV": [0, 0, 0, 0, 0, 1, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 2, 2, 3, 0, 1, 2, 4, 1, 1, 2, 2]}}, {"label": "Other", "byBoard": {"TSX": [0, 0, 0, 0, 1, 2, 3, 2, 0, 0, 1, 2, 0, 0, 1, 0, 0, 0, 2, 0, 1, 2, 0, 2, 2, 1, 2], "TSXV": [0, 0, 0, 0, 0, 2, 2, 5, 2, 0, 3, 7, 1, 2, 2, 1, 2, 6, 1, 2, 9, 7, 5, 6, 5, 1, 2]}}]}, "totals": {"TSX": {"n": 183, "mcap": 1053620676993.7151}, "TSXV": {"n": 896, "mcap": 82013130988.182}}, "gaps": {"no_commodity": 92, "no_property": 70}};</script>
+<script>window.__VIZ__ = {"commodity": [{"label": "Gold", "TSX": {"n": 118, "mcap": 839385221759.9349, "median": 1539365750.7350001, "turnover": 0.39468122827250485, "traded": 331289590318.0}, "TSXV": {"n": 540, "mcap": 53275641992.162, "median": 20136944.275, "turnover": 0.23992698797286285, "traded": 12782264315.5}, "ALL": {"n": 658, "mcap": 892660863752.097, "median": 35170147.5025, "turnover": 0.38544521061142095, "traded": 344071854633.5}}, {"label": "Silver", "TSX": {"n": 52, "mcap": 433915541199.26996, "median": 1838067166.655, "turnover": 0.3501021717800957, "traded": 151914773343.0}, "TSXV": {"n": 171, "mcap": 23934412436.497, "median": 34982629.605, "turnover": 0.30874418035563567, "traded": 7389610550.0}, "ALL": {"n": 223, "mcap": 457849953635.76697, "median": 57096611.715, "turnover": 0.34794015512717796, "traded": 159304383893.0}}, {"label": "Copper", "TSX": {"n": 62, "mcap": 571757699261.895, "median": 1610292570.515, "turnover": 0.37657501581518166, "traded": 215309664642.0}, "TSXV": {"n": 291, "mcap": 20906292568.488, "median": 18794470.5, "turnover": 0.18399439586902328, "traded": 3846640671.0}, "ALL": {"n": 353, "mcap": 592663991830.383, "median": 27724976.16, "turnover": 0.3697817116173328, "traded": 219156305313.0}}, {"label": "Nickel", "TSX": {"n": 11, "mcap": 132914631412.98999, "median": 912274641.72, "turnover": 0.32611936911833256, "traded": 43346035743.0}, "TSXV": {"n": 75, "mcap": 4197288253.6000004, "median": 14595197.4, "turnover": 0.19370743081623074, "traded": 813045924.0}, "ALL": {"n": 86, "mcap": 137111919666.58998, "median": 17394939.075, "turnover": 0.32206595731705906, "traded": 44159081667.0}}, {"label": "Diamond", "TSX": {"n": 4, "mcap": 9126136810.050001, "median": 342647137.825, "turnover": 0.3290926782614762, "traded": 3003344805.0}, "TSXV": {"n": 17, "mcap": 224083990.03, "median": 3983453.22, "turnover": 0.3818978700287471, "traded": 85577198.5}, "ALL": {"n": 21, "mcap": 9350220800.079998, "median": 8278892.82, "turnover": 0.3303581882765348, "traded": 3088922003.5}}, {"label": "Molybdenum", "TSX": {"n": 8, "mcap": 77524852832.01999, "median": 773823181.0300001, "turnover": 0.34680523238472116, "traded": 26886024602.0}, "TSXV": {"n": 26, "mcap": 2779302305.955, "median": 36033519.32, "turnover": 0.160334873988053, "traded": 445619085.0}, "ALL": {"n": 34, "mcap": 80304155137.975, "median": 66161137.11750001, "turnover": 0.3403515501786924, "traded": 27331643687.0}}, {"label": "Platinum/PGM", "TSX": {"n": 8, "mcap": 75619615441.81999, "median": 353590556.62, "turnover": 0.3250213507222838, "traded": 24577989552.0}, "TSXV": {"n": 31, "mcap": 1058929565.1849998, "median": 13780623.12, "turnover": 0.23261032376309856, "traded": 246317949.0}, "ALL": {"n": 39, "mcap": 76678545007.00499, "median": 19304855.0, "turnover": 0.3237451558155175, "traded": 24824307501.0}}, {"label": "Iron", "TSX": {"n": 10, "mcap": 12736802795.135, "median": 1120612236.5, "turnover": 0.2716823291259353, "traded": 3460364249.0}, "TSXV": {"n": 12, "mcap": 301660694.09000003, "median": 8874574.469999999, "turnover": 0.16774859135245052, "traded": 50603156.5}, "ALL": {"n": 22, "mcap": 13038463489.225, "median": 27278322.665, "turnover": 0.26927769582677186, "traded": 3510967405.5}}, {"label": "Lead", "TSX": {"n": 10, "mcap": 91508155392.79, "median": 2740460846.2200003, "turnover": 0.3007177414229484, "traded": 27518125811.5}, "TSXV": {"n": 28, "mcap": 2081533684.2949998, "median": 23782402.299999997, "turnover": 0.2205603992690107, "traded": 459103900.5}, "ALL": {"n": 38, "mcap": 93589689077.08498, "median": 35715872.64749999, "turnover": 0.2989349573429676, "traded": 27977229712.0}}, {"label": "Zinc", "TSX": {"n": 19, "mcap": 157417036895.88, "median": 1890534333.31, "turnover": 0.3793025647757109, "traded": 59708685834.0}, "TSXV": {"n": 67, "mcap": 6045011675.124999, "median": 15971171.985, "turnover": 0.2932253932269448, "traded": 1772550925.5}, "ALL": {"n": 86, "mcap": 163462048571.005, "median": 28981469.46, "turnover": 0.376119333490389, "traded": 61481236759.5}}, {"label": "Rare Earths", "TSX": {"n": 3, "mcap": 1767172679.68, "median": 638978629.12, "turnover": 0.06363666906641162, "traded": 112456983.0}, "TSXV": {"n": 32, "mcap": 2269769016.285, "median": 22732388.42, "turnover": 0.2473975567430566, "traded": 561535309.0}, "ALL": {"n": 35, "mcap": 4036941695.965, "median": 25588022.26, "turnover": 0.16695616205546593, "traded": 673992292.0}}, {"label": "Potash", "TSX": {"n": 5, "mcap": 46438093470.380005, "median": 40639481.28, "turnover": 0.49057372401670174, "traded": 22781308450.0}, "TSXV": {"n": 5, "mcap": 348366239.745, "median": 39543523.43, "turnover": 0.47465899571967146, "traded": 165355169.5}, "ALL": {"n": 10, "mcap": 46786459710.12501, "median": 40091502.355000004, "turnover": 0.4904552249020487, "traded": 22946663619.5}}, {"label": "Lithium", "TSX": {"n": 7, "mcap": 9272686038.51, "median": 1080327673.81, "turnover": 0.3830004907154897, "traded": 3551443303.0}, "TSXV": {"n": 97, "mcap": 7273959719.105, "median": 10216747.805, "turnover": 0.19439439075887308, "traded": 1414016968.0}, "ALL": {"n": 104, "mcap": 16546645757.615002, "median": 13047626.002500001, "turnover": 0.3000886308764315, "traded": 4965460271.0}}, {"label": "Uranium", "TSX": {"n": 14, "mcap": 93488893260.97998, "median": 1374084279.645, "turnover": 0.3519918418933164, "traded": 32907327735.5}, "TSXV": {"n": 36, "mcap": 1876036453.285, "median": 21162994.535, "turnover": 0.40675321588971025, "traded": 763083860.5}, "ALL": {"n": 50, "mcap": 95364929714.265, "median": 44742042.47, "turnover": 0.3530691177237188, "traded": 33670411596.0}}, {"label": "Coal", "TSX": {"n": 2, "mcap": 1111817448.0900002, "median": 555908724.0450001, "turnover": 0.028224119034926158, "traded": 31380068.0}, "TSXV": {"n": 5, "mcap": 542290935.2099999, "median": 15176382.4, "turnover": 0.12488551643182834, "traded": 67724283.5}, "ALL": {"n": 7, "mcap": 1654108383.3000002, "median": 89095399.8, "turnover": 0.059914061557613044, "traded": 99104351.5}}, {"label": "Tungsten", "TSX": {"n": 3, "mcap": 3409080439.3300004, "median": 1602245843.88, "turnover": 0.2037620466463738, "traded": 694641207.5}, "TSXV": {"n": 7, "mcap": 1104337995.065, "median": 48105137.5, "turnover": 0.1640727465773151, "traded": 181191768.0}, "ALL": {"n": 10, "mcap": 4513418434.3949995, "median": 112134625.11, "turnover": 0.19405091467381327, "traded": 875832975.5}}], "region": [{"label": "Canada", "TSX": {"n": 61, "mcap": 579423531649.7849, "median": 1391502602.08, "turnover": 0.4112029974914956, "traded": 238260693031.5}, "TSXV": {"n": 452, "mcap": 33148615163.672005, "median": 13272047.555, "turnover": 0.2595639275280929, "traded": 8604184744.0}, "ALL": {"n": 513, "mcap": 612572146813.4569, "median": 16881356.97, "turnover": 0.40299722907688185, "traded": 246864877775.5}}, {"label": "Latin America", "TSX": {"n": 66, "mcap": 467438270876.27, "median": 1754017579.205, "turnover": 0.4792423640848968, "traded": 224016221998.5}, "TSXV": {"n": 199, "mcap": 25621891625.61, "median": 33653979.345, "turnover": 0.26802071704323305, "traded": 6867197765.5}, "ALL": {"n": 265, "mcap": 493060162501.88, "median": 70730828.75, "turnover": 0.4682662225081298, "traded": 230883419764.0}}, {"label": "USA", "TSX": {"n": 50, "mcap": 349799964816.34, "median": 1767490451.145, "turnover": 0.46834113201530914, "traded": 163825711501.0}, "TSXV": {"n": 182, "mcap": 16448240806.237999, "median": 20005781.935, "turnover": 0.2563360698975769, "traded": 4216277405.0}, "ALL": {"n": 232, "mcap": 366248205622.578, "median": 47230299.7225, "turnover": 0.4588199650571633, "traded": 168041988906.0}}, {"label": "Africa", "TSX": {"n": 26, "mcap": 250019447419.77, "median": 3408497504.085, "turnover": 0.4960912318342812, "traded": 124032455653.0}, "TSXV": {"n": 55, "mcap": 6747094111.985, "median": 34969643.8, "turnover": 0.17955400390044143, "traded": 1211467762.5}, "ALL": {"n": 81, "mcap": 256766541531.75504, "median": 72354926.325, "turnover": 0.4877735341542182, "traded": 125243923415.5}}, {"label": "UK / Europe", "TSX": {"n": 18, "mcap": 235217142768.10504, "median": 2533390077.955, "turnover": 0.3815750983506561, "traded": 89753004385.5}, "TSXV": {"n": 42, "mcap": 2377017574.4199996, "median": 12106440.524999999, "turnover": 0.16252963468066375, "traded": 386335798.0}, "ALL": {"n": 60, "mcap": 237594160342.52502, "median": 37196913.3625, "turnover": 0.3793836517427516, "traded": 90139340183.5}}, {"label": "Aus / NZ / PNG", "TSX": {"n": 15, "mcap": 148952864439.60498, "median": 1890534333.31, "turnover": 0.4673672382260675, "traded": 69615688879.0}, "TSXV": {"n": 26, "mcap": 1975385685.8099997, "median": 15754670.76, "turnover": 0.11937423774704882, "traded": 235810160.5}, "ALL": {"n": 41, "mcap": 150928250125.415, "median": 50170513.82, "turnover": 0.46281262110609744, "traded": 69851499039.5}}, {"label": "Asia", "TSX": {"n": 12, "mcap": 93605196434.65002, "median": 1266467883.415, "turnover": 0.35512587056219114, "traded": 33241626873.0}, "TSXV": {"n": 19, "mcap": 1080363205.675, "median": 29206944.875, "turnover": 0.16669811370286233, "traded": 180094508.5}, "ALL": {"n": 31, "mcap": 94685559640.325, "median": 59777636.78, "turnover": 0.3529759079257345, "traded": 33421721381.5}}, {"label": "Other", "TSX": {"n": 1, "mcap": 86745601490.1, "median": 86745601490.1, "turnover": 0.5210994482891318, "traded": 45203085078.0}, "TSXV": {"n": 1, "mcap": 67785214.52, "median": 67785214.52, "turnover": 0.038154006272812194, "traded": 2586277.5}, "ALL": {"n": 2, "mcap": 86813386704.62001, "median": 43406693352.310005, "turnover": 0.5207223571326731, "traded": 45205671355.5}}], "heat": {"commodities": ["Gold", "Silver", "Copper", "Nickel", "Diamond", "Molybdenum", "Platinum/PGM", "Iron", "Lead", "Zinc", "Rare Earths", "Potash", "Lithium", "Uranium", "Coal", "Tungsten"], "regions": ["Canada", "Latin America", "USA", "Africa", "UK / Europe", "Aus / NZ / PNG", "Asia", "Other"], "cells": [[{"TSX": 40, "TSXV": 291}, {"TSX": 15, "TSXV": 71}, {"TSX": 22, "TSXV": 156}, {"TSX": 3, "TSXV": 57}, {"TSX": 1, "TSXV": 13}, {"TSX": 6, "TSXV": 19}, {"TSX": 2, "TSXV": 26}, {"TSX": 3, "TSXV": 10}, {"TSX": 6, "TSXV": 19}, {"TSX": 8, "TSXV": 42}, {"TSX": 1, "TSXV": 22}, {"TSX": 3, "TSXV": 2}, {"TSX": 3, "TSXV": 63}, {"TSX": 6, "TSXV": 26}, {"TSX": 0, "TSXV": 1}, {"TSX": 1, "TSXV": 5}], [{"TSX": 50, "TSXV": 137}, {"TSX": 32, "TSXV": 75}, {"TSX": 28, "TSXV": 75}, {"TSX": 2, "TSXV": 4}, {"TSX": 0, "TSXV": 1}, {"TSX": 4, "TSXV": 6}, {"TSX": 0, "TSXV": 3}, {"TSX": 0, "TSXV": 1}, {"TSX": 5, "TSXV": 5}, {"TSX": 8, "TSXV": 9}, {"TSX": 1, "TSXV": 4}, {"TSX": 1, "TSXV": 1}, {"TSX": 1, "TSXV": 20}, {"TSX": 1, "TSXV": 4}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}], [{"TSX": 34, "TSXV": 117}, {"TSX": 17, "TSXV": 42}, {"TSX": 18, "TSXV": 68}, {"TSX": 3, "TSXV": 10}, {"TSX": 0, "TSXV": 1}, {"TSX": 3, "TSXV": 6}, {"TSX": 1, "TSXV": 4}, {"TSX": 2, "TSXV": 1}, {"TSX": 5, "TSXV": 8}, {"TSX": 10, "TSXV": 12}, {"TSX": 1, "TSXV": 4}, {"TSX": 0, "TSXV": 2}, {"TSX": 2, "TSXV": 26}, {"TSX": 5, "TSXV": 11}, {"TSX": 1, "TSXV": 0}, {"TSX": 0, "TSXV": 1}], [{"TSX": 17, "TSXV": 33}, {"TSX": 4, "TSXV": 2}, {"TSX": 5, "TSXV": 15}, {"TSX": 1, "TSXV": 7}, {"TSX": 1, "TSXV": 4}, {"TSX": 3, "TSXV": 0}, {"TSX": 3, "TSXV": 3}, {"TSX": 0, "TSXV": 1}, {"TSX": 2, "TSXV": 1}, {"TSX": 4, "TSXV": 1}, {"TSX": 0, "TSXV": 5}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 3}, {"TSX": 4, "TSXV": 1}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 0}], [{"TSX": 14, "TSXV": 24}, {"TSX": 8, "TSXV": 3}, {"TSX": 13, "TSXV": 19}, {"TSX": 2, "TSXV": 3}, {"TSX": 0, "TSXV": 1}, {"TSX": 4, "TSXV": 1}, {"TSX": 1, "TSXV": 1}, {"TSX": 2, "TSXV": 1}, {"TSX": 3, "TSXV": 0}, {"TSX": 5, "TSXV": 6}, {"TSX": 1, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 3}, {"TSX": 2, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}], [{"TSX": 11, "TSXV": 17}, {"TSX": 1, "TSXV": 0}, {"TSX": 5, "TSXV": 9}, {"TSX": 0, "TSXV": 2}, {"TSX": 0, "TSXV": 0}, {"TSX": 2, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 1, "TSXV": 1}, {"TSX": 1, "TSXV": 2}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 2}, {"TSX": 5, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 1}], [{"TSX": 10, "TSXV": 13}, {"TSX": 4, "TSXV": 2}, {"TSX": 7, "TSXV": 8}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 1, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 2}, {"TSX": 2, "TSXV": 0}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 0}], [{"TSX": 1, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}]]}, "lines": {"years": [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026], "missing": 224, "before": 30, "partial": 2026, "none": [{"label": "All mining", "byBoard": {"TSX": [2, 1, 0, 1, 10, 7, 10, 9, 5, 2, 8, 12, 5, 1, 4, 0, 5, 4, 8, 2, 5, 7, 4, 7, 10, 13, 17], "TSXV": [1, 3, 0, 5, 1, 27, 19, 44, 21, 25, 36, 64, 28, 29, 14, 9, 15, 31, 32, 12, 35, 51, 39, 24, 34, 39, 28]}}], "commodity": [{"label": "Gold", "byBoard": {"TSX": [2, 1, 0, 1, 6, 3, 5, 6, 4, 2, 5, 5, 1, 1, 3, 0, 3, 1, 5, 1, 4, 5, 3, 4, 5, 10, 13], "TSXV": [1, 2, 0, 3, 1, 16, 13, 26, 15, 16, 22, 42, 16, 19, 6, 8, 8, 23, 22, 8, 23, 29, 22, 7, 21, 22, 16]}}, {"label": "Copper", "byBoard": {"TSX": [1, 0, 0, 0, 7, 2, 5, 4, 1, 0, 1, 2, 2, 0, 1, 0, 1, 2, 2, 0, 2, 1, 4, 2, 3, 4, 6], "TSXV": [0, 1, 0, 3, 1, 8, 11, 14, 7, 9, 12, 18, 9, 9, 4, 3, 4, 9, 15, 4, 14, 16, 16, 4, 10, 13, 8]}}, {"label": "Silver", "byBoard": {"TSX": [0, 0, 0, 0, 4, 2, 3, 2, 2, 0, 3, 2, 0, 1, 1, 0, 0, 0, 2, 0, 2, 1, 1, 4, 2, 5, 9], "TSXV": [1, 1, 0, 2, 0, 11, 6, 9, 2, 5, 7, 9, 4, 4, 3, 2, 4, 6, 5, 4, 6, 12, 2, 0, 8, 9, 6]}}, {"label": "Lithium", "byBoard": {"TSX": [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0], "TSXV": [0, 0, 0, 1, 0, 3, 1, 5, 1, 4, 1, 8, 3, 5, 4, 0, 0, 1, 4, 2, 3, 6, 5, 2, 4, 2, 2]}}, {"label": "Nickel", "byBoard": {"TSX": [0, 0, 0, 0, 2, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1], "TSXV": [0, 0, 0, 0, 0, 1, 0, 5, 0, 2, 1, 7, 3, 2, 3, 0, 4, 5, 3, 1, 2, 6, 5, 1, 5, 3, 0]}}, {"label": "Other", "byBoard": {"TSX": [0, 0, 0, 0, 2, 2, 3, 1, 0, 0, 1, 6, 2, 0, 1, 0, 2, 1, 2, 1, 0, 1, 0, 1, 3, 2, 1], "TSXV": [0, 0, 0, 0, 0, 4, 3, 10, 3, 3, 8, 6, 4, 3, 4, 0, 2, 7, 2, 1, 6, 7, 5, 13, 2, 9, 5]}}], "region": [{"label": "Canada", "byBoard": {"TSX": [1, 0, 0, 0, 6, 0, 3, 1, 3, 0, 2, 2, 1, 0, 2, 0, 2, 1, 4, 1, 3, 0, 0, 0, 4, 4, 5], "TSXV": [0, 1, 0, 2, 1, 11, 12, 27, 10, 13, 14, 36, 15, 17, 9, 1, 7, 12, 15, 6, 14, 23, 11, 9, 18, 15, 10]}}, {"label": "Latin America", "byBoard": {"TSX": [1, 0, 0, 0, 6, 1, 3, 3, 2, 1, 4, 3, 2, 1, 1, 0, 2, 1, 3, 1, 1, 3, 1, 3, 4, 6, 5], "TSXV": [1, 2, 0, 2, 0, 8, 5, 4, 7, 3, 11, 11, 5, 3, 2, 6, 3, 5, 7, 3, 8, 13, 13, 3, 6, 14, 8]}}, {"label": "USA", "byBoard": {"TSX": [0, 0, 0, 0, 6, 2, 4, 4, 2, 2, 0, 2, 1, 0, 0, 0, 0, 2, 2, 1, 0, 1, 3, 1, 1, 2, 6], "TSXV": [0, 1, 0, 2, 0, 12, 4, 8, 4, 8, 8, 9, 7, 8, 3, 1, 3, 8, 5, 3, 5, 11, 8, 4, 5, 9, 5]}}, {"label": "Africa", "byBoard": {"TSX": [1, 1, 0, 1, 0, 2, 1, 1, 2, 0, 3, 2, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 2, 1], "TSXV": [0, 0, 0, 0, 0, 0, 0, 2, 1, 3, 2, 8, 2, 3, 1, 1, 2, 3, 2, 0, 2, 4, 1, 1, 1, 4, 2]}}, {"label": "UK / Europe", "byBoard": {"TSX": [1, 0, 0, 0, 4, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 3, 1], "TSXV": [0, 0, 0, 0, 0, 1, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 2, 2, 3, 0, 1, 2, 4, 1, 1, 2, 2]}}, {"label": "Other", "byBoard": {"TSX": [0, 0, 0, 0, 1, 2, 3, 2, 0, 0, 1, 2, 0, 0, 1, 0, 0, 0, 2, 0, 1, 2, 0, 2, 2, 1, 2], "TSXV": [0, 0, 0, 0, 0, 2, 2, 5, 2, 0, 3, 7, 1, 2, 2, 1, 2, 6, 1, 2, 9, 7, 5, 6, 5, 1, 2]}}]}, "returns": {"labels": ["7d", "1m", "3m", "6m", "1y", "2y", "3y", "5y", "7y", "10y", "15y"], "boards": {"TSX": {"median": [-0.8, -0.5, -4.0, 1.4, -0.4, -9.5, -25.5, -10.3, -42.4, -54.8, -51.2], "neg": [60.3, 50.4, 52.8, 50.0, 50.0, 52.5, 58.9, 54.4, 59.4, 67.8, 60.4], "n": [131, 131, 127, 118, 110, 99, 90, 79, 69, 59, 48], "p25": [-4.2, -9.9, -20.6, -25.1, -42.3, -59.5, -71.9, -72.3, -83.4, -85.6, -91.4], "p75": [1.3, 10.1, 21.9, 43.7, 62.4, 62.1, 72.7, 129.3, 91.6, 31.4, 88.0]}, "TSXV": {"median": [-1.5, -5.8, -13.9, -22.9, -32.3, -52.4, -58.4, -71.4, -82.8, -87.0, -96.2], "neg": [54.7, 60.1, 64.4, 68.2, 69.0, 77.9, 77.7, 78.4, 85.9, 87.6, 94.2], "n": [464, 464, 458, 444, 422, 394, 368, 306, 234, 178, 120], "p25": [-7.8, -20.0, -30.4, -45.3, -59.4, -76.6, -82.3, -89.4, -93.3, -96.7, -98.7], "p75": [3.3, 9.4, 14.2, 15.5, 9.8, -9.1, -11.1, -17.8, -46.2, -51.7, -83.4]}}, "usable": 595, "total": 1079, "no_listing_date": 222, "no_history": 259, "consolidated": 227}, "geo": {"hq": ["Canada", "USA", "Australia", "UK", "Cayman Islands", "China", "Peru", "Other"], "op": ["Canada", "USA", "Mexico", "Peru", "Argentina", "Chile", "Brazil", "Australia", "Colombia", "Finland", "Ivory Coast", "Burkina Faso", "Bolivia", "Namibia", "Other"], "cells": [[{"TSX": 55, "TSXV": 445}, {"TSX": 37, "TSXV": 163}, {"TSX": 18, "TSXV": 62}, {"TSX": 11, "TSXV": 38}, {"TSX": 9, "TSXV": 28}, {"TSX": 10, "TSXV": 24}, {"TSX": 11, "TSXV": 16}, {"TSX": 6, "TSXV": 18}, {"TSX": 5, "TSXV": 12}, {"TSX": 2, "TSXV": 11}, {"TSX": 5, "TSXV": 4}, {"TSX": 3, "TSXV": 5}, {"TSX": 6, "TSXV": 4}, {"TSX": 2, "TSXV": 7}, {"TSX": 60, "TSXV": 112}], [{"TSX": 2, "TSXV": 3}, {"TSX": 11, "TSXV": 16}, {"TSX": 2, "TSXV": 1}, {"TSX": 1, "TSXV": 1}, {"TSX": 1, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 2}, {"TSX": 1, "TSXV": 1}, {"TSX": 1, "TSXV": 0}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 1}], [{"TSX": 3, "TSXV": 3}, {"TSX": 1, "TSXV": 1}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 2}, {"TSX": 0, "TSXV": 0}, {"TSX": 4, "TSXV": 4}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 10, "TSXV": 1}], [{"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 2, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 3, "TSXV": 4}], [{"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 5}], [{"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 6, "TSXV": 0}], [{"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 0, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 1, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}], [{"TSX": 1, "TSXV": 0}, {"TSX": 1, "TSXV": 1}, {"TSX": 1, "TSXV": 2}, {"TSX": 1, "TSXV": 0}, {"TSX": 1, "TSXV": 4}, {"TSX": 3, "TSXV": 1}, {"TSX": 2, "TSXV": 2}, {"TSX": 0, "TSXV": 0}, {"TSX": 1, "TSXV": 1}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 0, "TSXV": 0}, {"TSX": 5, "TSXV": 10}]], "pairs": 1338, "companies": 1009, "abroad": 452}, "size": [{"label": "< C$5M", "TSX": 2, "TSXV": 217}, {"label": "C$5\u201325M", "TSX": 9, "TSXV": 290}, {"label": "C$25\u2013100M", "TSX": 15, "TSXV": 215}, {"label": "C$100\u2013500M", "TSX": 40, "TSXV": 143}, {"label": "C$500M\u20132B", "TSX": 50, "TSXV": 29}, {"label": "> C$2B", "TSX": 67, "TSXV": 2}], "stage": [{"label": "Producer", "TSX": 79, "TSXV": 50}, {"label": "Royalty/Streamer", "TSX": 12, "TSXV": 23}, {"label": "Explorer", "TSX": 88, "TSXV": 771}, {"label": "Shell", "TSX": 4, "TSXV": 47}, {"label": "Unknown", "TSX": 0, "TSXV": 5}], "stage_series": [{"label": "Producer", "TSX": {"n": 79, "mcap": 795339256763.7651, "median": 3850374258.14, "turnover": 0.4421253279007268, "traded": 351639629689.0}, "TSXV": {"n": 50, "mcap": 22876097366.56, "median": 155866225.64, "turnover": 0.28822554347221224, "traded": 6593475596.0}, "ALL": {"n": 129, "mcap": 818215354130.3251, "median": 841231119.81, "turnover": 0.4378225163786657, "traded": 358233105285.0}}, {"label": "Royalty/Streamer", "TSX": {"n": 12, "mcap": 159041146513.18, "median": 2087678290.355, "turnover": 0.26797892345090735, "traded": 42619675227.0}, "TSXV": {"n": 23, "mcap": 2869588471.342, "median": 34715413.17, "turnover": 0.11902603871985416, "traded": 341555748.5}, "ALL": {"n": 35, "mcap": 161910734984.52197, "median": 116156795.46, "turnover": 0.26533899052219684, "traded": 42961230975.5}}, {"label": "Explorer", "TSX": {"n": 88, "mcap": 89527912854.44, "median": 416159269.65, "turnover": 0.3278655967186917, "traded": 29353122571.0}, "TSXV": {"n": 771, "mcap": 52666836820.745, "median": 16922270.96, "turnover": 0.2347064660361568, "traded": 12361247147.5}, "ALL": {"n": 859, "mcap": 142194749675.185, "median": 21879911.52, "turnover": 0.29336082952280584, "traded": 41714369718.5}}, {"label": "Shell", "TSX": {"n": 4, "mcap": 9712360862.33, "median": 1505709126.675, "turnover": 0.34598244460141087, "traded": 3360306354.0}, "TSXV": {"n": 47, "mcap": 3590729573.02, "median": 6919971.51, "turnover": 0.17446308229586932, "traded": 626449749.0}, "ALL": {"n": 51, "mcap": 13303090435.349998, "median": 7427399.0, "turnover": 0.2996864617567422, "traded": 3986756103.0}}, {"label": "Unknown", "TSX": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0, "traded": 0.0}, "TSXV": {"n": 5, "mcap": 9878756.515, "median": 1011271.35, "turnover": 0.06097801875016655, "traded": 602387.0}, "ALL": {"n": 5, "mcap": 9878756.515, "median": 1011271.35, "turnover": 0.06097801875016655, "traded": 602387.0}}], "npsize": [{"label": "< C$5M", "TSX": {"n": 1, "mcap": 4252248.86, "median": 4252248.86, "turnover": 0.28281305718311134, "traded": 1202591.5}, "TSXV": {"n": 211, "mcap": 562122051.52, "median": 2561410.08, "turnover": 0.16307949537314748, "traded": 91670580.5}, "ALL": {"n": 212, "mcap": 566374300.3800001, "median": 2591330.67, "turnover": 0.1639784360584302, "traded": 92873172.0}}, {"label": "C$5\u201325M", "TSX": {"n": 9, "mcap": 120950715.715, "median": 16356619.12, "turnover": 0.28700614787428586, "traded": 34713599.0}, "TSXV": {"n": 274, "mcap": 3393679459.618, "median": 10960699.1125, "turnover": 0.20231905522311347, "traded": 686606022.0}, "ALL": {"n": 283, "mcap": 3514630175.3329997, "median": 10979918.0, "turnover": 0.2052334342493538, "traded": 721319621.0}}, {"label": "C$25\u2013100M", "TSX": {"n": 10, "mcap": 517711756.6449999, "median": 49566301.065, "turnover": 0.16146726808315634, "traded": 83593503.0}, "TSXV": {"n": 201, "mcap": 10755232665.900002, "median": 49200000.0, "turnover": 0.19448841224347052, "traded": 2091768124.5}, "ALL": {"n": 211, "mcap": 11272944422.545, "median": 49200000.0, "turnover": 0.19297191097203037, "traded": 2175361627.5}}, {"label": "C$100\u2013500M", "TSX": {"n": 26, "mcap": 5440025733.990001, "median": 198911959.525, "turnover": 0.2183853228996846, "traded": 1188021776.5}, "TSXV": {"n": 118, "mcap": 26497758279.162003, "median": 192456536.59, "turnover": 0.2676181821605878, "traded": 7091281902.0}, "ALL": {"n": 144, "mcap": 31937784013.152, "median": 196256119.035, "turnover": 0.2592322521528287, "traded": 8279303678.5}}, {"label": "C$500M\u20132B", "TSX": {"n": 33, "mcap": 36902604843.009995, "median": 1013701752.6, "turnover": 0.3318855594097684, "traded": 12247441652.0}, "TSXV": {"n": 19, "mcap": 15058652694.080002, "median": 790145480.52, "turnover": 0.2010121832273874, "traded": 3026972654.5}, "ALL": {"n": 52, "mcap": 51961257537.09001, "median": 878688251.94, "turnover": 0.2939577491094611, "traded": 15274414306.5}}, {"label": "> C$2B", "TSX": {"n": 13, "mcap": 56254728418.55, "median": 3720859606.72, "turnover": 0.3405661415775762, "traded": 19158455803.0}, "TSXV": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0, "traded": 0.0}, "ALL": {"n": 13, "mcap": 56254728418.55, "median": 3720859606.72, "turnover": 0.3405661415775762, "traded": 19158455803.0}}], "prodshare": [{"label": "Gold", "TSX": {"prod": 53, "tot": 118}, "TSXV": {"prod": 31, "tot": 540}}, {"label": "Silver", "TSX": {"prod": 21, "tot": 52}, "TSXV": {"prod": 17, "tot": 171}}, {"label": "Copper", "TSX": {"prod": 29, "tot": 62}, "TSXV": {"prod": 8, "tot": 291}}, {"label": "Nickel", "TSX": {"prod": 4, "tot": 11}, "TSXV": {"prod": 2, "tot": 75}}, {"label": "Diamond", "TSX": {"prod": 1, "tot": 4}, "TSXV": {"prod": 4, "tot": 17}}, {"label": "Molybdenum", "TSX": {"prod": 3, "tot": 8}, "TSXV": {"prod": 0, "tot": 26}}, {"label": "Platinum/PGM", "TSX": {"prod": 2, "tot": 8}, "TSXV": {"prod": 0, "tot": 31}}, {"label": "Iron", "TSX": {"prod": 2, "tot": 10}, "TSXV": {"prod": 1, "tot": 12}}, {"label": "Lead", "TSX": {"prod": 4, "tot": 10}, "TSXV": {"prod": 2, "tot": 28}}, {"label": "Zinc", "TSX": {"prod": 9, "tot": 19}, "TSXV": {"prod": 4, "tot": 67}}, {"label": "Rare Earths", "TSX": {"prod": 0, "tot": 3}, "TSXV": {"prod": 2, "tot": 32}}, {"label": "Potash", "TSX": {"prod": 2, "tot": 5}, "TSXV": {"prod": 0, "tot": 5}}, {"label": "Lithium", "TSX": {"prod": 0, "tot": 7}, "TSXV": {"prod": 3, "tot": 97}}, {"label": "Uranium", "TSX": {"prod": 6, "tot": 14}, "TSXV": {"prod": 1, "tot": 36}}, {"label": "Coal", "TSX": {"prod": 1, "tot": 2}, "TSXV": {"prod": 2, "tot": 5}}, {"label": "Tungsten", "TSX": {"prod": 0, "tot": 3}, "TSXV": {"prod": 0, "tot": 7}}], "totals": {"TSX": {"n": 183, "mcap": 1053620676993.7151}, "TSXV": {"n": 896, "mcap": 82013130988.182}}, "gaps": {"no_commodity": 92, "no_property": 70}};</script>
 <script>
 (function () {
   const D = window.__VIZ__;
@@ -996,6 +1106,9 @@ details.tbl summary:hover { color: var(--ink); }
   // Additive measures stack the boards; statistics sit side by side, because
   // a median or a ratio of the parts is not the value for the whole.
   const ADDITIVE = { n: true, mcap: true, median: false, turnover: false };
+
+  // Sorting a distribution by value destroys it — the bands are the x axis.
+  const KEEP_ORDER = { npsize: true };
 
   const fmtN = v => v.toLocaleString('en-US');
   const fmtM = v =>
@@ -1035,8 +1148,8 @@ details.tbl summary:hover { color: var(--ink); }
           ? parts.reduce((s, p) => s + p.v, 0)
           : (sel.length === 2 ? r.ALL[measure] : parts[0].v);
         return { label: r.label, parts, total };
-      })
-      .sort((a, b) => b.total - a.total);
+      });
+    if (!KEEP_ORDER[key]) rows.sort((a, b) => b.total - a.total);
 
     // additive bars scale to the stacked total; grouped bars to the largest part
     const max = additive
@@ -1202,6 +1315,169 @@ details.tbl summary:hover { color: var(--ink); }
     });
   });
 
+  // ---- returns since listing ----
+  // Median is used, not mean: a handful of 20x survivors would drag a mean
+  // upward and hide what happens to the typical company.
+  let retMode = 'median';
+
+  function drawReturns() {
+    const R = D.returns;
+    if (!R) return;
+    const sel = [...boards];
+    const spread = retMode === 'spread';
+    const series = sel.map(b => ({
+      board: b,
+      vals: R.boards[b][spread ? 'median' : retMode],
+      lo: R.boards[b].p25,
+      hi: R.boards[b].p75,
+      n: R.boards[b].n,
+    }));
+
+    const W = 820, H = 320, ml = 44, mr = 62, mt = 14, mb = 44;
+    const iw = W - ml - mr, ih = H - mt - mb;
+    const flat = series.flatMap(s => spread ? [...s.vals, ...s.lo, ...s.hi] : s.vals)
+                       .filter(v => v !== null);
+    if (!flat.length) return;
+
+    // domain always includes zero — the whole point is which side of it we're on
+    let lo = Math.min(0, ...flat), hi = Math.max(0, ...flat);
+    const step = 20;
+    lo = Math.floor(lo / step) * step;
+    hi = Math.ceil(hi / step) * step;
+
+    const x = i => ml + (i / (R.labels.length - 1)) * iw;
+    const y = v => mt + ih - ((v - lo) / (hi - lo)) * ih;
+
+    let g = '';
+    for (let v = lo; v <= hi; v += step) {
+      const zero = v === 0;
+      g += `<line class="grid" x1="${ml}" x2="${ml + iw}" y1="${y(v)}" y2="${y(v)}"
+              ${zero ? 'stroke="#9a9a9a"' : ''}/>` +
+           `<text class="axis-txt" x="${ml - 8}" y="${y(v) + 4}" text-anchor="end">${v}%</text>`;
+    }
+    R.labels.forEach((lab, i) => {
+      g += `<text class="axis-txt" x="${x(i)}" y="${H - 24}" text-anchor="middle">${lab}</text>`;
+      // sample size under each tick — it falls from ~600 to ~170 across the
+      // grid, and every later point is a smaller, more selected group
+      const n = series.reduce((t, s) => t + (s.n[i] || 0), 0);
+      g += `<text class="axis-txt" x="${x(i)}" y="${H - 9}" text-anchor="middle"
+              style="font-size:10px;opacity:.7">${n}</text>`;
+    });
+
+    // interquartile band, under the medians as a 12% wash — the spread is the
+    // finding here, so it has to read as area rather than as more lines
+    const bands = !spread ? '' : series.map(s => {
+      const idx = s.lo.map((v, i) => i).filter(i => s.lo[i] !== null && s.hi[i] !== null);
+      if (idx.length < 2) return '';
+      const top = idx.map((i, k) => (k ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(s.hi[i]).toFixed(1)).join(' ');
+      const bot = idx.slice().reverse().map(i => 'L' + x(i).toFixed(1) + ' ' + y(s.lo[i]).toFixed(1)).join(' ');
+      return '<path d="' + top + ' ' + bot + ' Z" fill="var(--series-' + s.board + ')" opacity=".12"/>';
+    }).join('');
+
+    const paths = series.map(s => {
+      const pts = s.vals.map((v, i) => [i, v]).filter(([, v]) => v !== null);
+      if (!pts.length) return '';
+      const d = pts.map(([i, v], k) => `${k ? 'L' : 'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
+      const [li, lv] = pts[pts.length - 1];
+      return `<path class="ser" d="${d}" stroke="var(--series-${s.board})"/>` +
+             `<circle class="dot" cx="${x(li)}" cy="${y(lv)}" r="4" fill="var(--series-${s.board})"/>` +
+             `<text class="endlab" x="${x(li) + 9}" y="${y(lv) + 4}"
+                fill="var(--series-${s.board})">${s.board}</text>`;
+    }).join('');
+
+    const hit = R.labels.map((_, i) =>
+      `<rect class="hit" x="${x(i) - iw / (R.labels.length - 1) / 2}" y="${mt}"
+         width="${iw / (R.labels.length - 1)}" height="${ih}" data-i="${i}"/>`).join('');
+
+    const host = document.getElementById('chart-returns');
+    host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+        ${g}${bands}<g id="ret-cross"></g>${paths}${hit}</svg>`;
+
+    host.querySelectorAll('.hit').forEach(r => {
+      r.addEventListener('mousemove', e => {
+        const i = +r.dataset.i;
+        document.getElementById('ret-cross').innerHTML =
+          `<line class="cross" x1="${x(i)}" x2="${x(i)}" y1="${mt}" y2="${mt + ih}"/>`;
+        const rows = series.filter(s => s.vals[i] !== null).map(s =>
+          spread
+            ? `<span class="k">${s.board}</span> median ${s.vals[i]}%` +
+              `<br><span class="k">middle half ${s.lo[i]}% to ${s.hi[i]}% · n=${s.n[i]}</span>`
+            : `<span class="k">${s.board}</span> ${s.vals[i]}%` +
+              ` <span class="k">(n=${s.n[i]})</span>`).join('<br>');
+        showTip(e, `<b>${R.labels[i]} after listing</b><br>${rows || '<span class="k">too few companies</span>'}`);
+      });
+      r.addEventListener('mouseleave', () => {
+        document.getElementById('ret-cross').innerHTML = '';
+        hideTip();
+      });
+    });
+
+    document.getElementById('table-returns').innerHTML =
+      '<table><thead><tr><th>After listing</th>' +
+      series.flatMap(s => spread
+        ? [`<th class="num">${s.board} p25</th>`, `<th class="num">${s.board} median</th>`,
+           `<th class="num">${s.board} p75</th>`, `<th class="num">n</th>`]
+        : [`<th class="num">${s.board}</th>`, `<th class="num">n</th>`]).join('') +
+      '</tr></thead><tbody>' +
+      R.labels.map((lab, i) =>
+        `<tr><td>${lab}</td>` +
+        series.flatMap(s => spread
+          ? [`<td class="num">${s.lo[i] === null ? '' : s.lo[i] + '%'}</td>`,
+             `<td class="num">${s.vals[i] === null ? '' : s.vals[i] + '%'}</td>`,
+             `<td class="num">${s.hi[i] === null ? '' : s.hi[i] + '%'}</td>`,
+             `<td class="num">${s.n[i]}</td>`]
+          : [`<td class="num">${s.vals[i] === null ? '' : s.vals[i] + '%'}</td>`,
+             `<td class="num">${s.n[i]}</td>`]).join('') + '</tr>'
+      ).join('') + '</tbody></table>';
+  }
+
+  document.querySelectorAll('[data-ret]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      retMode = btn.dataset.ret;
+      document.querySelectorAll('[data-ret]').forEach(b =>
+        b.setAttribute('aria-pressed', b.dataset.ret === retMode));
+      drawReturns();
+    });
+  });
+
+  // ---- heatmap: domicile country x operating country ----
+  function drawGeo() {
+    const G = D.geo;
+    if (!G) return;
+    const sel = [...boards];
+    const val = c => sel.reduce((t, b) => t + c[b], 0);
+    const max = Math.max(...G.cells.flatMap(r => r.map(val)));
+
+    const colour = v => {
+      if (!v) return null;
+      const i = Math.min(RAMP.length - 1, Math.floor((v / max) ** 0.5 * RAMP.length));
+      return RAMP[i];
+    };
+
+    const head = '<tr><th></th>' + G.op.map(o => `<th>${o}</th>`).join('') + '</tr>';
+    const body = G.hq.map((h, ri) =>
+      `<tr><th>${h}</th>` +
+      G.cells[ri].map((cell, ci) => {
+        const v = val(cell);
+        const o = G.op[ci];
+        // a company operating in its own country of domicile
+        const home = h === o && h !== 'Other';
+        if (!v) return `<td class="z${home ? ' home' : ''}">·</td>`;
+        const ink = v / max > 0.45 ? '#fff' : 'var(--ink)';
+        return `<td class="${home ? 'home' : ''}" style="background:${colour(v)};color:${ink}"
+                  data-h="${h}" data-o="${o}" data-v="${v}">${v}</td>`;
+      }).join('') + '</tr>').join('');
+
+    const host = document.getElementById('chart-geo');
+    host.innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
+    host.querySelectorAll('td[data-v]').forEach(td => {
+      td.addEventListener('mousemove', e =>
+        showTip(e, `<b>${td.dataset.h}</b> companies operating in <b>${td.dataset.o}</b>` +
+                   `<br><span class="k">${td.dataset.v} companies</span>`));
+      td.addEventListener('mouseleave', hideTip);
+    });
+  }
+
   // ---- heatmap: commodity x region, company counts ----
   const RAMP = ['#cde2fb', '#9ec5f4', '#6da7ec', '#3987e5', '#256abf', '#104281'];
 
@@ -1247,21 +1523,78 @@ details.tbl summary:hover { color: var(--ink); }
     });
   }
 
+  // ---- producing share by commodity ----
+  // One series, so no CVD pair to worry about, but every bar carries its own
+  // number and the table view is there — the relief the contrast check wants.
+  function drawProdShare() {
+    const host = document.getElementById('chart-prodshare');
+    if (!host || !D.prodshare) return;
+    const sel = [...boards];
+    const MIN = 15;
+
+    const rows = D.prodshare
+      .map(r => {
+        const prod = sel.reduce((s, b) => s + r[b].prod, 0);
+        const tot = sel.reduce((s, b) => s + r[b].tot, 0);
+        return { label: r.label, prod, tot, share: tot ? prod / tot : 0 };
+      })
+      // filtered AFTER the board filter: TSXV-only can thin a commodity out
+      .filter(r => r.tot >= MIN)
+      .sort((a, b) => b.share - a.share);
+
+    const max = Math.max(...rows.map(r => r.share), 0.01);
+
+    host.innerHTML = rows
+      .map(r => {
+        const w = Math.max((r.share / max) * 100, r.share > 0 ? 0.4 : 0);
+        return `<div class="row"><div class="cat">${r.label}</div>
+                <div class="track"><div class="bar"><div class="seg-fill"
+                  style="width:${w}%;background:var(--series-stage)"
+                  data-label="${r.label}" data-prod="${r.prod}"
+                  data-tot="${r.tot}"></div></div></div>
+                <div class="val">${Math.round(r.share * 100)}%</div></div>`;
+      })
+      .join('');
+
+    host.querySelectorAll('.seg-fill').forEach(el => {
+      el.addEventListener('mousemove', e =>
+        showTip(e, `<b>${el.dataset.label}</b><br>` +
+          `${el.dataset.prod} producing of ${el.dataset.tot}`));
+      el.addEventListener('mouseleave', hideTip);
+    });
+
+    document.getElementById('table-prodshare').innerHTML =
+      '<table><thead><tr><th></th><th class="num">Producing</th>' +
+      '<th class="num">Companies</th><th class="num">Share</th></tr></thead><tbody>' +
+      rows.map(r =>
+        `<tr><td>${r.label}</td><td class="num">${r.prod}</td>` +
+        `<td class="num">${r.tot}</td>` +
+        `<td class="num">${Math.round(r.share * 100)}%</td></tr>`).join('') +
+      '</tbody></table>';
+  }
+
   function drawAll() {
-    document.querySelectorAll('.legend span').forEach(s => {
+    // scoped to the live chart: the static charts in the written tabs
+    // carry their own legend and must not be filtered
+    document.querySelectorAll('.viz-live .legend span').forEach(s => {
       s.style.display = boards.has(s.dataset.board) ? '' : 'none';
     });
-    const note = document.getElementById('measure-note');
-    note.textContent =
+    const noteText =
       measure === 'turnover'
         ? 'Share of the companies’ value that changed hands in the six months to 30 June — dollars traded ÷ market cap. Puts a C$3M shell and a C$100B producer on the same footing. Boards sit side by side; a ratio of the parts is not the ratio for the whole.'
         : measure === 'median'
         ? 'The middle company in each group, not the total — shows whether a commodity is a few big miners or a swarm of small ones. Boards sit side by side; a median of the parts is not the median for the whole.'
         : '';
+    document.querySelectorAll('.measure-note').forEach(n => { n.textContent = noteText; });
     draw('commodity');
     draw('region');
+    if (D.stage_series) draw('stage_series');
+    if (D.npsize) draw('npsize');
+    drawProdShare();
     drawHeat();
+    drawGeo();
     drawLines();
+    drawReturns();
   }
 
   document.querySelectorAll('[data-board]').forEach(btn => {
@@ -1291,7 +1624,7 @@ details.tbl summary:hover { color: var(--ink); }
   drawAll();
 })();
 </script>
-</section><section id="stage2" role="tabpanel" hidden><h1>Stage 2 — Looking broader</h1>
+</section><section id="stage2" role="tabpanel" data-market="tsx" hidden><h1>Stage 2 — Looking broader</h1>
 <p><em>Notes only. Nothing fetched yet. Revised after the TMX mining properties file closed two gaps.</em></p>
 <h2>What Stage 1 already closed</h2>
 <p><strong>Commodity classification is done, and it cost nothing.</strong></p>
@@ -1363,30 +1696,290 @@ details.tbl summary:hover { color: var(--ink); }
 <p><strong>SEDI insider filings</strong> — insider buying-to-selling ratio by commodity and size band.</p>
 <p><strong>Provincial claim registries</strong> (BC MTO, Ontario MLAS) — hectares held per company, an asset-size measure completely independent of market cap. Market cap per hectare by jurisdiction would be a genuinely novel cut.</p>
 <h2>The remaining gap</h2>
-<p><strong>Stage — explorer, developer or producer — is now the most valuable missing field.</strong></p>
-<p>It changes the meaning of every other number: a producer with 14% turnover is a different animal to an explorer with 14%. It is also a filter on charts that already exist rather than a set of new ones — turnover by stage, size by stage, commodity mix by stage. <strong>Producers versus explorers by commodity</strong> would be revealing; lithium especially.</p>
-<p>Two routes, very different in cost:</p>
+<p><strong>Half of this is now closed.</strong> Revenue as a proxy worked: 129 producers, off reported revenue, in one pass over Yahoo Finance. Stage is in the dataset and charted.</p>
+<p><strong>The half that did not close is developer.</strong> Separating a company with a feasibility study and a permit from one with a single drill hole needs a source that states project stage, and neither the TMX files nor free financial data does. Yahoo's business summaries mention feasibility once across 1,079 companies. So the dataset says producing or not producing, and within "not producing" only market cap distinguishes Seabridge from a shell.</p>
+<p>Routes, if it becomes worth the cost:</p>
 <ul>
-<li><strong>Revenue as a proxy.</strong> A company with meaningful revenue is a producer; one without is not. Reduces the problem to a single financial field, obtainable with the SEDAR+ work above.</li>
-<li><strong>NI 43-101 technical reports.</strong> Resource and reserve estimates, grades, tonnage, named projects. Worth less than it was — commodity and location no longer need it — while remaining the heaviest extraction job here. Only justified if project-level detail is genuinely required.</li>
+<li><strong>NI 43-101 technical reports.</strong> Resource and reserve estimates, grades, tonnage, named projects — the authoritative answer and the heaviest extraction job here. Worth less than it was, since commodity and location no longer need it. Only justified if project-level detail is genuinely required.</li>
+<li><strong>Balance sheet shape.</strong> Developers capitalise construction; explorers hold cash and claims. One more Yahoo pass for PP&amp;E and construction-in-progress would be cheap, but Canadian juniors capitalise exploration too, so it would be a noisy signal presented as a clean one.</li>
+<li><strong>Capital raised.</strong> A company raising C$200M is building something. Needs the SEDAR+ financings work above, and would come as a by-product of it rather than as its own job.</li>
 </ul>
+<p>The cuts this unlocks are filters on charts that already exist rather than new ones — turnover by stage, size by stage, <strong>producers versus explorers by commodity</strong> (lithium especially).</p>
 <h2>Open questions</h2>
 <ol>
 <li><strong>Primary or secondary money?</strong> Capital raised, or trading activity? Decides whether the MiG report and SEDAR financings matter at all.</li>
 <li><strong>Is a time dimension wanted?</strong> If yes, scope the TMX backfill — cheapest route, and the only one that recovers attrition.</li>
 <li><strong>Company or project as the unit of analysis?</strong> Project-level still looks too large for a one-off.</li>
 <li><strong>Commercial data budget?</strong> Much less pressing now the expensive item arrived free.</li>
-</ol></section></main>
+</ol></section><section id="asx-dataset" role="tabpanel" data-market="asx" hidden><h1>ASX — The dataset</h1>
+<p><em>775 companies in the GICS Materials group, as at 26 August 2026.</em></p>
+<h2>What arrived</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>File</th>
+<th>Source</th>
+<th>As at</th>
+<th class="num">Rows</th>
+<th class="num">Cols</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ASX listed companies</td>
+<td>ASX company directory export</td>
+<td>26 Aug 2026</td>
+<td class="num">1,843</td>
+<td class="num">5</td>
+</tr>
+</tbody>
+</table></div>
+<p>Five columns: <strong>ASX code, company name, GICS industry group, listing date, market cap.</strong> That is the whole file.</p>
+<h2>What it can and cannot answer</h2>
+<p>The TMX exports arrive pre-filtered to mining and carry commodity, property location and value traded. This one does not. Set against the TSX/TSXV work, here is what survives:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th>TSX / TSXV</th>
+<th>ASX</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Company count</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Market cap, size distribution</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Concentration</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Listing date, listings by year</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Commodity</td>
+<td>✓</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Where the assets are</td>
+<td>✓</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Where the company is based</td>
+<td>✓</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Value traded, turnover</td>
+<td>✓</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Producer / explorer stage</td>
+<td>✓</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Price history and returns</td>
+<td>✓</td>
+<td>not yet fetched</td>
+</tr>
+</tbody>
+</table></div>
+<p>Four of ten. The ASX tabs are shorter than the TSX ones because the data is, not because the work stopped early.</p>
+<h2>Who counts as a miner</h2>
+<p><strong>There is no mining flag in this file.</strong> The TMX exports come pre-filtered; this one has to be filtered by hand, and GICS industry group is the only classification available. Its <strong>Materials</strong> group is where miners sit — alongside chemicals, packaging and building products. The sub-industry level that would isolate Metals &amp; Mining is not in the export.</p>
+<p>Two candidate definitions were tested and they disagree:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th class="num">Companies</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Materials (GICS)</td>
+<td class="num">775</td>
+</tr>
+<tr>
+<td>… and a mining word in the name</td>
+<td class="num">610</td>
+</tr>
+<tr>
+<td>… but no mining word in the name</td>
+<td class="num">165</td>
+</tr>
+<tr>
+<td>Mining word in the name, not Materials</td>
+<td class="num">41</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Name-matching looks tempting and is a trap.</strong> The 165 Materials companies whose names say nothing about mining include:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BHP Group</td>
+<td>A$344B</td>
+</tr>
+<tr>
+<td>Newmont Corporation</td>
+<td>A$194B</td>
+</tr>
+<tr>
+<td>Fortescue</td>
+<td>A$55B</td>
+</tr>
+<tr>
+<td>South32</td>
+<td>A$23B</td>
+</tr>
+<tr>
+<td>Alcoa</td>
+<td>A$18B</td>
+</tr>
+<tr>
+<td>PLS Group</td>
+<td>A$17B</td>
+</tr>
+<tr>
+<td>IGO</td>
+<td>A$6B</td>
+</tr>
+</tbody>
+</table></div>
+<p>Filtering on names discards the seven largest miners on the exchange — A$797B of the A$1,180B total.</p>
+<p><strong>So the population is all 775 Materials companies.</strong> It is a real classification rather than a guess, and both flags are kept in <code>asx_clean.csv</code> so it can be narrowed later.</p>
+<h2>What that costs</h2>
+<p>Two distortions, stated rather than corrected:</p>
+<ol>
+<li><strong>Materials contains genuine non-miners.</strong> Amcor A$31B, James Hardie A$25B, BlueScope A$14B, Orica A$10B, Dyno Nobel A$7B, Sims A$5B — roughly <strong>A$92B, about 8% of the sector total</strong>. Every market cap figure on the Numbers tab is inflated by that much.</li>
+<li><strong>Coal and uranium miners are excluded.</strong> GICS puts them in Energy: Yancoal A$7.9B, Whitehaven Coal A$6.7B. The TMX mining file includes coal and uranium, so <strong>the two populations are not defined the same way</strong> and counts are not strictly comparable.</li>
+</ol>
+<h2>Handling notes</h2>
+<ul>
+<li><strong>26 Materials companies show <code>--</code> for market cap</strong> — suspended or unpriced lines. Read as blank, never as zero: a zero would drag every median and total it touches.</li>
+<li><strong>Listing dates are DD/MM/YYYY</strong>, confirmed by day values above 12 in the first field. All 1,843 rows have one.</li>
+<li><strong>Market cap is Australian dollars and is never converted.</strong> Size bands use the same numeric thresholds as the TSX side so the distributions have the same shape, but a band is A$ here and C$ there.</li>
+<li><strong>Survivorship, as everywhere.</strong> Only companies listed on 26 August 2026 are in the file, so every historical count is of survivors.</li>
+</ul></section><section id="asx-numbers" role="tabpanel" data-market="asx" hidden><h1>ASX — The numbers</h1>
+<p><em>775 GICS Materials companies, A$1,180B, as at 26 August 2026. Includes ~A$92B of packaging, steel and chemicals; excludes coal and uranium.</em></p>
+<h2>Headline</h2>
+<p><strong>One company is 29% of the sector. The top ten are 70%.</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th>ASX Materials</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Companies</td>
+<td>775</td>
+</tr>
+<tr>
+<td>Total market cap</td>
+<td>A$1,179.6B</td>
+</tr>
+<tr>
+<td>Median market cap</td>
+<td>A$33.4M</td>
+</tr>
+<tr>
+<td>BHP alone</td>
+<td>29.2%</td>
+</tr>
+<tr>
+<td>Top 3</td>
+<td>51.2%</td>
+</tr>
+<tr>
+<td>Top 10</td>
+<td>69.8%</td>
+</tr>
+</tbody>
+</table></div>
+<h2>Concentration</h2>
+<p><strong>The ASX is more concentrated than either Canadian board.</strong> TSX mining's top ten are 54.8% of that board; here the top ten are <strong>69.8%</strong>, and three companies — BHP, Newmont, Fortescue — are more than half the sector between them.</p>
+<p>That is a different market structure, not a bigger version of the same one. Canada's weight sits in a few dozen mid-to-large producers; Australia's sits in three global majors with a long tail beneath them.</p>
+<h2>Size distribution</h2>
+<p><strong>43% of the sector is below A$25M, and those 334 companies are worth A$3.9B between them — 0.3% of the total.</strong></p>
+<div class="viz-root viz-static"><div class="legend"><span><i style="background:var(--series-ASX)"></i>Companies</span></div><div class="rows"><div class="row"><div class="cat">&lt; $5M</div><div class="track"><div class="bar"><div class="seg-fill" style="width:16.78%;background:var(--series-ASX)" title="48"></div></div></div><div class="val">48</div></div><div class="row"><div class="cat">$5–25M</div><div class="track"><div class="bar"><div class="seg-fill" style="width:100.00%;background:var(--series-ASX)" title="286"></div></div></div><div class="val">286</div></div><div class="row"><div class="cat">$25–100M</div><div class="track"><div class="bar"><div class="seg-fill" style="width:61.89%;background:var(--series-ASX)" title="177"></div></div></div><div class="val">177</div></div><div class="row"><div class="cat">$100–500M</div><div class="track"><div class="bar"><div class="seg-fill" style="width:46.85%;background:var(--series-ASX)" title="134"></div></div></div><div class="val">134</div></div><div class="row"><div class="cat">$500M–2B</div><div class="track"><div class="bar"><div class="seg-fill" style="width:19.93%;background:var(--series-ASX)" title="57"></div></div></div><div class="val">57</div></div><div class="row"><div class="cat">&gt; $2B</div><div class="track"><div class="bar"><div class="seg-fill" style="width:16.43%;background:var(--series-ASX)" title="47"></div></div></div><div class="val">47</div></div></div><p class="note" style="margin-top:12px">Market cap in Australian dollars. 26 companies show no market cap in the export — suspended lines, read as blank rather than zero, so they appear in no band.</p></div>
+<p>The shape is the same story as the TSXV: a very large number of very small companies, and essentially all the value somewhere else. The difference is that Australia keeps its majors on the same board rather than splitting them across a senior and a venture exchange, so this single distribution spans what takes two boards in Canada.</p>
+<h2>Listings by year</h2>
+<p><strong>2021 was extraordinary: 106 of the surviving companies listed that year, more than the previous eight years combined.</strong></p>
+<div class="viz-root viz-static"><div class="legend"><span><i style="background:var(--series-ASX)"></i>Listings</span></div><div class="rows"><div class="row"><div class="cat">2000</div><div class="track"><div class="bar"><div class="seg-fill" style="width:5.66%;background:var(--series-ASX)" title="6"></div></div></div><div class="val">6</div></div><div class="row"><div class="cat">2001</div><div class="track"><div class="bar"><div class="seg-fill" style="width:7.55%;background:var(--series-ASX)" title="8"></div></div></div><div class="val">8</div></div><div class="row"><div class="cat">2002</div><div class="track"><div class="bar"><div class="seg-fill" style="width:11.32%;background:var(--series-ASX)" title="12"></div></div></div><div class="val">12</div></div><div class="row"><div class="cat">2003</div><div class="track"><div class="bar"><div class="seg-fill" style="width:18.87%;background:var(--series-ASX)" title="20"></div></div></div><div class="val">20</div></div><div class="row"><div class="cat">2004</div><div class="track"><div class="bar"><div class="seg-fill" style="width:18.87%;background:var(--series-ASX)" title="20"></div></div></div><div class="val">20</div></div><div class="row"><div class="cat">2005</div><div class="track"><div class="bar"><div class="seg-fill" style="width:27.36%;background:var(--series-ASX)" title="29"></div></div></div><div class="val">29</div></div><div class="row"><div class="cat">2006</div><div class="track"><div class="bar"><div class="seg-fill" style="width:35.85%;background:var(--series-ASX)" title="38"></div></div></div><div class="val">38</div></div><div class="row"><div class="cat">2007</div><div class="track"><div class="bar"><div class="seg-fill" style="width:60.38%;background:var(--series-ASX)" title="64"></div></div></div><div class="val">64</div></div><div class="row"><div class="cat">2008</div><div class="track"><div class="bar"><div class="seg-fill" style="width:19.81%;background:var(--series-ASX)" title="21"></div></div></div><div class="val">21</div></div><div class="row"><div class="cat">2009</div><div class="track"><div class="bar"><div class="seg-fill" style="width:15.09%;background:var(--series-ASX)" title="16"></div></div></div><div class="val">16</div></div><div class="row"><div class="cat">2010</div><div class="track"><div class="bar"><div class="seg-fill" style="width:26.42%;background:var(--series-ASX)" title="28"></div></div></div><div class="val">28</div></div><div class="row"><div class="cat">2011</div><div class="track"><div class="bar"><div class="seg-fill" style="width:34.91%;background:var(--series-ASX)" title="37"></div></div></div><div class="val">37</div></div><div class="row"><div class="cat">2012</div><div class="track"><div class="bar"><div class="seg-fill" style="width:11.32%;background:var(--series-ASX)" title="12"></div></div></div><div class="val">12</div></div><div class="row"><div class="cat">2013</div><div class="track"><div class="bar"><div class="seg-fill" style="width:10.38%;background:var(--series-ASX)" title="11"></div></div></div><div class="val">11</div></div><div class="row"><div class="cat">2014</div><div class="track"><div class="bar"><div class="seg-fill" style="width:3.77%;background:var(--series-ASX)" title="4"></div></div></div><div class="val">4</div></div><div class="row"><div class="cat">2015</div><div class="track"><div class="bar"><div class="seg-fill" style="width:2.83%;background:var(--series-ASX)" title="3"></div></div></div><div class="val">3</div></div><div class="row"><div class="cat">2016</div><div class="track"><div class="bar"><div class="seg-fill" style="width:5.66%;background:var(--series-ASX)" title="6"></div></div></div><div class="val">6</div></div><div class="row"><div class="cat">2017</div><div class="track"><div class="bar"><div class="seg-fill" style="width:27.36%;background:var(--series-ASX)" title="29"></div></div></div><div class="val">29</div></div><div class="row"><div class="cat">2018</div><div class="track"><div class="bar"><div class="seg-fill" style="width:26.42%;background:var(--series-ASX)" title="28"></div></div></div><div class="val">28</div></div><div class="row"><div class="cat">2019</div><div class="track"><div class="bar"><div class="seg-fill" style="width:5.66%;background:var(--series-ASX)" title="6"></div></div></div><div class="val">6</div></div><div class="row"><div class="cat">2020</div><div class="track"><div class="bar"><div class="seg-fill" style="width:25.47%;background:var(--series-ASX)" title="27"></div></div></div><div class="val">27</div></div><div class="row"><div class="cat">2021</div><div class="track"><div class="bar"><div class="seg-fill" style="width:100.00%;background:var(--series-ASX)" title="106"></div></div></div><div class="val">106</div></div><div class="row"><div class="cat">2022</div><div class="track"><div class="bar"><div class="seg-fill" style="width:56.60%;background:var(--series-ASX)" title="60"></div></div></div><div class="val">60</div></div><div class="row"><div class="cat">2023</div><div class="track"><div class="bar"><div class="seg-fill" style="width:22.64%;background:var(--series-ASX)" title="24"></div></div></div><div class="val">24</div></div><div class="row"><div class="cat">2024</div><div class="track"><div class="bar"><div class="seg-fill" style="width:12.26%;background:var(--series-ASX)" title="13"></div></div></div><div class="val">13</div></div><div class="row"><div class="cat">2025</div><div class="track"><div class="bar"><div class="seg-fill" style="width:23.58%;background:var(--series-ASX)" title="25"></div></div></div><div class="val">25</div></div><div class="row"><div class="cat">2026</div><div class="track"><div class="bar"><div class="seg-fill" style="width:12.26%;background:var(--series-ASX)" title="13"></div></div></div><div class="val">13</div></div></div><p class="note" style="margin-top:12px">Companies that listed in each year <strong>and are still listed today</strong>, so early years are undercounted by everything that has since failed or been acquired. 109 surviving companies listed before 2000 and are not shown.</p></div>
+<p>The 2021 spike is the lithium and battery-metals float wave. Whether it was a good vintage is exactly the question the price data would answer, and that has not been fetched.</p>
+<p>109 surviving companies listed before 2000 and are not shown; the oldest goes back to 1885.</p>
+<h2>What is missing</h2>
+<p>Everything else. There is no commodity, no project location, no domicile, no value traded and no revenue in this export, so there is no ASX equivalent of:</p>
+<ul>
+<li>the commodity bars</li>
+<li>the assets-by-region bars</li>
+<li>the domicile-versus-operations heatmap</li>
+<li>turnover and the attention ratio</li>
+<li>producer / explorer stage</li>
+<li>the whole post-listing returns analysis</li>
+</ul>
+<p><strong>The gap that would close the most, cheapest:</strong> price history. The file already has a ticker and a listing date for every company, which is exactly what the existing <code>fetch_prices.py</code> needs — the codes are stored as <code>.AX</code> symbols ready for it. That one run would bring the milestone-return analysis across, and it is the most interesting part of the TSX work. Nothing else here is a one-script job.</p>
+<h2>Caveats</h2>
+<ul>
+<li><strong>Population is GICS Materials, not mining</strong> — ~A$92B of non-miners in, coal and uranium out. Not comparable to the TMX mining population on a like-for-like basis.</li>
+<li><strong>26 companies have no market cap</strong> — suspended lines, excluded from totals and medians rather than counted as zero.</li>
+<li><strong>Australian dollars, never converted.</strong> Do not read an A$ band as equal to the C$ band with the same label.</li>
+<li><strong>Survivorship.</strong> Every listing-year count is of companies that are still listed today, so early years are undercounted by everything that has since failed or been acquired.</li>
+<li><strong>One date only.</strong> A single snapshot, so nothing here is a trend.</li>
+</ul></section></main>
 
-<footer>Rendered from stage1-dataset.md · stage1-numbers.md · stage2.md — edit the markdown and re-run <code>src/build_report.py</code>. Size and trading data as at 30 June 2026; commodity and property as at 31 July 2026.</footer>
+<footer>Rendered from stage1-dataset.md · stage1-numbers.md · stage2.md · asx-dataset.md · asx-numbers.md — edit the markdown and re-run <code>src/build_report.py</code>. TSX/TSXV size and trading as at 30 June 2026, commodity and property as at 31 July 2026; ASX as at 26 August 2026. Canadian and Australian dollars are never converted.</footer>
 
 <script>
 const tabs = [...document.querySelectorAll('nav button')];
+// Market first, then tab. Switching market swaps which tab bar is live and
+// lands on that market's first tab — carrying the tab index across would point
+// at a tab the other market does not have.
+let market = document.querySelector('.seg.market button').dataset.market;
+
+function showMarket(m) {
+  market = m;
+  document.querySelectorAll('.seg.market button').forEach(b =>
+    b.setAttribute('aria-pressed', b.dataset.market === m));
+  document.querySelectorAll('[data-market]').forEach(el => {
+    if (el.tagName === 'BUTTON' && el.closest('.seg.market')) return;
+    el.hidden = el.dataset.market !== m;
+  });
+  const first = [...document.querySelectorAll(`nav [data-market="${m}"]`)][0];
+  if (first) first.click();
+}
+
+document.querySelectorAll('.seg.market button').forEach(btn =>
+  btn.addEventListener('click', () => showMarket(btn.dataset.market)));
+
 const panels = [...document.querySelectorAll('main section')];
 
 function show(i, push) {
   tabs.forEach((t, n) => t.setAttribute('aria-selected', n === i));
-  panels.forEach((p, n) => p.hidden = n !== i);
+  panels.forEach((p, n) => p.hidden = n !== i || p.dataset.market !== market);
   if (push) history.replaceState(null, '', '#' + panels[i].id);
   window.scrollTo(0, 0);
 }
@@ -1404,7 +1997,43 @@ tabs.forEach((t, i) => {
 });
 
 const start = panels.findIndex(p => '#' + p.id === location.hash);
-show(start > -1 ? start : 0, false);
+if (start > -1) {
+  showMarket(panels[start].dataset.market);
+  show(start, false);
+} else {
+  showMarket(market);
+}
+
+// Hover readout for the static charts embedded in the written tabs. They have
+// no controls by design, but a stacked bar still needs to say which part is
+// which — the legend gives the colour, this gives the number.
+(function () {
+  const seg = document.querySelectorAll('.viz-static .seg-fill');
+  if (!seg.length) return;
+  const tip = document.createElement('div');
+  tip.className = 'tip';
+  document.body.appendChild(tip);
+
+  seg.forEach(el => {
+    const label = el.closest('.row').querySelector('.cat').textContent;
+    const place = e => {
+      tip.innerHTML = '<b>' + label + '</b><br><span class="k">' +
+                      (el.dataset.v || '') + '</span>';
+      tip.style.opacity = 1;
+      const r = tip.getBoundingClientRect();
+      let x = e.clientX + 14;
+      if (x + r.width > innerWidth - 8) x = e.clientX - r.width - 14;
+      tip.style.left = x + 'px';
+      tip.style.top = Math.min(e.clientY + 14, innerHeight - r.height - 8) + 'px';
+    };
+    el.addEventListener('mouseover', place);
+    el.addEventListener('mousemove', place);
+    el.addEventListener('mouseleave', () => { tip.style.opacity = 0; });
+    // the native title tooltip would fight the styled one
+    el.dataset.v = el.getAttribute('title');
+    el.removeAttribute('title');
+  });
+})();
 </script>
 </body>
 </html>

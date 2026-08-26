@@ -226,3 +226,7 @@ Thumbs.db
 # Project
 _to_delete/
 outputs/*.png
+
+# Fetched price cache — large, reproducible, not source data
+data/raw/price_history.csv
+data/raw/fundamentals.csv

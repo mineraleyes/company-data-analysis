@@ -101,14 +101,17 @@ Could produce:
 
 ## The remaining gap
 
-**Stage — explorer, developer or producer — is now the most valuable missing field.**
+**Half of this is now closed.** Revenue as a proxy worked: 129 producers, off reported revenue, in one pass over Yahoo Finance. Stage is in the dataset and charted.
 
-It changes the meaning of every other number: a producer with 14% turnover is a different animal to an explorer with 14%. It is also a filter on charts that already exist rather than a set of new ones — turnover by stage, size by stage, commodity mix by stage. **Producers versus explorers by commodity** would be revealing; lithium especially.
+**The half that did not close is developer.** Separating a company with a feasibility study and a permit from one with a single drill hole needs a source that states project stage, and neither the TMX files nor free financial data does. Yahoo's business summaries mention feasibility once across 1,079 companies. So the dataset says producing or not producing, and within "not producing" only market cap distinguishes Seabridge from a shell.
 
-Two routes, very different in cost:
+Routes, if it becomes worth the cost:
 
-- **Revenue as a proxy.** A company with meaningful revenue is a producer; one without is not. Reduces the problem to a single financial field, obtainable with the SEDAR+ work above.
-- **NI 43-101 technical reports.** Resource and reserve estimates, grades, tonnage, named projects. Worth less than it was — commodity and location no longer need it — while remaining the heaviest extraction job here. Only justified if project-level detail is genuinely required.
+- **NI 43-101 technical reports.** Resource and reserve estimates, grades, tonnage, named projects — the authoritative answer and the heaviest extraction job here. Worth less than it was, since commodity and location no longer need it. Only justified if project-level detail is genuinely required.
+- **Balance sheet shape.** Developers capitalise construction; explorers hold cash and claims. One more Yahoo pass for PP&E and construction-in-progress would be cheap, but Canadian juniors capitalise exploration too, so it would be a noisy signal presented as a clean one.
+- **Capital raised.** A company raising C$200M is building something. Needs the SEDAR+ financings work above, and would come as a by-product of it rather than as its own job.
+
+The cuts this unlocks are filters on charts that already exist rather than new ones — turnover by stage, size by stage, **producers versus explorers by commodity** (lithium especially).
 
 ## Open questions
 

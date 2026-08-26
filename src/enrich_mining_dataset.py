@@ -85,6 +85,20 @@ HQ_TO_REGION = {
     "Other": "OTHER",
 }
 
+# Country resolution. HQ is a province code, a US state code, or a country
+# name — the region column disambiguates, which matters because "CA" is
+# California in a US context and would otherwise read as Canada.
+HQ_REGION_TO_COUNTRY = {"Canada": "Canada", "USA": "USA"}
+
+# Light normalisation so the same place is one row, not three.
+COUNTRY_ALIASES = {
+    "England": "UK", "Scotland": "UK", "Wales": "UK", "Great Britain": "UK",
+    "Turkiye": "Turkey", "Columbia": "Colombia", "Ethopia": "Ethiopia",
+    "Sambia": "Zambia", "Cote D'Ivoire": "Ivory Coast",
+    "Côte d'Ivoire": "Ivory Coast", "PNG": "Papua New Guinea",
+    "United States": "USA", "US": "USA",
+}
+
 SIZE_BINS = [0, 5e6, 25e6, 100e6, 500e6, 2e9, np.inf]
 SIZE_LABELS = ["<5M", "5-25M", "25-100M", "100-500M", "500M-2B", ">2B"]
 
@@ -219,6 +233,47 @@ def add_commodities(df, props):
     return df
 
 
+def _country(name):
+    name = str(name).strip()
+    return COUNTRY_ALIASES.get(name, name)
+
+
+def add_countries(df, present):
+    """Company domicile and operating countries, both resolved to countries.
+
+    Property tokens are only interpretable alongside the region column they
+    came from: a bare "CA" is California under USA and would be misread as
+    Canada on its own.
+    """
+    df["hq_country"] = [
+        HQ_REGION_TO_COUNTRY.get(reg, _country(loc))
+        for reg, loc in zip(df["hq_region"], df["hq_location"])
+    ]
+
+    def countries_for(idx):
+        out = []
+        for region in PROPERTY_REGIONS:
+            val = present[region].iat[idx]
+            if pd.isna(val):
+                continue
+            if region == "CANADA":
+                names = ["Canada"]
+            elif region == "USA":
+                names = ["USA"]
+            else:
+                names = [_country(t) for t in str(val).split(",") if t.strip()]
+            out.extend(n for n in names if n not in out)
+        return out
+
+    lists = [countries_for(i) for i in range(len(df))]
+    df["property_countries"] = [" | ".join(c) or pd.NA for c in lists]
+    df["property_country_count"] = [len(c) for c in lists]
+    df["hq_country_matches_property"] = [
+        (hq in c) if c else pd.NA for hq, c in zip(df["hq_country"], lists)
+    ]
+    return df
+
+
 def add_properties(df, props):
     """Property regions and jurisdictions, mirroring the commodity treatment.
 
@@ -279,6 +334,8 @@ def add_properties(df, props):
 
     # Listed as a miner, but discloses neither a commodity nor a property.
     df["shell_like"] = df["no_disclosed_commodity"] & df["no_disclosed_property"]
+
+    df = add_countries(df, present)
     return df
 
 
@@ -381,6 +438,8 @@ def main():
         "isin", "cusip", "sedar_issuer_no", "former_names",
         "commodities", "commodity_count", "is_polymetallic", "company_type",
         "is_royalty_streamer", "no_disclosed_commodity",
+        "hq_country", "property_countries", "property_country_count",
+        "hq_country_matches_property",
         "property_regions", "property_jurisdictions", "property_region_count",
         "jurisdiction_count", "hq_matches_property", "no_disclosed_property",
         "shell_like", "stage", "incorporation_jurisdiction",

@@ -1,58 +1,90 @@
 # TSX / TSXV Mining Analysis
 
-Analysis of mining companies listed on the Toronto Stock Exchange (TSX) and
-TSX Venture Exchange (TSXV).
+Analysis of the 1,079 mining companies listed on the Toronto Stock Exchange (TSX)
+and TSX Venture Exchange (TSXV), as at 30 June 2026.
 
-## Status
+One-off analysis — no recurring pipeline.
 
-Stage 1 — data exploration. One-off analysis, no recurring pipeline.
+## The output
 
-**Target output:** a single HTML document to read through — between a dashboard
-and a slide deck. Sectioned and scrollable, charts inline, not a presentation
-deck and not a live tool. The `notes/` markdown files are the source content
-for it.
+`outputs/report.html` — a single self-contained page, four tabs:
 
-## Data
+| Tab | What's in it |
+|---|---|
+| Stage 1 · Dataset | what the source files contain, coverage, what's missing |
+| Stage 1 · Numbers | the findings, with charts inline |
+| Stage 1 · Charts | six interactive charts, filterable by board |
+| Stage 2 | candidate external datasets and what each would produce |
 
-Source: TMX monthly issuer list, data as at 30-June-2026.
+Open it in a browser. Nothing to install, no network calls.
 
-| Board | Companies | Mining |
+## Sources
+
+| File | Source | As at |
 |---|---|---|
-| TSX  | 2,258 | 183 |
-| TSXV | 1,503 | 896 |
+| `data/raw/tmx_issuers_2026-06-30.xlsx` | [TMX Current Market Statistics](https://www.tsx.com/en/listings/current-market-statistics) | 30 Jun 2026 |
+| `data/raw/tmx_mining_properties_2026-07-31.xlsx` | [TMX Mining sector profile](https://www.tsx.com/en/listings/listing-with-us/sector-and-product-profiles/mining) | 31 Jul 2026 |
+| price history | Yahoo Finance via `yfinance` | to Aug 2026 |
+| revenue and business summaries | Yahoo Finance via `yfinance` | Aug 2026 |
 
-Mining universe: **1,079 companies**, C$1,135.6B combined market cap.
+The issuer list gives size and trading; the mining list gives commodity and asset
+location. Both are free from TMX, and the issuer page also hosts archived monthly
+versions — the route to any historical work.
+
+## Rebuilding
+
+```bash
+pip install -r requirements.txt
+
+python src/build_mining_dataset.py     # raw xlsx  -> mining_clean.csv
+python src/enrich_mining_dataset.py    # + commodity, geography, derived metrics
+python src/fetch_prices.py             # Yahoo prices -> price_milestones.csv  (needs internet)
+python src/fetch_fundamentals.py       # + revenue and stage, in place             (needs internet)
+python src/build_report.py             # notes + data -> outputs/report.html
+```
+
+Run them in that order. `build_report.py` is the only one you need after editing
+the notes — the markdown files are the source of truth for the written tabs, and
+the charts read the processed CSVs.
 
 ## Layout
 
-    data/raw/         source files as received — do not edit
-    data/processed/   cleaned / derived datasets
-    notes/            exploration notes, findings
-    outputs/          charts, reports, deliverables
-    src/              scripts and notebooks
+    data/raw/          source files as received — do not edit
+    data/processed/    cleaned and derived datasets
+    notes/             the written sections, one markdown file per tab
+    outputs/           report.html
+    src/               the five scripts above
 
-## Key files
+## Key datasets
 
-- `notes/stage1-dataset.md` — what the dataset is, columns, coverage, what's missing
-- `notes/stage1-numbers.md` — the mining summary figures
-- `notes/stage2.md` — candidate external datasets, open questions
-- `data/processed/mining_clean.csv` — 1,079 mining rows, both boards, with derived columns
+`data/processed/mining_enriched.csv` — 1,079 rows, 94 columns. One row per company.
 
-## Derived columns in mining_clean.csv
-
-| Column | Definition |
+| Column group | Examples |
 |---|---|
-| `board` | TSX or TSXV |
-| `turnover` | H1 2026 value traded / market cap |
-| `px` | implied share price = market cap / shares outstanding |
-| `lyear` | listing year |
-| `yrs` | years listed as at 2026 |
-| `avg_trade` | value traded / number of trades |
+| Join keys | `co_id`, `ticker_full`, `name_normalised` |
+| Commodity | `commodities` (fixed-order set), 20 `comm_*` booleans |
+| Geography | `hq_country`, `property_countries`, 8 `prop_*` booleans |
+| Market | `mcap`, `turnover`, `attention_ratio`, `size_band` |
+| Stage | `stage`, `stage_basis`, `revenue` |
+| Flags | `consolidated`, `shell_like`, `is_royalty_streamer` |
 
-## Known data limits
+`data/processed/price_milestones.csv` — 595 priced companies, with prices and
+returns at 11 points measured from each company's own listing date.
 
-- No commodity field — 641 of 1,079 company names contain no commodity word
-- Single snapshot — no price history, returns or volatility
-- No financials — cannot distinguish funded from failing
-- Live listings only — survivorship-biased
-- 224 TSXV miners (25%) have no listing date
+`stage` is derived, not disclosed: `Producer` means reported revenue above C$1M,
+`Royalty/Streamer` comes from TMX's flag, `Shell` means no commodity and no
+property, and `Explorer` is the residual. `stage_basis` records which of those
+decided each row.
+
+## Known limits
+
+- **No share counts over time** — dilution and capital raised are unmeasurable
+- **Survivorship** — only companies still listed at 30 June 2026 appear anywhere
+- **224 TSXV companies have no listing date**, so cannot be anchored in time
+- **Two source dates** — commodity and property are 31 July, everything financial is 30 June
+- **No developer stage** — Yahoo's business summaries name the commodity but not the
+  project stage, so the dataset separates producing from not-producing and nothing
+  finer. Within non-producers only market cap distinguishes an advanced project
+  from a shell
+- Prices are Yahoo Finance: free, and unreliable on thinly traded juniors. Quotes
+  that back-adjust below zero (5 companies with large distributions) are dropped
