@@ -230,3 +230,9 @@ outputs/*.png
 # Fetched price cache — large, reproducible, not source data
 data/raw/price_history.csv
 data/raw/fundamentals.csv
+
+# API keys — never commit
+.eodhd_key
+explore/.eodhd_key
+*.key
+.env
