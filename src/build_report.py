@@ -17,6 +17,7 @@ from pathlib import Path
 import markdown
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import asx_charts
 import charts  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -46,6 +47,7 @@ TABS = {
     "asx": [
         ("Dataset", "asx-dataset.md"),
         ("Numbers", "asx-numbers.md"),
+        ("Charts", None),
     ],
 }
 
@@ -418,6 +420,8 @@ def embed_charts(html):
     def repl(m):
         name = m.group(1) or m.group(2)
         try:
+            if name.startswith("asx_"):
+                return asx_charts.static_chart(name)
             return charts.static_chart(name)
         except KeyError:
             print(f"  WARNING: unknown chart token {{{{chart:{name}}}}}")
@@ -445,8 +449,8 @@ def render():
 
     for i, (mk, label, filename) in enumerate(flat):
         if filename is None:
-            body = charts.section_html()
-            slug = "charts"
+            body = charts.section_html() if mk == "tsx" else asx_charts.section_html()
+            slug = "charts" if mk == "tsx" else "asx-charts"
         else:
             path = NOTES / filename
             if not path.exists():

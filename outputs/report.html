@@ -371,7 +371,7 @@ details.tbl summary:hover { color: var(--ink); }
       <h1 class="site">Listed Mining</h1>
       <div class="seg market"><button data-market="tsx" aria-pressed="true">TSX / TSXV</button><button data-market="asx" aria-pressed="false">ASX</button></div>
     </div>
-    <nav role="tablist"><button role="tab" aria-selected="true" data-market="tsx" aria-controls="stage1-dataset">Stage 1 · Dataset</button><button role="tab" aria-selected="false" data-market="tsx" aria-controls="stage1-numbers">Stage 1 · Numbers</button><button role="tab" aria-selected="false" data-market="tsx" aria-controls="charts">Stage 1 · Charts</button><button role="tab" aria-selected="false" data-market="tsx" aria-controls="stage2">Stage 2</button><button role="tab" aria-selected="false" data-market="asx" hidden aria-controls="asx-dataset">Dataset</button><button role="tab" aria-selected="false" data-market="asx" hidden aria-controls="asx-numbers">Numbers</button></nav>
+    <nav role="tablist"><button role="tab" aria-selected="true" data-market="tsx" aria-controls="stage1-dataset">Stage 1 · Dataset</button><button role="tab" aria-selected="false" data-market="tsx" aria-controls="stage1-numbers">Stage 1 · Numbers</button><button role="tab" aria-selected="false" data-market="tsx" aria-controls="charts">Stage 1 · Charts</button><button role="tab" aria-selected="false" data-market="tsx" aria-controls="stage2">Stage 2</button><button role="tab" aria-selected="false" data-market="asx" hidden aria-controls="asx-dataset">Dataset</button><button role="tab" aria-selected="false" data-market="asx" hidden aria-controls="asx-numbers">Numbers</button><button role="tab" aria-selected="false" data-market="asx" hidden aria-controls="asx-charts">Charts</button></nav>
   </div>
 </header>
 
@@ -897,7 +897,7 @@ details.tbl summary:hover { color: var(--ink); }
 <li><strong>Stage is derived, not disclosed</strong> — producer rests on reported revenue, explorer is the residual</li>
 <li>Prices come from Yahoo Finance and are adjusted for splits and dividends</li>
 </ul></section><section id="charts" role="tabpanel" data-market="tsx" hidden>
-<div class="viz-root viz-live">
+<div class="viz-root viz-live tsx">
 
 <div class="ctrls">
   <div class="ctrl-group">
@@ -1306,10 +1306,10 @@ details.tbl summary:hover { color: var(--ink); }
       ).join('') + '</tbody></table>';
   }
 
-  document.querySelectorAll('[data-split]').forEach(btn => {
+  document.querySelectorAll('.tsx [data-split]').forEach(btn => {
     btn.addEventListener('click', () => {
       split = btn.dataset.split;
-      document.querySelectorAll('[data-split]').forEach(b =>
+      document.querySelectorAll('.tsx [data-split]').forEach(b =>
         b.setAttribute('aria-pressed', b.dataset.split === split));
       drawLines();
     });
@@ -1431,10 +1431,10 @@ details.tbl summary:hover { color: var(--ink); }
       ).join('') + '</tbody></table>';
   }
 
-  document.querySelectorAll('[data-ret]').forEach(btn => {
+  document.querySelectorAll('.tsx [data-ret]').forEach(btn => {
     btn.addEventListener('click', () => {
       retMode = btn.dataset.ret;
-      document.querySelectorAll('[data-ret]').forEach(b =>
+      document.querySelectorAll('.tsx [data-ret]').forEach(b =>
         b.setAttribute('aria-pressed', b.dataset.ret === retMode));
       drawReturns();
     });
@@ -1597,7 +1597,7 @@ details.tbl summary:hover { color: var(--ink); }
     drawReturns();
   }
 
-  document.querySelectorAll('[data-board]').forEach(btn => {
+  document.querySelectorAll('.tsx [data-board]').forEach(btn => {
     if (btn.tagName !== 'BUTTON') return;
     btn.addEventListener('click', () => {
       const b = btn.dataset.board;
@@ -1612,10 +1612,10 @@ details.tbl summary:hover { color: var(--ink); }
     });
   });
 
-  document.querySelectorAll('[data-measure]').forEach(btn => {
+  document.querySelectorAll('.tsx [data-measure]').forEach(btn => {
     btn.addEventListener('click', () => {
       measure = btn.dataset.measure;
-      document.querySelectorAll('[data-measure]').forEach(b =>
+      document.querySelectorAll('.tsx [data-measure]').forEach(b =>
         b.setAttribute('aria-pressed', b.dataset.measure === measure));
       drawAll();
     });
@@ -1712,7 +1712,7 @@ details.tbl summary:hover { color: var(--ink); }
 <li><strong>Company or project as the unit of analysis?</strong> Project-level still looks too large for a one-off.</li>
 <li><strong>Commercial data budget?</strong> Much less pressing now the expensive item arrived free.</li>
 </ol></section><section id="asx-dataset" role="tabpanel" data-market="asx" hidden><h1>ASX — The dataset</h1>
-<p><em>775 companies in the GICS Materials group, as at 26 August 2026.</em></p>
+<p><em>726 mining companies, derived from a five-column exchange export plus Yahoo Finance.</em></p>
 <h2>What arrived</h2>
 <div class="tw"><table>
 <thead>
@@ -1732,11 +1732,25 @@ details.tbl summary:hover { color: var(--ink); }
 <td class="num">1,843</td>
 <td class="num">5</td>
 </tr>
+<tr>
+<td>Company data</td>
+<td>Yahoo Finance via <code>yfinance</code></td>
+<td>30 Aug 2026</td>
+<td class="num">775</td>
+<td class="num">57</td>
+</tr>
+<tr>
+<td>Price history</td>
+<td>Yahoo Finance via <code>yfinance</code></td>
+<td>to 2 Sep 2026</td>
+<td class="num">726</td>
+<td class="num">41</td>
+</tr>
 </tbody>
 </table></div>
-<p>Five columns: <strong>ASX code, company name, GICS industry group, listing date, market cap.</strong> That is the whole file.</p>
-<h2>What it can and cannot answer</h2>
-<p>The TMX exports arrive pre-filtered to mining and carry commodity, property location and value traded. This one does not. Set against the TSX/TSXV work, here is what survives:</p>
+<p>The ASX export is five columns: <strong>code, company name, GICS industry group, listing date, market cap.</strong> Everything else on the Numbers tab is derived from Yahoo.</p>
+<p><strong>This is the central asymmetry with the TSX side and it should be read into every comparison.</strong> The TMX exports arrive pre-filtered to mining, with commodity flags and a property register already in them — official data, published by the exchange. Here the exchange gave a list and a market cap, and commodity, geography and stage are all inferred from a business summary and a set of financial statements sourced from a free, unofficial API.</p>
+<h2>What that bought</h2>
 <div class="tw"><table>
 <thead>
 <tr>
@@ -1747,209 +1761,1008 @@ details.tbl summary:hover { color: var(--ink); }
 </thead>
 <tbody>
 <tr>
-<td>Company count</td>
+<td>Company count, size, concentration</td>
 <td>✓</td>
 <td>✓</td>
 </tr>
 <tr>
-<td>Market cap, size distribution</td>
-<td>✓</td>
-<td>✓</td>
-</tr>
-<tr>
-<td>Concentration</td>
-<td>✓</td>
-<td>✓</td>
-</tr>
-<tr>
-<td>Listing date, listings by year</td>
+<td>Listings by year</td>
 <td>✓</td>
 <td>✓</td>
 </tr>
 <tr>
 <td>Commodity</td>
-<td>✓</td>
-<td>—</td>
+<td>TMX register</td>
+<td>inferred from prose</td>
 </tr>
 <tr>
 <td>Where the assets are</td>
-<td>✓</td>
-<td>—</td>
+<td>TMX register</td>
+<td>inferred from prose</td>
 </tr>
 <tr>
-<td>Where the company is based</td>
+<td>Producer / explorer</td>
 <td>✓</td>
-<td>—</td>
+<td>✓</td>
 </tr>
 <tr>
-<td>Value traded, turnover</td>
-<td>✓</td>
-<td>—</td>
+<td><strong>Developer</strong></td>
+<td>not possible</td>
+<td><strong>✓ balance sheet</strong></td>
 </tr>
 <tr>
-<td>Producer / explorer stage</td>
-<td>✓</td>
-<td>—</td>
+<td>Turnover</td>
+<td>TMX, dollars traded</td>
+<td>estimated from volume</td>
 </tr>
 <tr>
-<td>Price history and returns</td>
-<td>✓</td>
-<td>not yet fetched</td>
+<td>Post-listing returns</td>
+<td>✓ 595 of 1,079</td>
+<td>✓ <strong>611 of 726</strong></td>
 </tr>
 </tbody>
 </table></div>
-<p>Four of ten. The ASX tabs are shorter than the TSX ones because the data is, not because the work stopped early.</p>
+<p>Nine of nine, where before there were four of ten. Two of them came out <em>better</em> than the Canadian side:</p>
+<p><strong>Developer.</strong> The TSX had to give it up because "feasibility" appears once across 1,079 business summaries; here construction in progress on the balance sheet answers it directly.</p>
+<p><strong>Returns coverage.</strong> 84% of ASX miners can be anchored to their listing date against 55% on the TSX, because every ASX company has a listing date in the export and 224 TSXV companies do not.</p>
 <h2>Who counts as a miner</h2>
-<p><strong>There is no mining flag in this file.</strong> The TMX exports come pre-filtered; this one has to be filtered by hand, and GICS industry group is the only classification available. Its <strong>Materials</strong> group is where miners sit — alongside chemicals, packaging and building products. The sub-industry level that would isolate Metals &amp; Mining is not in the export.</p>
-<p>Two candidate definitions were tested and they disagree:</p>
+<p><strong>There is no mining flag in either source</strong>, so the population is a judgement made in <code>enrich_asx_dataset.py</code> and re-runnable by editing it.</p>
+<p>Two rules, in order:</p>
+<ol>
+<li><strong>Yahoo's <code>industry</code> is authoritative when it names a mining industry</strong> — Gold, Copper, Silver, Aluminum, Uranium, Coking Coal, Thermal Coal, and the two "Other … Metals &amp; Mining" buckets. 704 companies.</li>
+<li><strong>Otherwise the business summary has to say something only a miner says</strong> — that it explores <em>for</em> something, or holds deposits, ore bodies, tenements or mineral properties. 672 companies, overlapping heavily with the first rule.</li>
+</ol>
 <div class="tw"><table>
 <thead>
 <tr>
 <th></th>
 <th class="num">Companies</th>
+<th>Market cap</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Materials (GICS)</td>
+<td>GICS Materials, fetched</td>
 <td class="num">775</td>
+<td>A$1,180B</td>
 </tr>
 <tr>
-<td>… and a mining word in the name</td>
-<td class="num">610</td>
+<td><strong>Mining population</strong></td>
+<td class="num"><strong>726</strong></td>
+<td><strong>A$1,079B</strong></td>
 </tr>
 <tr>
-<td>… but no mining word in the name</td>
-<td class="num">165</td>
-</tr>
-<tr>
-<td>Mining word in the name, not Materials</td>
-<td class="num">41</td>
+<td>Excluded</td>
+<td class="num">49</td>
+<td>A$100B</td>
 </tr>
 </tbody>
 </table></div>
-<p><strong>Name-matching looks tempting and is a trap.</strong> The 165 Materials companies whose names say nothing about mining include:</p>
+<h3>Why positive evidence, not an exclusion list</h3>
+<p>The first attempt used a list of manufacturing words to knock out non-miners. It got <strong>BCI Minerals</strong> wrong — a salt and potash developer whose summary mentions food and fertiliser — while a hand-written list of the big names would never have caught the fifty small non-miners underneath them.</p>
+<p>What actually separates a miner from its suppliers is that a miner explores <em>for</em> something and holds ground. Suppliers talk about products, services and solutions. On that test:</p>
+<ul>
+<li><strong>Excluded correctly:</strong> Amcor (packaging), James Hardie (building materials), BlueScope (steel products), Orica and Dyno Nobel (explosives), Sims (recycling), Imdex — <em>"a mining-tech company, provides drilling products"</em> — and Vysarn (drilling services).</li>
+<li><strong>Kept correctly:</strong> Champion Iron, MGX, Fenix, Grange, Brockman and GWR, all iron ore miners that <strong>Yahoo files under "Steel"</strong> alongside BlueScope. Excluding the Steel industry wholesale would have thrown away eleven miners to remove two manufacturers.</li>
+<li>Also kept: Silver Mines Limited, which Yahoo classifies as <strong>Farm Products</strong>.</li>
+</ul>
+<p>22 spot checks, all correct.</p>
+<h2>Stage — how Producer, Developer and Explorer are decided</h2>
+<p><strong>No exchange publishes a lifecycle stage.</strong> There is no such field in the ASX export, none in the TMX files, and none in Yahoo. Every stage label in this report is assigned by <code>classify_stage()</code> in <code>enrich_asx_dataset.py</code>, from financial statements. It can be re-run with different thresholds by editing that function.</p>
+<p>The rules are applied <strong>in order, first match wins</strong>. Order matters: a royalty company has revenue, so it would be labelled a producer if the revenue test ran first.</p>
 <div class="tw"><table>
 <thead>
 <tr>
-<th></th>
-<th></th>
+<th class="num">#</th>
+<th>Test</th>
+<th>Result</th>
+<th class="num">n</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>BHP Group</td>
-<td>A$344B</td>
+<td class="num">1</td>
+<td>Summary names royalties or streaming</td>
+<td>Royalty / Streamer</td>
+<td class="num">3</td>
 </tr>
 <tr>
-<td>Newmont Corporation</td>
-<td>A$194B</td>
+<td class="num">2</td>
+<td>Revenue ≥ A$1M <strong>and</strong> a cost-of-revenue line exists</td>
+<td>Producer</td>
+<td class="num">103</td>
 </tr>
 <tr>
-<td>Fortescue</td>
-<td>A$55B</td>
+<td class="num">3</td>
+<td>Revenue ≥ A$10M with no cost line</td>
+<td>Producer</td>
+<td class="num">12</td>
 </tr>
 <tr>
-<td>South32</td>
-<td>A$23B</td>
+<td class="num">4</td>
+<td>Construction in progress, and it is material</td>
+<td>Developer</td>
+<td class="num">15</td>
 </tr>
 <tr>
-<td>Alcoa</td>
-<td>A$18B</td>
+<td class="num">5</td>
+<td>Financial statements exist, but no revenue</td>
+<td>Explorer</td>
+<td class="num">576</td>
 </tr>
 <tr>
-<td>PLS Group</td>
-<td>A$17B</td>
-</tr>
-<tr>
-<td>IGO</td>
-<td>A$6B</td>
+<td class="num">6</td>
+<td>Nothing returned</td>
+<td>Unknown</td>
+<td class="num">17</td>
 </tr>
 </tbody>
 </table></div>
-<p>Filtering on names discards the seven largest miners on the exchange — A$797B of the A$1,180B total.</p>
-<p><strong>So the population is all 775 Materials companies.</strong> It is a real classification rather than a guess, and both flags are kept in <code>asx_clean.csv</code> so it can be narrowed later.</p>
-<h2>What that costs</h2>
-<p>Two distortions, stated rather than corrected:</p>
-<ol>
-<li><strong>Materials contains genuine non-miners.</strong> Amcor A$31B, James Hardie A$25B, BlueScope A$14B, Orica A$10B, Dyno Nobel A$7B, Sims A$5B — roughly <strong>A$92B, about 8% of the sector total</strong>. Every market cap figure on the Numbers tab is inflated by that much.</li>
-<li><strong>Coal and uranium miners are excluded.</strong> GICS puts them in Energy: Yancoal A$7.9B, Whitehaven Coal A$6.7B. The TMX mining file includes coal and uranium, so <strong>the two populations are not defined the same way</strong> and counts are not strictly comparable.</li>
-</ol>
+<h3>Why each test is shaped that way</h3>
+<p><strong>Producer is revenue — but revenue from what?</strong> A junior showing A$1.0M of revenue and A$1.0M of gross profit has no cost of revenue at all. That is not metal; it is interest on the placement money, or a one-off tenement sale. Battery Age was the case that exposed it. But <em>requiring</em> a cost line is too strict, because Yahoo simply omits it for IGO (A$512M) and Catalyst (A$317M) — real producers with real mines. Hence the two-level floor: <strong>A$1M when a cost line proves something was sold, A$10M when it has to stand on size alone.</strong> The lowest-revenue company that qualifies is at A$1.05M. Tightening this moved producers from 162 to 115.</p>
+<p><strong>Developer is construction in progress, and only that.</strong> A capex test was tried first and had to be thrown out. Under AASB 6, Australian explorers <em>capitalise exploration expenditure</em> — drilling arrives on the cash flow statement as capex, indistinguishable from mine building. The rule "capex above 10% of assets" labelled <strong>226 companies as developers</strong>, including Southern Cross Gold, a A$3.3B explorer, and Vita Resources, a A$1.9M shell whose entire capex was a single drill programme. Any capex rule measures how hard a company is drilling, not whether it is building a mine.</p>
+<p><code>Construction In Progress</code> is a different line: it is the balance-sheet account for assets being built and not yet commissioned. Material means <strong>A$5M or 5% of total assets</strong>, which stops a A$50,000 workshop counting. That gives 15 companies, from Vertex at A$2.5M to Alpha HPA at A$213M — Core Lithium, Galan, Talga, Hastings, Cyprium and nine others, all genuinely mid-build.</p>
+<p><strong>Royalty and streaming come out first</strong> because they break the revenue test by construction: they have revenue and no cost of revenue, because they operate nothing. Deterra collects A$242M against Australian iron ore without owning a mine.</p>
+<p><strong>Explorer is a residual, and that is the honest description of it.</strong> It means "has financial statements, has no revenue, is not building anything" — 576 companies, 79% of the population. It bundles a A$3.3B explorer with a A$1M shell that has not drilled in three years. Nothing in Yahoo separates those, because the distinction lives in drill results and JORC resource statements, which are announcements rather than data.</p>
+<h3>What this cannot see</h3>
+<p><strong>Stage is today's stage, applied to all of history.</strong> Nothing dates the transition, so a company that floated as an explorer and poured its first gold in 2019 counts as a producer for its entire price series. Every return split by stage on the Charts tab is therefore a statement about outcomes, not about strategies.</p>
+<p><strong>"Feasibility" is not detectable in prose.</strong> It appears twice across 775 ASX business summaries and once across 1,079 Canadian ones. This is why the TSX side has no developer category at all — the balance sheet answered a question the text could not, and only because AASB and IFRS require the line.</p>
+<p><strong>The stage is as stale as the last filing.</strong> A company that started construction after its most recent annual report reads as an explorer here.</p>
+<h2>Coverage</h2>
+<p>What Yahoo actually returned, across 775 companies:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Field</th>
+<th class="num">Coverage</th>
+<th>Used for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>summary</code></td>
+<td class="num">99.7%</td>
+<td>commodity, geography, miner test</td>
+</tr>
+<tr>
+<td><code>industry</code></td>
+<td class="num">99.7%</td>
+<td>primary commodity, miner test</td>
+</tr>
+<tr>
+<td><code>total_assets</code></td>
+<td class="num">97.8%</td>
+<td>statements exist at all</td>
+</tr>
+<tr>
+<td><code>capex</code></td>
+<td class="num">95.4%</td>
+<td>— rejected, see above</td>
+</tr>
+<tr>
+<td><code>revenue_stmt</code></td>
+<td class="num">35.6%</td>
+<td>producer test</td>
+</tr>
+<tr>
+<td><code>construction_in_progress</code></td>
+<td class="num">16.6%</td>
+<td>developer test</td>
+</tr>
+</tbody>
+</table></div>
+<p>The low figures on the last two are <strong>not</strong> coverage failures. 35.6% having a revenue line <em>is</em> the producer/explorer split, and most companies genuinely have nothing under construction.</p>
 <h2>Handling notes</h2>
 <ul>
-<li><strong>26 Materials companies show <code>--</code> for market cap</strong> — suspended or unpriced lines. Read as blank, never as zero: a zero would drag every median and total it touches.</li>
-<li><strong>Listing dates are DD/MM/YYYY</strong>, confirmed by day values above 12 in the first field. All 1,843 rows have one.</li>
-<li><strong>Market cap is Australian dollars and is never converted.</strong> Size bands use the same numeric thresholds as the TSX side so the distributions have the same shape, but a band is A$ here and C$ there.</li>
-<li><strong>Survivorship, as everywhere.</strong> Only companies listed on 26 August 2026 are in the file, so every historical count is of survivors.</li>
-</ul></section><section id="asx-numbers" role="tabpanel" data-market="asx" hidden><h1>ASX — The numbers</h1>
-<p><em>775 GICS Materials companies, A$1,180B, as at 26 August 2026. Includes ~A$92B of packaging, steel and chemicals; excludes coal and uranium.</em></p>
+<li><strong>21 companies show no market cap</strong> in the ASX export — suspended lines, read as blank rather than zero.</li>
+<li><strong>Australian dollars, never converted.</strong> Size bands use the same numeric thresholds as the TSX chart so the shapes compare, but the currencies do not.</li>
+<li><strong>Listing dates are DD/MM/YYYY</strong>, confirmed by day values above 12. All rows have one — no ASX equivalent of the 224 TSXV companies with no listing date.</li>
+<li><strong>Coal and uranium partly excluded.</strong> Dropping the Energy sector removed Yancoal and Whitehaven but left 13 coal and uranium miners filed under Materials. The TMX population carries both in full.</li>
+<li><strong>Survivorship</strong>, as everywhere: only companies listed on 26 August 2026 appear.</li>
+</ul>
+<h2>Prices</h2>
+<p><code>fetch_asx_prices.py</code> is the ASX twin of <code>fetch_prices.py</code> — separate script, separate cache, identical milestones — so the two return curves line up column for column. 706 tickers fetched, none failed. Returns are measured against the mean of a company's first five trading days rather than its opening print, because day zero on a junior is thin, wide and often just the placement price.</p>
+<p>Three things had to be handled, and each one changes a number:</p>
+<p><strong>99 companies have no price near their listing.</strong> 73 of them listed before 2000. Yahoo has no 1980s or 1990s ASX data, so the oldest cohort is largely unanchorable — the same shape of gap as the TSX's 224 missing listing dates, arriving for a different reason.</p>
+<p><strong>16 companies are excluded as suspected backdoor listings.</strong> Antilles Gold states a 1993 listing; the price series starts January 1988. A mining company reversing into a dormant shell inherits its ticker and its history, so the anchor belongs to the shell. <code>covers_listing</code>, the flag the TSX side uses, reads <code>True</code> for exactly these cases — a series that starts early certainly covers the listing. The flag that works is <code>days_price_before_listing</code>, and anything over 90 days is dropped from the returns.</p>
+<p><strong>Seven companies have a negative adjusted close.</strong> Yahoo back-adjusts distributions, so when a company returns more capital per share than the share was then worth, the adjusted series runs through zero. AIC Mines is negative for the twenty-one years from 1993 to 2014. Substituting the unadjusted close would recover the row, but only by turning a total return into a price return for that one company, so the quotes are dropped and the loss is reported instead. This is the same fault that produced a −100.8% return on the TSX side before it was caught.</p>
+<h2>What is still missing</h2>
+<ol>
+<li><strong>A property register.</strong> Geography is inferred from prose that names the flagship and stops, so offshore counts are a floor, not a count.</li>
+<li><strong>Dilution.</strong> <code>get_shares_full</code> would give shares outstanding as a time series; the collection script has a <code>--shares</code> flag for it, not yet run. This is now the largest remaining gap, because a share price return says nothing about how much stock was issued to get there — and 31% of these companies have consolidated.</li>
+<li><strong>Stage at listing.</strong> Stage is what a company is today. Every return split by stage therefore describes outcomes, not strategies, and nothing in either source dates the transition.</li>
+<li><strong>Delisted companies.</strong> Nothing here recovers them, so survivorship stands on both markets.</li>
+</ol></section><section id="asx-numbers" role="tabpanel" data-market="asx" hidden><h1>ASX — The numbers</h1>
+<p><em>726 mining companies, A$1,079B, as at 26 August 2026. Population and market cap from the ASX export; commodity, geography and stage derived from Yahoo Finance.</em></p>
 <h2>Headline</h2>
-<p><strong>One company is 29% of the sector. The top ten are 70%.</strong></p>
+<p><strong>One company is a third of the sector. The top three are more than half.</strong></p>
 <div class="tw"><table>
 <thead>
 <tr>
 <th></th>
-<th>ASX Materials</th>
+<th>ASX mining</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Companies</td>
-<td>775</td>
+<td>726</td>
 </tr>
 <tr>
 <td>Total market cap</td>
-<td>A$1,179.6B</td>
+<td>A$1,079.4B</td>
 </tr>
 <tr>
 <td>Median market cap</td>
-<td>A$33.4M</td>
+<td>A$32.4M</td>
 </tr>
 <tr>
 <td>BHP alone</td>
-<td>29.2%</td>
+<td>31.9%</td>
 </tr>
 <tr>
 <td>Top 3</td>
-<td>51.2%</td>
+<td>56.0%</td>
 </tr>
 <tr>
 <td>Top 10</td>
-<td>69.8%</td>
+<td>74.2%</td>
 </tr>
 </tbody>
 </table></div>
 <h2>Concentration</h2>
-<p><strong>The ASX is more concentrated than either Canadian board.</strong> TSX mining's top ten are 54.8% of that board; here the top ten are <strong>69.8%</strong>, and three companies — BHP, Newmont, Fortescue — are more than half the sector between them.</p>
-<p>That is a different market structure, not a bigger version of the same one. Canada's weight sits in a few dozen mid-to-large producers; Australia's sits in three global majors with a long tail beneath them.</p>
+<p><strong>The ASX is markedly more concentrated than either Canadian board.</strong> The TSX's mining top ten are 54.8% of that board; here the top ten are <strong>74.2%</strong>, and BHP, Newmont and Fortescue are 56% between them.</p>
+<p>That is a different market structure, not a bigger version of the same one. Canada's weight sits across a few dozen mid-to-large producers; Australia's sits in three global majors above a very long tail.</p>
+<h2>Lifecycle stage</h2>
+<p><strong>115 companies sell metal. They are 16% of the miners and 93% of the value.</strong></p>
+<div class='viz-root viz-static'><div class='legend'><span><i style='background:#1baf7a'></i>Producer</span><span><i style='background:#eda100'></i>Developer</span><span><i style='background:#2a78d6'></i>Explorer</span><span><i style='background:#4a3aa7'></i>Other</span></div><div class='rows'><div class='row'><div class='cat'>Producer</div><div class='track'><div class='bar'><div class='seg-fill' style='width:19.97%;background:#1baf7a' title='Producer: 115'></div></div></div><div class='val'>115</div></div><div class='row'><div class='cat'>Developer</div><div class='track'><div class='bar'><div class='seg-fill' style='width:2.60%;background:#eda100' title='Developer: 15'></div></div></div><div class='val'>15</div></div><div class='row'><div class='cat'>Explorer</div><div class='track'><div class='bar'><div class='seg-fill' style='width:100.00%;background:#2a78d6' title='Explorer: 576'></div></div></div><div class='val'>576</div></div><div class='row'><div class='cat'>Other</div><div class='track'><div class='bar'><div class='seg-fill' style='width:3.47%;background:#4a3aa7' title='Other: 20'></div></div></div><div class='val'>20</div></div></div><p class='note' style='margin-top:12px'>Producer means reported revenue. Developer means construction in progress on the balance sheet — the test the TSX side could not run. Other is three royalty companies and 17 with no statements at all.</p></div>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th class="num">Companies</th>
+<th>Median market cap</th>
+<th class="num">Share of value</th>
+<th class="num">Est. turnover</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Producer</td>
+<td class="num">115</td>
+<td>A$646.1M</td>
+<td class="num">92.9%</td>
+<td class="num">24.8%</td>
+</tr>
+<tr>
+<td>Explorer</td>
+<td class="num">576</td>
+<td>A$22.8M</td>
+<td class="num">6.5%</td>
+<td class="num">13.2%</td>
+</tr>
+<tr>
+<td>Developer</td>
+<td class="num">15</td>
+<td>A$97.2M</td>
+<td class="num">0.3%</td>
+<td class="num">15.4%</td>
+</tr>
+<tr>
+<td>Royalty / streamer</td>
+<td class="num">3</td>
+<td>A$1,138.3M</td>
+<td class="num">0.2%</td>
+<td class="num">23.4%</td>
+</tr>
+<tr>
+<td>Unknown</td>
+<td class="num">17</td>
+<td>A$24.0M</td>
+<td class="num">0.1%</td>
+<td class="num">9.6%</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>The concentration of value in producers is more extreme than on the TSX</strong> — 93% against 72% — even though producers are a similar slice of the company count (16% here, 12% there). Australia's producers are simply much larger relative to their juniors.</p>
+<p><strong>Explorer trading is genuinely thinner, not just smaller.</strong> Estimated turnover runs 13.2% for explorers against 24.8% for producers: roughly half the churn per dollar of market value. The TSX shows the same direction at a higher level (29.3% against 43.8%), but the two turnover figures are built differently and should not be read against each other — see the caveats.</p>
+<p><strong>Developer is a real bucket here, and it was not on the TSX.</strong> Fifteen companies have construction in progress on the balance sheet: Core Lithium, Alpha HPA, Galan, Talga, Hastings and ten others. On the TSX side this could not be built at all, because "feasibility" appears once across 1,079 business summaries. Financial statements answered a question prose could not.</p>
 <h2>Size distribution</h2>
-<p><strong>43% of the sector is below A$25M, and those 334 companies are worth A$3.9B between them — 0.3% of the total.</strong></p>
-<div class="viz-root viz-static"><div class="legend"><span><i style="background:var(--series-ASX)"></i>Companies</span></div><div class="rows"><div class="row"><div class="cat">&lt; $5M</div><div class="track"><div class="bar"><div class="seg-fill" style="width:16.78%;background:var(--series-ASX)" title="48"></div></div></div><div class="val">48</div></div><div class="row"><div class="cat">$5–25M</div><div class="track"><div class="bar"><div class="seg-fill" style="width:100.00%;background:var(--series-ASX)" title="286"></div></div></div><div class="val">286</div></div><div class="row"><div class="cat">$25–100M</div><div class="track"><div class="bar"><div class="seg-fill" style="width:61.89%;background:var(--series-ASX)" title="177"></div></div></div><div class="val">177</div></div><div class="row"><div class="cat">$100–500M</div><div class="track"><div class="bar"><div class="seg-fill" style="width:46.85%;background:var(--series-ASX)" title="134"></div></div></div><div class="val">134</div></div><div class="row"><div class="cat">$500M–2B</div><div class="track"><div class="bar"><div class="seg-fill" style="width:19.93%;background:var(--series-ASX)" title="57"></div></div></div><div class="val">57</div></div><div class="row"><div class="cat">&gt; $2B</div><div class="track"><div class="bar"><div class="seg-fill" style="width:16.43%;background:var(--series-ASX)" title="47"></div></div></div><div class="val">47</div></div></div><p class="note" style="margin-top:12px">Market cap in Australian dollars. 26 companies show no market cap in the export — suspended lines, read as blank rather than zero, so they appear in no band.</p></div>
-<p>The shape is the same story as the TSXV: a very large number of very small companies, and essentially all the value somewhere else. The difference is that Australia keeps its majors on the same board rather than splitting them across a senior and a venture exchange, so this single distribution spans what takes two boards in Canada.</p>
+<p><strong>44% of the sector is below A$25M, and those 319 companies are worth A$3.7B between them — 0.35% of the total.</strong></p>
+<div class='viz-root viz-static'><div class='legend'><span><i style='background:#1baf7a'></i>Producer</span><span><i style='background:#eda100'></i>Developer</span><span><i style='background:#2a78d6'></i>Explorer</span><span><i style='background:#4a3aa7'></i>Other</span></div><div class='rows'><div class='row'><div class='cat'>&lt; $5M</div><div class='track'><div class='bar'><div class='seg-fill' style='width:0.73%;background:#1baf7a' title='Producer: 2'></div><div class='seg-fill' style='width:16.12%;background:#2a78d6' title='Explorer: 44'></div></div></div><div class='val'>46</div></div><div class='row'><div class='cat'>$5–25M</div><div class='track'><div class='bar'><div class='seg-fill' style='width:3.66%;background:#1baf7a' title='Producer: 10'></div><div class='seg-fill' style='width:0.37%;background:#eda100' title='Developer: 1'></div><div class='seg-fill' style='width:92.31%;background:#2a78d6' title='Explorer: 252'></div><div class='seg-fill' style='width:3.66%;background:#4a3aa7' title='Other: 10'></div></div></div><div class='val'>273</div></div><div class='row'><div class='cat'>$25–100M</div><div class='track'><div class='bar'><div class='seg-fill' style='width:2.93%;background:#1baf7a' title='Producer: 8'></div><div class='seg-fill' style='width:2.20%;background:#eda100' title='Developer: 6'></div><div class='seg-fill' style='width:53.85%;background:#2a78d6' title='Explorer: 147'></div><div class='seg-fill' style='width:1.83%;background:#4a3aa7' title='Other: 5'></div></div></div><div class='val'>166</div></div><div class='row'><div class='cat'>$100–500M</div><div class='track'><div class='bar'><div class='seg-fill' style='width:11.72%;background:#1baf7a' title='Producer: 32'></div><div class='seg-fill' style='width:1.83%;background:#eda100' title='Developer: 5'></div><div class='seg-fill' style='width:32.23%;background:#2a78d6' title='Explorer: 88'></div><div class='seg-fill' style='width:1.10%;background:#4a3aa7' title='Other: 3'></div></div></div><div class='val'>128</div></div><div class='row'><div class='cat'>$500M–2B</div><div class='track'><div class='bar'><div class='seg-fill' style='width:8.42%;background:#1baf7a' title='Producer: 23'></div><div class='seg-fill' style='width:0.73%;background:#eda100' title='Developer: 2'></div><div class='seg-fill' style='width:9.52%;background:#2a78d6' title='Explorer: 26'></div></div></div><div class='val'>51</div></div><div class='row'><div class='cat'>&gt; $2B</div><div class='track'><div class='bar'><div class='seg-fill' style='width:13.19%;background:#1baf7a' title='Producer: 36'></div><div class='seg-fill' style='width:1.47%;background:#2a78d6' title='Explorer: 4'></div><div class='seg-fill' style='width:0.37%;background:#4a3aa7' title='Other: 1'></div></div></div><div class='val'>41</div></div></div><p class='note' style='margin-top:12px'>Market cap in Australian dollars, never converted. The bands use the same numeric thresholds as the TSX chart so the shapes compare, but an A$ band is not the C$ band with the same label.</p></div>
+<p>The shape mirrors the TSXV: very many very small companies, essentially none of the value. The difference is that Australia keeps its majors and its shells on one board, so this single distribution spans what takes two exchanges in Canada — 41 companies above A$2B hold A$986B, and 46 below A$5M hold A$0.2B.</p>
+<h2>Commodity</h2>
+<p><strong>Gold is named by 70% of ASX miners. Copper by 52%. Lithium by 31%.</strong></p>
+<div class='viz-root viz-static'><div class='legend'><span><i style='background:#1baf7a'></i>Producer</span><span><i style='background:#eda100'></i>Developer</span><span><i style='background:#2a78d6'></i>Explorer</span><span><i style='background:#4a3aa7'></i>Other</span></div><div class='rows'><div class='row'><div class='cat'>Gold</div><div class='track'><div class='bar'><div class='seg-fill' style='width:13.14%;background:#1baf7a' title='Producer: 67'></div><div class='seg-fill' style='width:1.37%;background:#eda100' title='Developer: 7'></div><div class='seg-fill' style='width:82.35%;background:#2a78d6' title='Explorer: 420'></div><div class='seg-fill' style='width:3.14%;background:#4a3aa7' title='Other: 16'></div></div></div><div class='val'>510</div></div><div class='row'><div class='cat'>Copper</div><div class='track'><div class='bar'><div class='seg-fill' style='width:7.06%;background:#1baf7a' title='Producer: 36'></div><div class='seg-fill' style='width:0.59%;background:#eda100' title='Developer: 3'></div><div class='seg-fill' style='width:64.90%;background:#2a78d6' title='Explorer: 331'></div><div class='seg-fill' style='width:1.96%;background:#4a3aa7' title='Other: 10'></div></div></div><div class='val'>380</div></div><div class='row'><div class='cat'>Lithium</div><div class='track'><div class='bar'><div class='seg-fill' style='width:3.73%;background:#1baf7a' title='Producer: 19'></div><div class='seg-fill' style='width:1.37%;background:#eda100' title='Developer: 7'></div><div class='seg-fill' style='width:38.63%;background:#2a78d6' title='Explorer: 197'></div><div class='seg-fill' style='width:0.78%;background:#4a3aa7' title='Other: 4'></div></div></div><div class='val'>227</div></div><div class='row'><div class='cat'>Silver</div><div class='track'><div class='bar'><div class='seg-fill' style='width:7.65%;background:#1baf7a' title='Producer: 39'></div><div class='seg-fill' style='width:0.20%;background:#eda100' title='Developer: 1'></div><div class='seg-fill' style='width:31.57%;background:#2a78d6' title='Explorer: 161'></div><div class='seg-fill' style='width:0.59%;background:#4a3aa7' title='Other: 3'></div></div></div><div class='val'>204</div></div><div class='row'><div class='cat'>Nickel</div><div class='track'><div class='bar'><div class='seg-fill' style='width:2.75%;background:#1baf7a' title='Producer: 14'></div><div class='seg-fill' style='width:0.59%;background:#eda100' title='Developer: 3'></div><div class='seg-fill' style='width:35.10%;background:#2a78d6' title='Explorer: 179'></div><div class='seg-fill' style='width:0.59%;background:#4a3aa7' title='Other: 3'></div></div></div><div class='val'>199</div></div><div class='row'><div class='cat'>Rare Earths</div><div class='track'><div class='bar'><div class='seg-fill' style='width:2.16%;background:#1baf7a' title='Producer: 11'></div><div class='seg-fill' style='width:0.39%;background:#eda100' title='Developer: 2'></div><div class='seg-fill' style='width:25.49%;background:#2a78d6' title='Explorer: 130'></div><div class='seg-fill' style='width:0.39%;background:#4a3aa7' title='Other: 2'></div></div></div><div class='val'>145</div></div><div class='row'><div class='cat'>Zinc</div><div class='track'><div class='bar'><div class='seg-fill' style='width:3.14%;background:#1baf7a' title='Producer: 16'></div><div class='seg-fill' style='width:0.20%;background:#eda100' title='Developer: 1'></div><div class='seg-fill' style='width:22.35%;background:#2a78d6' title='Explorer: 114'></div><div class='seg-fill' style='width:0.39%;background:#4a3aa7' title='Other: 2'></div></div></div><div class='val'>133</div></div><div class='row'><div class='cat'>Lead</div><div class='track'><div class='bar'><div class='seg-fill' style='width:2.35%;background:#1baf7a' title='Producer: 12'></div><div class='seg-fill' style='width:0.20%;background:#eda100' title='Developer: 1'></div><div class='seg-fill' style='width:17.45%;background:#2a78d6' title='Explorer: 89'></div><div class='seg-fill' style='width:0.20%;background:#4a3aa7' title='Other: 1'></div></div></div><div class='val'>103</div></div><div class='row'><div class='cat'>Iron</div><div class='track'><div class='bar'><div class='seg-fill' style='width:3.73%;background:#1baf7a' title='Producer: 19'></div><div class='seg-fill' style='width:13.92%;background:#2a78d6' title='Explorer: 71'></div><div class='seg-fill' style='width:0.78%;background:#4a3aa7' title='Other: 4'></div></div></div><div class='val'>94</div></div><div class='row'><div class='cat'>Uranium</div><div class='track'><div class='bar'><div class='seg-fill' style='width:1.18%;background:#1baf7a' title='Producer: 6'></div><div class='seg-fill' style='width:0.20%;background:#eda100' title='Developer: 1'></div><div class='seg-fill' style='width:13.53%;background:#2a78d6' title='Explorer: 69'></div><div class='seg-fill' style='width:0.20%;background:#4a3aa7' title='Other: 1'></div></div></div><div class='val'>77</div></div><div class='row'><div class='cat'>Platinum/PGM</div><div class='track'><div class='bar'><div class='seg-fill' style='width:0.20%;background:#1baf7a' title='Producer: 1'></div><div class='seg-fill' style='width:12.94%;background:#2a78d6' title='Explorer: 66'></div><div class='seg-fill' style='width:0.20%;background:#4a3aa7' title='Other: 1'></div></div></div><div class='val'>68</div></div><div class='row'><div class='cat'>Molybdenum</div><div class='track'><div class='bar'><div class='seg-fill' style='width:0.59%;background:#1baf7a' title='Producer: 3'></div><div class='seg-fill' style='width:4.51%;background:#2a78d6' title='Explorer: 23'></div></div></div><div class='val'>26</div></div><div class='row'><div class='cat'>Tungsten</div><div class='track'><div class='bar'><div class='seg-fill' style='width:0.98%;background:#1baf7a' title='Producer: 5'></div><div class='seg-fill' style='width:3.92%;background:#2a78d6' title='Explorer: 20'></div><div class='seg-fill' style='width:0.20%;background:#4a3aa7' title='Other: 1'></div></div></div><div class='val'>26</div></div><div class='row'><div class='cat'>Coal</div><div class='track'><div class='bar'><div class='seg-fill' style='width:1.37%;background:#1baf7a' title='Producer: 7'></div><div class='seg-fill' style='width:1.37%;background:#2a78d6' title='Explorer: 7'></div></div></div><div class='val'>14</div></div><div class='row'><div class='cat'>Diamond</div><div class='track'><div class='bar'><div class='seg-fill' style='width:0.78%;background:#1baf7a' title='Producer: 4'></div><div class='seg-fill' style='width:1.18%;background:#2a78d6' title='Explorer: 6'></div></div></div><div class='val'>10</div></div><div class='row'><div class='cat'>Potash</div><div class='track'><div class='bar'><div class='seg-fill' style='width:0.39%;background:#1baf7a' title='Producer: 2'></div><div class='seg-fill' style='width:1.57%;background:#2a78d6' title='Explorer: 8'></div></div></div><div class='val'>10</div></div></div><p class='note' style='margin-top:12px'>Extracted from Yahoo business summaries, so this is what a company says it explores for. Companies name more than one, so the bars sum to more than 726. These sixteen mirror the TSX chart exactly.</p></div>
+<p>These sixteen mirror the TSX chart exactly, and the contrast is the point:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th class="num">ASX</th>
+<th class="num">TSX / TSXV</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gold</td>
+<td class="num">70%</td>
+<td class="num">61%</td>
+</tr>
+<tr>
+<td>Copper</td>
+<td class="num">52%</td>
+<td class="num">33%</td>
+</tr>
+<tr>
+<td>Lithium</td>
+<td class="num">31%</td>
+<td class="num">10%</td>
+</tr>
+<tr>
+<td>Rare earths</td>
+<td class="num">20%</td>
+<td class="num">3%</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Lithium and rare earths are where the two markets diverge most.</strong> Lithium is named by nearly a third of ASX miners against a tenth on the TSXV; rare earths by a fifth against 3%. Australia's speculative money sits in battery and critical minerals in a way Canada's does not.</p>
+<p>Companies name more than one commodity, so the bars sum to well beyond 726 — 554 name two or more. Only 11 name none.</p>
+<h3>Commodities with no TSX counterpart</h3>
+<div class='viz-root viz-static'><div class='legend'><span><i style='background:#1baf7a'></i>Producer</span><span><i style='background:#eda100'></i>Developer</span><span><i style='background:#2a78d6'></i>Explorer</span><span><i style='background:#4a3aa7'></i>Other</span></div><div class='rows'><div class='row'><div class='cat'>Cobalt</div><div class='track'><div class='bar'><div class='seg-fill' style='width:9.52%;background:#1baf7a' title='Producer: 10'></div><div class='seg-fill' style='width:0.95%;background:#eda100' title='Developer: 1'></div><div class='seg-fill' style='width:88.57%;background:#2a78d6' title='Explorer: 93'></div><div class='seg-fill' style='width:0.95%;background:#4a3aa7' title='Other: 1'></div></div></div><div class='val'>105</div></div><div class='row'><div class='cat'>Niobium/Tantalum</div><div class='track'><div class='bar'><div class='seg-fill' style='width:1.90%;background:#1baf7a' title='Producer: 2'></div><div class='seg-fill' style='width:0.95%;background:#eda100' title='Developer: 1'></div><div class='seg-fill' style='width:34.29%;background:#2a78d6' title='Explorer: 36'></div></div></div><div class='val'>39</div></div><div class='row'><div class='cat'>Graphite</div><div class='track'><div class='bar'><div class='seg-fill' style='width:2.86%;background:#1baf7a' title='Producer: 3'></div><div class='seg-fill' style='width:0.95%;background:#eda100' title='Developer: 1'></div><div class='seg-fill' style='width:28.57%;background:#2a78d6' title='Explorer: 30'></div></div></div><div class='val'>34</div></div><div class='row'><div class='cat'>Vanadium</div><div class='track'><div class='bar'><div class='seg-fill' style='width:2.86%;background:#1baf7a' title='Producer: 3'></div><div class='seg-fill' style='width:28.57%;background:#2a78d6' title='Explorer: 30'></div></div></div><div class='val'>33</div></div><div class='row'><div class='cat'>Antimony</div><div class='track'><div class='bar'><div class='seg-fill' style='width:0.95%;background:#1baf7a' title='Producer: 1'></div><div class='seg-fill' style='width:28.57%;background:#2a78d6' title='Explorer: 30'></div></div></div><div class='val'>31</div></div><div class='row'><div class='cat'>Manganese</div><div class='track'><div class='bar'><div class='seg-fill' style='width:4.76%;background:#1baf7a' title='Producer: 5'></div><div class='seg-fill' style='width:21.90%;background:#2a78d6' title='Explorer: 23'></div></div></div><div class='val'>28</div></div><div class='row'><div class='cat'>Bauxite/Alumina</div><div class='track'><div class='bar'><div class='seg-fill' style='width:4.76%;background:#1baf7a' title='Producer: 5'></div><div class='seg-fill' style='width:18.10%;background:#2a78d6' title='Explorer: 19'></div></div></div><div class='val'>24</div></div><div class='row'><div class='cat'>Mineral Sands</div><div class='track'><div class='bar'><div class='seg-fill' style='width:2.86%;background:#1baf7a' title='Producer: 3'></div><div class='seg-fill' style='width:16.19%;background:#2a78d6' title='Explorer: 17'></div><div class='seg-fill' style='width:1.90%;background:#4a3aa7' title='Other: 2'></div></div></div><div class='val'>22</div></div><div class='row'><div class='cat'>Tin</div><div class='track'><div class='bar'><div class='seg-fill' style='width:3.81%;background:#1baf7a' title='Producer: 4'></div><div class='seg-fill' style='width:15.24%;background:#2a78d6' title='Explorer: 16'></div></div></div><div class='val'>20</div></div><div class='row'><div class='cat'>Scandium</div><div class='track'><div class='bar'><div class='seg-fill' style='width:12.38%;background:#2a78d6' title='Explorer: 13'></div></div></div><div class='val'>13</div></div><div class='row'><div class='cat'>Silica</div><div class='track'><div class='bar'><div class='seg-fill' style='width:0.95%;background:#1baf7a' title='Producer: 1'></div><div class='seg-fill' style='width:0.95%;background:#eda100' title='Developer: 1'></div><div class='seg-fill' style='width:10.48%;background:#2a78d6' title='Explorer: 11'></div></div></div><div class='val'>13</div></div><div class='row'><div class='cat'>Phosphate</div><div class='track'><div class='bar'><div class='seg-fill' style='width:0.95%;background:#1baf7a' title='Producer: 1'></div><div class='seg-fill' style='width:0.95%;background:#eda100' title='Developer: 1'></div><div class='seg-fill' style='width:6.67%;background:#2a78d6' title='Explorer: 7'></div></div></div><div class='val'>9</div></div></div><p class='note' style='margin-top:12px'>Commodities the TMX flag set has no column for, so these have no TSX counterpart to compare against.</p></div>
+<p>Cobalt is named by 105 companies, niobium and tantalum by 39, graphite by 34. The TMX flag set has no column for any of these, so they cannot be compared like for like — which is itself a finding about the two exports.</p>
+<h2>Where the assets are</h2>
+<p><strong>97% name Australian ground. 46% also name something offshore.</strong></p>
+<div class='viz-root viz-static'><div class='legend'><span><i style='background:#1baf7a'></i>Producer</span><span><i style='background:#eda100'></i>Developer</span><span><i style='background:#2a78d6'></i>Explorer</span><span><i style='background:#4a3aa7'></i>Other</span></div><div class='rows'><div class='row'><div class='cat'>Aus / NZ / PNG</div><div class='track'><div class='bar'><div class='seg-fill' style='width:15.10%;background:#1baf7a' title='Producer: 106'></div><div class='seg-fill' style='width:2.14%;background:#eda100' title='Developer: 15'></div><div class='seg-fill' style='width:80.06%;background:#2a78d6' title='Explorer: 562'></div><div class='seg-fill' style='width:2.71%;background:#4a3aa7' title='Other: 19'></div></div></div><div class='val'>702</div></div><div class='row'><div class='cat'>Africa</div><div class='track'><div class='bar'><div class='seg-fill' style='width:2.14%;background:#1baf7a' title='Producer: 15'></div><div class='seg-fill' style='width:0.43%;background:#eda100' title='Developer: 3'></div><div class='seg-fill' style='width:10.26%;background:#2a78d6' title='Explorer: 72'></div><div class='seg-fill' style='width:0.43%;background:#4a3aa7' title='Other: 3'></div></div></div><div class='val'>93</div></div><div class='row'><div class='cat'>Canada</div><div class='track'><div class='bar'><div class='seg-fill' style='width:2.28%;background:#1baf7a' title='Producer: 16'></div><div class='seg-fill' style='width:0.14%;background:#eda100' title='Developer: 1'></div><div class='seg-fill' style='width:9.83%;background:#2a78d6' title='Explorer: 69'></div><div class='seg-fill' style='width:0.14%;background:#4a3aa7' title='Other: 1'></div></div></div><div class='val'>87</div></div><div class='row'><div class='cat'>USA</div><div class='track'><div class='bar'><div class='seg-fill' style='width:1.42%;background:#1baf7a' title='Producer: 10'></div><div class='seg-fill' style='width:0.14%;background:#eda100' title='Developer: 1'></div><div class='seg-fill' style='width:8.55%;background:#2a78d6' title='Explorer: 60'></div><div class='seg-fill' style='width:0.85%;background:#4a3aa7' title='Other: 6'></div></div></div><div class='val'>77</div></div><div class='row'><div class='cat'>Latin America</div><div class='track'><div class='bar'><div class='seg-fill' style='width:1.85%;background:#1baf7a' title='Producer: 13'></div><div class='seg-fill' style='width:0.14%;background:#eda100' title='Developer: 1'></div><div class='seg-fill' style='width:8.69%;background:#2a78d6' title='Explorer: 61'></div><div class='seg-fill' style='width:0.28%;background:#4a3aa7' title='Other: 2'></div></div></div><div class='val'>77</div></div><div class='row'><div class='cat'>UK / Europe</div><div class='track'><div class='bar'><div class='seg-fill' style='width:1.85%;background:#1baf7a' title='Producer: 13'></div><div class='seg-fill' style='width:0.14%;background:#eda100' title='Developer: 1'></div><div class='seg-fill' style='width:5.70%;background:#2a78d6' title='Explorer: 40'></div><div class='seg-fill' style='width:0.14%;background:#4a3aa7' title='Other: 1'></div></div></div><div class='val'>55</div></div><div class='row'><div class='cat'>Asia</div><div class='track'><div class='bar'><div class='seg-fill' style='width:3.56%;background:#1baf7a' title='Producer: 25'></div><div class='seg-fill' style='width:3.42%;background:#2a78d6' title='Explorer: 24'></div><div class='seg-fill' style='width:0.28%;background:#4a3aa7' title='Other: 2'></div></div></div><div class='val'>51</div></div><div class='row'><div class='cat'>Other / unnamed</div><div class='track'><div class='bar'><div class='seg-fill' style='width:0.14%;background:#1baf7a' title='Producer: 1'></div></div></div><div class='val'>1</div></div></div><p class='note' style='margin-top:12px'>Regions named in the business summary. A summary usually names the flagship project and stops, so these counts <strong>understate by construction</strong> — unlike the TSX side, which has a property register.</p></div>
+<p>Africa (13%) edges out Canada (12%) and the USA (11%) as the most-named offshore destination — West African gold, mostly. That is a genuine structural difference from the TSX, where the offshore tail runs to Latin America first.</p>
+<p><strong>These counts understate, by construction.</strong> They come from business summaries, which typically name the flagship project and stop. The TSX side has a property register listing every jurisdiction a company holds ground in; this does not. Treat the offshore figures as a floor.</p>
+<h2>How much of each commodity produces</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th class="num">Producing</th>
+<th class="num">Companies</th>
+<th class="num">Share</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Iron</td>
+<td class="num">19</td>
+<td class="num">94</td>
+<td class="num">20%</td>
+</tr>
+<tr>
+<td>Silver</td>
+<td class="num">39</td>
+<td class="num">204</td>
+<td class="num">19%</td>
+</tr>
+<tr>
+<td>Gold</td>
+<td class="num">67</td>
+<td class="num">510</td>
+<td class="num">13%</td>
+</tr>
+<tr>
+<td>Zinc</td>
+<td class="num">16</td>
+<td class="num">133</td>
+<td class="num">12%</td>
+</tr>
+<tr>
+<td>Copper</td>
+<td class="num">36</td>
+<td class="num">380</td>
+<td class="num">9%</td>
+</tr>
+<tr>
+<td>Lithium</td>
+<td class="num">19</td>
+<td class="num">227</td>
+<td class="num">8%</td>
+</tr>
+<tr>
+<td>Rare earths</td>
+<td class="num">11</td>
+<td class="num">145</td>
+<td class="num">8%</td>
+</tr>
+<tr>
+<td>Nickel</td>
+<td class="num">14</td>
+<td class="num">199</td>
+<td class="num">7%</td>
+</tr>
+<tr>
+<td>Platinum / PGM</td>
+<td class="num">1</td>
+<td class="num">68</td>
+<td class="num">1%</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Gold produces at exactly the same rate on both markets — 13%.</strong> Lithium is the divergence: 8% of ASX lithium names produce against 3% on the TSXV. Australia's lithium boom got further than Canada's before the price turned.</p>
+<p>Rare earths at 8% and platinum at 1% are the speculative extremes — 145 companies naming rare earths and eleven of them selling anything.</p>
 <h2>Listings by year</h2>
-<p><strong>2021 was extraordinary: 106 of the surviving companies listed that year, more than the previous eight years combined.</strong></p>
-<div class="viz-root viz-static"><div class="legend"><span><i style="background:var(--series-ASX)"></i>Listings</span></div><div class="rows"><div class="row"><div class="cat">2000</div><div class="track"><div class="bar"><div class="seg-fill" style="width:5.66%;background:var(--series-ASX)" title="6"></div></div></div><div class="val">6</div></div><div class="row"><div class="cat">2001</div><div class="track"><div class="bar"><div class="seg-fill" style="width:7.55%;background:var(--series-ASX)" title="8"></div></div></div><div class="val">8</div></div><div class="row"><div class="cat">2002</div><div class="track"><div class="bar"><div class="seg-fill" style="width:11.32%;background:var(--series-ASX)" title="12"></div></div></div><div class="val">12</div></div><div class="row"><div class="cat">2003</div><div class="track"><div class="bar"><div class="seg-fill" style="width:18.87%;background:var(--series-ASX)" title="20"></div></div></div><div class="val">20</div></div><div class="row"><div class="cat">2004</div><div class="track"><div class="bar"><div class="seg-fill" style="width:18.87%;background:var(--series-ASX)" title="20"></div></div></div><div class="val">20</div></div><div class="row"><div class="cat">2005</div><div class="track"><div class="bar"><div class="seg-fill" style="width:27.36%;background:var(--series-ASX)" title="29"></div></div></div><div class="val">29</div></div><div class="row"><div class="cat">2006</div><div class="track"><div class="bar"><div class="seg-fill" style="width:35.85%;background:var(--series-ASX)" title="38"></div></div></div><div class="val">38</div></div><div class="row"><div class="cat">2007</div><div class="track"><div class="bar"><div class="seg-fill" style="width:60.38%;background:var(--series-ASX)" title="64"></div></div></div><div class="val">64</div></div><div class="row"><div class="cat">2008</div><div class="track"><div class="bar"><div class="seg-fill" style="width:19.81%;background:var(--series-ASX)" title="21"></div></div></div><div class="val">21</div></div><div class="row"><div class="cat">2009</div><div class="track"><div class="bar"><div class="seg-fill" style="width:15.09%;background:var(--series-ASX)" title="16"></div></div></div><div class="val">16</div></div><div class="row"><div class="cat">2010</div><div class="track"><div class="bar"><div class="seg-fill" style="width:26.42%;background:var(--series-ASX)" title="28"></div></div></div><div class="val">28</div></div><div class="row"><div class="cat">2011</div><div class="track"><div class="bar"><div class="seg-fill" style="width:34.91%;background:var(--series-ASX)" title="37"></div></div></div><div class="val">37</div></div><div class="row"><div class="cat">2012</div><div class="track"><div class="bar"><div class="seg-fill" style="width:11.32%;background:var(--series-ASX)" title="12"></div></div></div><div class="val">12</div></div><div class="row"><div class="cat">2013</div><div class="track"><div class="bar"><div class="seg-fill" style="width:10.38%;background:var(--series-ASX)" title="11"></div></div></div><div class="val">11</div></div><div class="row"><div class="cat">2014</div><div class="track"><div class="bar"><div class="seg-fill" style="width:3.77%;background:var(--series-ASX)" title="4"></div></div></div><div class="val">4</div></div><div class="row"><div class="cat">2015</div><div class="track"><div class="bar"><div class="seg-fill" style="width:2.83%;background:var(--series-ASX)" title="3"></div></div></div><div class="val">3</div></div><div class="row"><div class="cat">2016</div><div class="track"><div class="bar"><div class="seg-fill" style="width:5.66%;background:var(--series-ASX)" title="6"></div></div></div><div class="val">6</div></div><div class="row"><div class="cat">2017</div><div class="track"><div class="bar"><div class="seg-fill" style="width:27.36%;background:var(--series-ASX)" title="29"></div></div></div><div class="val">29</div></div><div class="row"><div class="cat">2018</div><div class="track"><div class="bar"><div class="seg-fill" style="width:26.42%;background:var(--series-ASX)" title="28"></div></div></div><div class="val">28</div></div><div class="row"><div class="cat">2019</div><div class="track"><div class="bar"><div class="seg-fill" style="width:5.66%;background:var(--series-ASX)" title="6"></div></div></div><div class="val">6</div></div><div class="row"><div class="cat">2020</div><div class="track"><div class="bar"><div class="seg-fill" style="width:25.47%;background:var(--series-ASX)" title="27"></div></div></div><div class="val">27</div></div><div class="row"><div class="cat">2021</div><div class="track"><div class="bar"><div class="seg-fill" style="width:100.00%;background:var(--series-ASX)" title="106"></div></div></div><div class="val">106</div></div><div class="row"><div class="cat">2022</div><div class="track"><div class="bar"><div class="seg-fill" style="width:56.60%;background:var(--series-ASX)" title="60"></div></div></div><div class="val">60</div></div><div class="row"><div class="cat">2023</div><div class="track"><div class="bar"><div class="seg-fill" style="width:22.64%;background:var(--series-ASX)" title="24"></div></div></div><div class="val">24</div></div><div class="row"><div class="cat">2024</div><div class="track"><div class="bar"><div class="seg-fill" style="width:12.26%;background:var(--series-ASX)" title="13"></div></div></div><div class="val">13</div></div><div class="row"><div class="cat">2025</div><div class="track"><div class="bar"><div class="seg-fill" style="width:23.58%;background:var(--series-ASX)" title="25"></div></div></div><div class="val">25</div></div><div class="row"><div class="cat">2026</div><div class="track"><div class="bar"><div class="seg-fill" style="width:12.26%;background:var(--series-ASX)" title="13"></div></div></div><div class="val">13</div></div></div><p class="note" style="margin-top:12px">Companies that listed in each year <strong>and are still listed today</strong>, so early years are undercounted by everything that has since failed or been acquired. 109 surviving companies listed before 2000 and are not shown.</p></div>
-<p>The 2021 spike is the lithium and battery-metals float wave. Whether it was a good vintage is exactly the question the price data would answer, and that has not been fetched.</p>
-<p>109 surviving companies listed before 2000 and are not shown; the oldest goes back to 1885.</p>
-<h2>What is missing</h2>
-<p>Everything else. There is no commodity, no project location, no domicile, no value traded and no revenue in this export, so there is no ASX equivalent of:</p>
-<ul>
-<li>the commodity bars</li>
-<li>the assets-by-region bars</li>
-<li>the domicile-versus-operations heatmap</li>
-<li>turnover and the attention ratio</li>
-<li>producer / explorer stage</li>
-<li>the whole post-listing returns analysis</li>
-</ul>
-<p><strong>The gap that would close the most, cheapest:</strong> price history. The file already has a ticker and a listing date for every company, which is exactly what the existing <code>fetch_prices.py</code> needs — the codes are stored as <code>.AX</code> symbols ready for it. That one run would bring the milestone-return analysis across, and it is the most interesting part of the TSX work. Nothing else here is a one-script job.</p>
+<p><strong>2021 was extraordinary: 103 of the surviving miners listed that year, more than the previous eight combined.</strong></p>
+<p>The battery-metals float wave. 2022 added 58 more, then it stopped: 24 in 2023 and 13 in 2024.</p>
+<p>96 surviving companies listed before 2000 and are not shown on the chart; the oldest dates to 1885.</p>
+<h3>Was 2021 a bad vintage?</h3>
+<p><strong>Yes, but you could not have told for eighteen months.</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Held for</th>
+<th>2021 cohort</th>
+<th>Every other year</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 year</td>
+<td>−30% (74% down)</td>
+<td>−26% (68% down)</td>
+</tr>
+<tr>
+<td>2 years</td>
+<td>−50% (80% down)</td>
+<td>−48% (75% down)</td>
+</tr>
+<tr>
+<td>3 years</td>
+<td><strong>−75% (92% down)</strong></td>
+<td>−52% (75% down)</td>
+</tr>
+</tbody>
+</table></div>
+<p>At one year the 2021 floats look like any other cohort. At three years they are 23 points worse and <strong>92 of every 100 are below their listing price</strong> — the highest failure rate of any cohort in the file. The lithium and rare-earth floats of 2021 raised money at the top of the battery-metals cycle and the price turned before most of them had drilled out a resource.</p>
+<h2>What happens after listing</h2>
+<p><strong>The median ASX miner is down 27% a year after listing, 68% after five, and 93% after fifteen.</strong></p>
+<p>The full curve is on the Charts tab, where it can be split by stage. The headline is that it is <em>the same curve as Canada's</em>:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Held for</th>
+<th>ASX</th>
+<th>TSX / TSXV</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 month</td>
+<td>−4.6%</td>
+<td>−4.8%</td>
+</tr>
+<tr>
+<td>6 months</td>
+<td>−15.0%</td>
+<td>−17.7%</td>
+</tr>
+<tr>
+<td>1 year</td>
+<td>−26.5%</td>
+<td>−26.7%</td>
+</tr>
+<tr>
+<td>2 years</td>
+<td>−47.9%</td>
+<td>−47.9%</td>
+</tr>
+<tr>
+<td>5 years</td>
+<td>−68.1%</td>
+<td>−66.5%</td>
+</tr>
+<tr>
+<td>10 years</td>
+<td>−88.7%</td>
+<td>−82.3%</td>
+</tr>
+<tr>
+<td>15 years</td>
+<td>−93.1%</td>
+<td>−92.6%</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Two exchanges, different commodity mixes, different regulators, near-identical decay.</strong> This is the one cross-market comparison in the report that is honestly like for like — same script, same milestones, same base, and a return is a ratio, so the currencies never meet. Australia is slightly worse in the tail and consistently a few points worse on the share of companies underwater, but the shape is not distinguishable.</p>
+<h3>Producers and explorers do not just differ — they invert</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Held for</th>
+<th>Producer</th>
+<th>Explorer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 year</td>
+<td>−12%</td>
+<td>−27%</td>
+</tr>
+<tr>
+<td>5 years</td>
+<td>−60%</td>
+<td>−69%</td>
+</tr>
+<tr>
+<td>10 years</td>
+<td>−57%</td>
+<td>−91%</td>
+</tr>
+<tr>
+<td>15 years</td>
+<td><strong>−37%</strong></td>
+<td><strong>−95%</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>The explorer line falls monotonically to near-total loss. The producer line bottoms out around year five and then <strong>recovers</strong>.</p>
+<p><strong>Read this carefully, because it is not "buy producers".</strong> Stage is measured today, not at listing. A company that floated as an explorer and became a producer is counted as a producer for its entire price history, so the producer line is a description of the companies that succeeded, not evidence that buying producers works. What it does establish is that the upside in this sector is real but concentrated: the middle producer at fifteen years is down 37%, while the 75th percentile is up 274%.</p>
+<h3>The rollback tells the story</h3>
+<p><strong>187 of 611 priced companies — 31% — have consolidated their shares since listing.</strong> The median consolidation is 25 old shares into 1.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th class="num">n</th>
+<th>median at 5 years</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Consolidated</td>
+<td class="num">183</td>
+<td>−80%</td>
+</tr>
+<tr>
+<td>Not</td>
+<td class="num">251</td>
+<td>−55%</td>
+</tr>
+</tbody>
+</table></div>
+<p>A share consolidation is a symptom, not a cause: a company rolls back when the price has fallen so far that it is at risk of the exchange's minimum. It is the single cheapest flag in the file for a company that has already gone badly wrong.</p>
+<h3>Commodity barely matters</h3>
+<p>At three years the spread across commodities runs from iron at −44% to uranium at −69%, and <strong>lithium (−56%) is no worse than gold (−58%)</strong> despite the lithium price collapse. What a company said it was looking for explains very little about what happened to its share price. Listing year and reaching production explain far more.</p>
 <h2>Caveats</h2>
 <ul>
-<li><strong>Population is GICS Materials, not mining</strong> — ~A$92B of non-miners in, coal and uranium out. Not comparable to the TMX mining population on a like-for-like basis.</li>
-<li><strong>26 companies have no market cap</strong> — suspended lines, excluded from totals and medians rather than counted as zero.</li>
-<li><strong>Australian dollars, never converted.</strong> Do not read an A$ band as equal to the C$ band with the same label.</li>
-<li><strong>Survivorship.</strong> Every listing-year count is of companies that are still listed today, so early years are undercounted by everything that has since failed or been acquired.</li>
-<li><strong>One date only.</strong> A single snapshot, so nothing here is a trend.</li>
-</ul></section></main>
+<li><strong>The population is derived, not given.</strong> 726 of 775 GICS Materials companies, using Yahoo's industry where it names a mining industry and the business summary otherwise. 49 were excluded — Amcor, James Hardie, BlueScope, Orica, Dyno Nobel, Sims and 43 smaller names, A$100B in total.</li>
+<li><strong>Coal and uranium are partly present.</strong> Excluding the Energy sector removed Yancoal and Whitehaven but left 13 coal and uranium miners that GICS files under Materials. The TMX population carries coal and uranium in full, so the two are not defined the same way.</li>
+<li><strong>Commodity and geography come from prose.</strong> They record what a company says it explores for, which is not what it holds, and summaries go stale. The TSX equivalents come from a TMX register.</li>
+<li><strong>Estimated turnover is not TSX turnover.</strong> The ASX export has no trading data, so it is average daily volume × price × 126 trading days ÷ market cap. TMX reports dollars actually traded. Same quantity, different construction — never put them on one axis.</li>
+<li><strong>Australian dollars, never converted.</strong> An A$ size band is not the C$ band with the same label.</li>
+<li><strong>21 companies have no market cap</strong> and 17 no financial statements at all.</li>
+<li><strong>Survivorship, and it bites hardest on the returns.</strong> Only companies listed on 26 August 2026 exist in the source. Every listing-year count is of survivors, and every return is a return on a company that is still here — the ones that failed outright are absent, so the real picture is worse than the one above at every horizon.</li>
+<li><strong>Returns cover 611 of 726 miners.</strong> 99 have no Yahoo history reaching back to their listing, and 73 of those listed before 2000 — Yahoo simply has no 1980s and 1990s ASX data. A further 16 are excluded as suspected backdoor listings.</li>
+<li><strong>Stage on the returns chart is measured today, not at listing.</strong> See the producer/explorer note above; this is the largest interpretive trap in the section.</li>
+<li><strong>One company lost twenty-one years to a data fault.</strong> AIC Mines' Yahoo adjusted-close series is negative from 1993 to 2014, because A$5.49 of dividends are back-adjusted through a 12:1 and then a 20:1 consolidation. Non-positive quotes are dropped rather than repaired, so seven companies lose part of their history and AIC Mines drops out of the returns entirely.</li>
+</ul></section><section id="asx-charts" role="tabpanel" data-market="asx" hidden>
+<div class="viz-root viz-live asx">
+<style>
+.asx .seg button[data-stage="Producer"] .dot{color:#1baf7a}
+.asx .seg button[data-stage="Developer"] .dot{color:#eda100}
+.asx .seg button[data-stage="Explorer"] .dot{color:#2a78d6}
+.asx .seg button[data-stage="Other"] .dot{color:#4a3aa7}
+</style>
+
+<div class="ctrls">
+  <div class="ctrl-group">
+    <span class="ctrl-label">Stage</span>
+    <div class="seg">
+      <button data-stage="Producer" aria-pressed="true"><i class="dot"></i>Producer</button><button data-stage="Developer" aria-pressed="true"><i class="dot"></i>Developer</button><button data-stage="Explorer" aria-pressed="true"><i class="dot"></i>Explorer</button><button data-stage="Other" aria-pressed="true"><i class="dot"></i>Other</button>
+    </div>
+  </div>
+</div>
+
+<div class='chart'><h3>By stage</h3><p class='note'>726 mining companies, A$1,079B. Producer means reported revenue; Developer means construction in progress on the balance sheet. Switch to <strong>% traded (est)</strong> for whether explorer trading is genuinely thinner or only looks that way.</p>  <div class="ctrl-group" style="margin:0 0 6px">
+    <span class="ctrl-label">Measure</span>
+    <div class="seg">
+      <button data-measure="n" aria-pressed="true">Companies</button>
+      <button data-measure="mcap" aria-pressed="false">Market cap</button>
+      <button data-measure="median" aria-pressed="false">Typical size</button>
+      <button data-measure="turnover" aria-pressed="false">% traded (est)</button>
+    </div>
+  </div>
+  <p class="note measure-note" style="margin:0 0 12px"></p>
+<div class='legend'><span data-stage='Producer'><i style='background:#1baf7a'></i>Producer</span><span data-stage='Developer'><i style='background:#eda100'></i>Developer</span><span data-stage='Explorer'><i style='background:#2a78d6'></i>Explorer</span><span data-stage='Other'><i style='background:#4a3aa7'></i>Other</span></div><div class='rows' id='asx-stage'></div><details class='tbl'><summary>Show as table</summary><div id='asxtbl-stage'></div></details></div>
+
+<div class='chart'><h3>Commodity</h3><p class='note'>Extracted from business summaries — what a company says it explores for, which is not the same as what it holds. Companies name more than one, so bars sum to more than 726. 11 name none. These sixteen mirror the TSX chart.</p>  <div class="ctrl-group" style="margin:0 0 6px">
+    <span class="ctrl-label">Measure</span>
+    <div class="seg">
+      <button data-measure="n" aria-pressed="true">Companies</button>
+      <button data-measure="mcap" aria-pressed="false">Market cap</button>
+      <button data-measure="median" aria-pressed="false">Typical size</button>
+      <button data-measure="turnover" aria-pressed="false">% traded (est)</button>
+    </div>
+  </div>
+  <p class="note measure-note" style="margin:0 0 12px"></p>
+<div class='legend'><span data-stage='Producer'><i style='background:#1baf7a'></i>Producer</span><span data-stage='Developer'><i style='background:#eda100'></i>Developer</span><span data-stage='Explorer'><i style='background:#2a78d6'></i>Explorer</span><span data-stage='Other'><i style='background:#4a3aa7'></i>Other</span></div><div class='rows' id='asx-commodity'></div><details class='tbl'><summary>Show as table</summary><div id='asxtbl-commodity'></div></details></div>
+
+<div class='chart'><h3>Commodities with no TSX counterpart</h3><p class='note'>The TMX flag set has no column for these, so they cannot be compared like for like — shown separately rather than mixed into the chart above.</p>  <div class="ctrl-group" style="margin:0 0 6px">
+    <span class="ctrl-label">Measure</span>
+    <div class="seg">
+      <button data-measure="n" aria-pressed="true">Companies</button>
+      <button data-measure="mcap" aria-pressed="false">Market cap</button>
+      <button data-measure="median" aria-pressed="false">Typical size</button>
+      <button data-measure="turnover" aria-pressed="false">% traded (est)</button>
+    </div>
+  </div>
+  <p class="note measure-note" style="margin:0 0 12px"></p>
+<div class='legend'><span data-stage='Producer'><i style='background:#1baf7a'></i>Producer</span><span data-stage='Developer'><i style='background:#eda100'></i>Developer</span><span data-stage='Explorer'><i style='background:#2a78d6'></i>Explorer</span><span data-stage='Other'><i style='background:#4a3aa7'></i>Other</span></div><div class='rows' id='asx-extra'></div><details class='tbl'><summary>Show as table</summary><div id='asxtbl-extra'></div></details></div>
+
+<div class='chart'><h3>Where the assets are</h3><p class='note'>Regions named in the summary. Usually the flagship project and no more, so these <strong>understate by construction</strong> — the TSX side has a property register and this does not. 336 companies name ground outside Australasia.</p>  <div class="ctrl-group" style="margin:0 0 6px">
+    <span class="ctrl-label">Measure</span>
+    <div class="seg">
+      <button data-measure="n" aria-pressed="true">Companies</button>
+      <button data-measure="mcap" aria-pressed="false">Market cap</button>
+      <button data-measure="median" aria-pressed="false">Typical size</button>
+      <button data-measure="turnover" aria-pressed="false">% traded (est)</button>
+    </div>
+  </div>
+  <p class="note measure-note" style="margin:0 0 12px"></p>
+<div class='legend'><span data-stage='Producer'><i style='background:#1baf7a'></i>Producer</span><span data-stage='Developer'><i style='background:#eda100'></i>Developer</span><span data-stage='Explorer'><i style='background:#2a78d6'></i>Explorer</span><span data-stage='Other'><i style='background:#4a3aa7'></i>Other</span></div><div class='rows' id='asx-region'></div><details class='tbl'><summary>Show as table</summary><div id='asxtbl-region'></div></details></div>
+
+<div class='chart'><h3>Size distribution</h3><p class='note'>Australian dollars, never converted. Same numeric thresholds as the TSX chart so the shapes compare — but an A$ band is not the C$ band with the same label.</p>  <div class="ctrl-group" style="margin:0 0 6px">
+    <span class="ctrl-label">Measure</span>
+    <div class="seg">
+      <button data-measure="n" aria-pressed="true">Companies</button>
+      <button data-measure="mcap" aria-pressed="false">Market cap</button>
+      <button data-measure="median" aria-pressed="false">Typical size</button>
+      <button data-measure="turnover" aria-pressed="false">% traded (est)</button>
+    </div>
+  </div>
+  <p class="note measure-note" style="margin:0 0 12px"></p>
+<div class='legend'><span data-stage='Producer'><i style='background:#1baf7a'></i>Producer</span><span data-stage='Developer'><i style='background:#eda100'></i>Developer</span><span data-stage='Explorer'><i style='background:#2a78d6'></i>Explorer</span><span data-stage='Other'><i style='background:#4a3aa7'></i>Other</span></div><div class='rows' id='asx-size'></div><details class='tbl'><summary>Show as table</summary><div id='asxtbl-size'></div></details></div>
+
+
+<div class='chart'><h3>Companies by listing year</h3>
+<p class='note'>Companies that listed in each year <strong>and are still listed
+today</strong>, so early years are undercounted by everything that has since
+failed or been acquired. 96 surviving companies listed before
+2000 and are not shown.</p>
+<div class='legend'><span data-stage='Producer'><i style='background:#1baf7a'></i>Producer</span><span data-stage='Developer'><i style='background:#eda100'></i>Developer</span><span data-stage='Explorer'><i style='background:#2a78d6'></i>Explorer</span><span data-stage='Other'><i style='background:#4a3aa7'></i>Other</span></div>
+<div class='linewrap' id='asx-lines'></div></div>
+
+
+<div class='chart'><h3>What happens after listing</h3>
+<p class='note'>Median share-price return at each point in a company's own life,
+measured against the mean of its first five trading days. 611 of 726
+miners are priced: 99 have no Yahoo history reaching back to their
+listing — almost all of them listed before 2000 — and 16 are excluded as
+suspected backdoor listings, where the price series starts years before the
+stated listing date and so belongs to a shell rather than to the mining company.
+<strong>Stage is measured today, not at listing.</strong> A company that listed
+as an explorer and became a producer counts as a producer across its whole
+history, so the producer line describes companies that succeeded rather than a
+strategy that works. <strong>These are survivors only</strong> — companies that
+failed outright are not in the exchange export at all, so the real picture is
+worse than this, and each point is a smaller, more selected group than the one
+before it. The count under each label is how quickly that thins out.
+<strong>The grey dashed line is the TSX/TSXV curve</strong>, built by the same
+script from the same milestones; a return is a ratio, so this is the one
+cross-market comparison in the report where the currencies never meet.</p>
+<div class="ctrl-group" style="margin:0 0 14px">
+  <span class="ctrl-label">Show</span>
+  <div class="seg">
+    <button data-ret="median" aria-pressed="true">Median return</button>
+    <button data-ret="spread" aria-pressed="false">Spread</button>
+    <button data-ret="neg" aria-pressed="false">% underwater</button>
+  </div>
+</div>
+<div class='legend'><span data-stage='Producer'><i style='background:#1baf7a'></i>Producer</span><span data-stage='Developer'><i style='background:#eda100'></i>Developer</span><span data-stage='Explorer'><i style='background:#2a78d6'></i>Explorer</span><span data-stage='Other'><i style='background:#4a3aa7'></i>Other</span></div>
+<div class='linewrap' id='asx-returns'></div>
+<details class='tbl'><summary>Show as table</summary>
+<div id='asxtbl-returns'></div></details></div>
+
+
+<script>window.__ASXVIZ__ = {"commodity": [{"label": "Gold", "Producer": {"n": 67, "mcap": 818477403257.0, "median": 772139544.0, "turnover": 0.3159366657954162}, "Developer": {"n": 7, "mcap": 927235632.0, "median": 97224239.5, "turnover": 0.1346968332248564}, "Explorer": {"n": 420, "mcap": 53920057353.0, "median": 23258624.0, "turnover": 0.1306888796554085}, "Other": {"n": 16, "mcap": 3000918366.0, "median": 20584814.0, "turnover": 0.0957650421492346}, "ALL": {"n": 510, "mcap": 876325614608.0, "median": 31579984.0, "turnover": 0.1397484740174647}}, {"label": "Copper", "Producer": {"n": 36, "mcap": 784362231687.0, "median": 620549040.0, "turnover": 0.27614075019693074}, "Developer": {"n": 3, "mcap": 562328400.0, "median": 155832673.0, "turnover": 0.1308437788267932}, "Explorer": {"n": 331, "mcap": 40295583878.0, "median": 21368112.0, "turnover": 0.12721100100802452}, "Other": {"n": 10, "mcap": 2477195778.0, "median": 27162500.0, "turnover": 0.2998936002355019}, "ALL": {"n": 380, "mcap": 827697339743.0, "median": 23730849.0, "turnover": 0.13707186139944977}}, {"label": "Lithium", "Producer": {"n": 19, "mcap": 166587469079.0, "median": 150245715.0, "turnover": 0.2448238794406058}, "Developer": {"n": 7, "mcap": 2777475569.0, "median": 155832673.0, "turnover": 0.2581935387722565}, "Explorer": {"n": 197, "mcap": 12425238361.0, "median": 17105816.5, "turnover": 0.13829486840235727}, "Other": {"n": 4, "mcap": 2292706054.0, "median": 20584814.0, "turnover": 0.4042256623328176}, "ALL": {"n": 227, "mcap": 184082889063.0, "median": 20209658.0, "turnover": 0.1417322915976085}}, {"label": "Silver", "Producer": {"n": 39, "mcap": 731338962336.0, "median": 646072055.0, "turnover": 0.2839509858940789}, "Developer": {"n": 1, "mcap": 79880678.0, "median": 79880678.0, "turnover": 0.0902347713673637}, "Explorer": {"n": 161, "mcap": 14102873592.0, "median": 23014033.5, "turnover": 0.1449433989997841}, "Other": {"n": 3, "mcap": 73836050.0, "median": 36918025.0, "turnover": 0.27172704974669804}, "ALL": {"n": 204, "mcap": 745595552656.0, "median": 35055293.5, "turnover": 0.154159622567524}}, {"label": "Nickel", "Producer": {"n": 14, "mcap": 371184576455.0, "median": 2121839824.0, "turnover": 0.19100680737983794}, "Developer": {"n": 3, "mcap": 84028924.0, "median": 42014462.0, "turnover": 0.21649423315048574}, "Explorer": {"n": 179, "mcap": 15988095412.0, "median": 18611034.0, "turnover": 0.1316278939136592}, "Other": {"n": 3, "mcap": 26675716.0, "median": 13337858.0, "turnover": 0.1990249904489948}, "ALL": {"n": 199, "mcap": 387283376507.0, "median": 22215138.0, "turnover": 0.1370150213757899}}, {"label": "Rare Earths", "Producer": {"n": 11, "mcap": 74797118615.0, "median": 76736851.5, "turnover": 0.21184129964237192}, "Developer": {"n": 2, "mcap": 111514826.0, "median": 55757413.0, "turnover": 0.19574095338995454}, "Explorer": {"n": 130, "mcap": 14652048363.0, "median": 18185393.5, "turnover": 0.15723500660045625}, "Other": {"n": 2, "mcap": 187821371.0, "median": 93910685.5, "turnover": 0.2050863631190658}, "ALL": {"n": 145, "mcap": 89748503175.0, "median": 22490699.0, "turnover": 0.1592394605084146}}, {"label": "Zinc", "Producer": {"n": 16, "mcap": 594314995965.0, "median": 695219600.5, "turnover": 0.36947973422774427}, "Developer": {"n": 1, "mcap": 79880678.0, "median": 79880678.0, "turnover": 0.0902347713673637}, "Explorer": {"n": 114, "mcap": 7288932018.0, "median": 22397940.5, "turnover": 0.1378000194892655}, "Other": {"n": 2, "mcap": 39296552.0, "median": 39296552.0, "turnover": 0.5233164110683298}, "ALL": {"n": 133, "mcap": 601723105213.0, "median": 25325610.0, "turnover": 0.1458768408142711}}, {"label": "Lead", "Producer": {"n": 12, "mcap": 230700045024.0, "median": 367649488.5, "turnover": 0.36947973422774427}, "Developer": {"n": 1, "mcap": 79880678.0, "median": 79880678.0, "turnover": 0.0902347713673637}, "Explorer": {"n": 89, "mcap": 6711653824.0, "median": 24244374.5, "turnover": 0.13952213517655782}, "Other": {"n": 1, "mcap": 39296552.0, "median": 39296552.0, "turnover": 0.5233164110683298}, "ALL": {"n": 103, "mcap": 237530876078.0, "median": 27992507.0, "turnover": 0.14491751489307075}}, {"label": "Iron", "Producer": {"n": 19, "mcap": 506268621891.0, "median": 436758632.0, "turnover": 0.147855641485022}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 71, "mcap": 6550276442.0, "median": 18895723.0, "turnover": 0.10811160605937581}, "Other": {"n": 4, "mcap": 2361180629.0, "median": 52526002.0, "turnover": 0.0383010370137752}, "ALL": {"n": 94, "mcap": 515180078962.0, "median": 25330499.5, "turnover": 0.11019955638725555}}, {"label": "Uranium", "Producer": {"n": 6, "mcap": 344625302717.0, "median": 131054360.0, "turnover": 0.1356285122586259}, "Developer": {"n": 1, "mcap": 79880678.0, "median": 79880678.0, "turnover": 0.0902347713673637}, "Explorer": {"n": 69, "mcap": 6176151434.0, "median": 16069441.5, "turnover": 0.15138828342158156}, "Other": {"n": 1, "mcap": 15994083.0, "median": 15994083.0, "turnover": 0.0190957862354471}, "ALL": {"n": 77, "mcap": 350897328912.0, "median": 19025906.5, "turnover": 0.1434116487576799}}, {"label": "Platinum/PGM", "Producer": {"n": 1, "mcap": 1668383560.0, "median": 1668383560.0, "turnover": 0.0220842868530783}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 66, "mcap": 6828994491.0, "median": 21511301.0, "turnover": 0.139256534361836}, "Other": {"n": 1, "mcap": 10505667.0, "median": 10505667.0, "turnover": 0.0906681850852497}, "ALL": {"n": 68, "mcap": 8507883718.0, "median": 21511301.0, "turnover": 0.137949858953746}}, {"label": "Molybdenum", "Producer": {"n": 3, "mcap": 426756866801.0, "median": 66663825817.0, "turnover": 0.1900948953612748}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 23, "mcap": 1617791827.0, "median": 15096170.5, "turnover": 0.11351884707828144}, "Other": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 26, "mcap": 428374658628.0, "median": 21319853.0, "turnover": 0.1224235683455627}}, {"label": "Tungsten", "Producer": {"n": 5, "mcap": 10058601800.0, "median": 792487302.0, "turnover": 0.0097724129086424}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 20, "mcap": 2815526465.0, "median": 70327732.0, "turnover": 0.1443461502987501}, "Other": {"n": 1, "mcap": 46673550.0, "median": 46673550.0, "turnover": 0.5104012553148412}, "ALL": {"n": 26, "mcap": 12920801815.0, "median": 70327732.0, "turnover": 0.1443461502987501}}, {"label": "Coal", "Producer": {"n": 7, "mcap": 351542678019.0, "median": 318526209.0, "turnover": 0.1857012333326642}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 7, "mcap": 168756953.0, "median": 18611034.0, "turnover": 0.051701334780161}, "Other": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 14, "mcap": 351711434972.0, "median": 104244314.0, "turnover": 0.10154811065800565}}, {"label": "Diamond", "Producer": {"n": 4, "mcap": 2435514723.0, "median": 110474276.0, "turnover": 0.2008895006471913}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 6, "mcap": 632928381.0, "median": 12763882.5, "turnover": 0.0902573150580468}, "Other": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 10, "mcap": 3068443104.0, "median": 41054865.0, "turnover": 0.1243048647204457}}, {"label": "Potash", "Producer": {"n": 2, "mcap": 345397910397.0, "median": 172698955198.5, "turnover": 0.1306708127722346}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 8, "mcap": 379852000.0, "median": 9169279.5, "turnover": 0.07140874801120994}, "Other": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 10, "mcap": 345777762397.0, "median": 11524311.5, "turnover": 0.07733684694698614}}], "extra": [{"label": "Cobalt", "Producer": {"n": 10, "mcap": 372270136089.0, "median": 982249505.5, "turnover": 0.19100680737983794}, "Developer": {"n": 1, "mcap": 791283533.0, "median": 791283533.0, "turnover": 0.7029793604589013}, "Explorer": {"n": 93, "mcap": 7840682184.0, "median": 22367983.0, "turnover": 0.13835686007530185}, "Other": {"n": 1, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 105, "mcap": 380902101806.0, "median": 23258624.0, "turnover": 0.1411835638730675}}, {"label": "Niobium/Tantalum", "Producer": {"n": 2, "mcap": 107827671.0, "median": 107827671.0, "turnover": 0.0775394666550852}, "Developer": {"n": 1, "mcap": 70288234.0, "median": 70288234.0, "turnover": 0.1332883680076526}, "Explorer": {"n": 36, "mcap": 4907179317.0, "median": 23103878.0, "turnover": 0.1783904310973167}, "Other": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 39, "mcap": 5085295222.0, "median": 25067733.0, "turnover": 0.16783806993459574}}, {"label": "Graphite", "Producer": {"n": 3, "mcap": 2010054020.0, "median": 243802387.0, "turnover": 0.2565233402083138}, "Developer": {"n": 1, "mcap": 155832673.0, "median": 155832673.0, "turnover": 0.1308437788267932}, "Explorer": {"n": 30, "mcap": 1732321779.0, "median": 22215138.0, "turnover": 0.14779964760063}, "Other": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 34, "mcap": 3898208472.0, "median": 22265789.0, "turnover": 0.14779964760063}}, {"label": "Vanadium", "Producer": {"n": 3, "mcap": 392234202.0, "median": 144400410.0, "turnover": 0.2565233402083138}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 30, "mcap": 2593784468.0, "median": 12680495.5, "turnover": 0.13878244177814025}, "Other": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 33, "mcap": 2986018670.0, "median": 13108212.0, "turnover": 0.1459369896426213}}, {"label": "Manganese", "Producer": {"n": 5, "mcap": 36530619238.0, "median": 168576496.0, "turnover": 0.0842873120520284}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 23, "mcap": 1182831422.0, "median": 22265789.0, "turnover": 0.0980550655290911}, "Other": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 28, "mcap": 37713450660.0, "median": 24258191.5, "turnover": 0.09755267942411745}}, {"label": "Antimony", "Producer": {"n": 1, "mcap": 8257529.0, "median": 8257529.0, "turnover": 1.0027167466199634}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 30, "mcap": 5238692194.0, "median": 17168864.0, "turnover": 0.1443461502987501}, "Other": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 31, "mcap": 5246949723.0, "median": 16184440.0, "turnover": 0.1540207238623764}}, {"label": "Bauxite/Alumina", "Producer": {"n": 5, "mcap": 112937514464.0, "median": 18310037294.0, "turnover": 0.2666986173887652}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 19, "mcap": 3843603580.0, "median": 16623958.0, "turnover": 0.1277010289409227}, "Other": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 24, "mcap": 116781118044.0, "median": 34447396.5, "turnover": 0.1536583173361869}}, {"label": "Mineral Sands", "Producer": {"n": 3, "mcap": 3360099374.0, "median": 238620249.0, "turnover": 0.0822484281695799}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 17, "mcap": 2017680965.0, "median": 34975652.0, "turnover": 0.07883110066267379}, "Other": {"n": 2, "mcap": 2313516942.0, "median": 1156758471.0, "turnover": 0.2075528508541817}, "ALL": {"n": 22, "mcap": 7691297281.0, "median": 52526002.0, "turnover": 0.0802681599325621}}, {"label": "Tin", "Producer": {"n": 4, "mcap": 9022186193.0, "median": 864894977.0, "turnover": 0.3009435789681313}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 16, "mcap": 1016372380.0, "median": 37542031.0, "turnover": 0.1353493554196554}, "Other": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 20, "mcap": 10038558573.0, "median": 38330476.0, "turnover": 0.1397224579156024}}, {"label": "Scandium", "Producer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 13, "mcap": 4646874011.0, "median": 35989666.0, "turnover": 0.1658276967622019}, "Other": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 13, "mcap": 4646874011.0, "median": 35989666.0, "turnover": 0.1658276967622019}}, {"label": "Silica", "Producer": {"n": 1, "mcap": 39715008.0, "median": 39715008.0, "turnover": 0.0914081830223979}, "Developer": {"n": 1, "mcap": 38387992.0, "median": 38387992.0, "turnover": 0.0587264761334742}, "Explorer": {"n": 11, "mcap": 342270695.0, "median": 12038700.0, "turnover": 0.1016270430009655}, "Other": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 13, "mcap": 420373695.0, "median": 16259012.0, "turnover": 0.0993245591901412}}, {"label": "Phosphate", "Producer": {"n": 1, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Developer": {"n": 1, "mcap": 24050038.0, "median": 24050038.0, "turnover": 0.3557504679202586}, "Explorer": {"n": 7, "mcap": 1450339973.0, "median": 36690445.5, "turnover": 0.10303141488087605}, "Other": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 9, "mcap": 1474390011.0, "median": 32580538.0, "turnover": 0.1670809594220912}}], "region": [{"label": "Aus / NZ / PNG", "Producer": {"n": 106, "mcap": 954268226795.0, "median": 601619772.0, "turnover": 0.26751456594427386}, "Developer": {"n": 15, "mcap": 3753408541.0, "median": 97224239.5, "turnover": 0.1540416477681838}, "Explorer": {"n": 562, "mcap": 64554320999.0, "median": 22265789.0, "turnover": 0.1306888796554085}, "Other": {"n": 19, "mcap": 3275698508.0, "median": 23959852.0, "turnover": 0.0957650421492346}, "ALL": {"n": 702, "mcap": 1025851654843.0, "median": 28962168.0, "turnover": 0.13992830293571462}}, {"label": "Africa", "Producer": {"n": 15, "mcap": 236910166879.0, "median": 983463459.0, "turnover": 0.26150038253283514}, "Developer": {"n": 3, "mcap": 460761019.0, "median": 114567801.0, "turnover": 0.0945987389209978}, "Explorer": {"n": 72, "mcap": 8647738146.0, "median": 25778808.0, "turnover": 0.1123227619290433}, "Other": {"n": 3, "mcap": 2307664490.0, "median": 1153832245.0, "turnover": 0.45731345882382934}, "ALL": {"n": 93, "mcap": 248326330534.0, "median": 45791494.5, "turnover": 0.1148584874585184}}, {"label": "Canada", "Producer": {"n": 16, "mcap": 298094535492.0, "median": 1999367512.0, "turnover": 0.147855641485022}, "Developer": {"n": 1, "mcap": 34681887.0, "median": 34681887.0, "turnover": 0.1018326511472688}, "Explorer": {"n": 69, "mcap": 9083799420.0, "median": 19210007.0, "turnover": 0.15919992677576375}, "Other": {"n": 1, "mcap": 2260990940.0, "median": 2260990940.0, "turnover": 0.4042256623328176}, "ALL": {"n": 87, "mcap": 309474007739.0, "median": 24787965.0, "turnover": 0.1570185223449498}}, {"label": "USA", "Producer": {"n": 10, "mcap": 293930901034.0, "median": 16046417299.0, "turnover": 0.147855641485022}, "Developer": {"n": 1, "mcap": 34681887.0, "median": 34681887.0, "turnover": 0.1018326511472688}, "Explorer": {"n": 60, "mcap": 5377202599.0, "median": 20918318.0, "turnover": 0.16925835882792795}, "Other": {"n": 6, "mcap": 2383124958.0, "median": 25561176.0, "turnover": 0.46377103670057374}, "ALL": {"n": 77, "mcap": 301725910478.0, "median": 25729641.0, "turnover": 0.16925835882792795}}, {"label": "Latin America", "Producer": {"n": 13, "mcap": 612896771365.0, "median": 8320721662.0, "turnover": 0.13272395227313805}, "Developer": {"n": 1, "mcap": 481663920.0, "median": 481663920.0, "turnover": 0.4466802187716281}, "Explorer": {"n": 61, "mcap": 8287928360.0, "median": 30270814.0, "turnover": 0.1810992413892191}, "Other": {"n": 2, "mcap": 2432818228.0, "median": 1216409114.0, "turnover": 0.39765130116775105}, "ALL": {"n": 77, "mcap": 624099181873.0, "median": 46121156.5, "turnover": 0.18179264746061935}}, {"label": "UK / Europe", "Producer": {"n": 13, "mcap": 481383150310.0, "median": 5192215376.5, "turnover": 0.2233091177847943}, "Developer": {"n": 1, "mcap": 155832673.0, "median": 155832673.0, "turnover": 0.1308437788267932}, "Explorer": {"n": 40, "mcap": 2941387764.0, "median": 20928739.0, "turnover": 0.10121632248749399}, "Other": {"n": 1, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 55, "mcap": 484480370747.0, "median": 37076834.0, "turnover": 0.1308437788267932}}, {"label": "Asia", "Producer": {"n": 25, "mcap": 473153471835.0, "median": 453007602.0, "turnover": 0.1900948953612748}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 24, "mcap": 2905465464.0, "median": 31597604.0, "turnover": 0.12389208142084596}, "Other": {"n": 2, "mcap": 52526002.0, "median": 52526002.0, "turnover": 0.0108800393755458}, "ALL": {"n": 51, "mcap": 476111463301.0, "median": 74610151.0, "turnover": 0.12802932326768296}}, {"label": "Other / unnamed", "Producer": {"n": 1, "mcap": 168576496.0, "median": 168576496.0, "turnover": 0.0095109629043422}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Other": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 1, "mcap": 168576496.0, "median": 168576496.0, "turnover": 0.0095109629043422}}], "size": [{"label": "< $5M", "Producer": {"n": 2, "mcap": 8228724.0, "median": 4114362.0, "turnover": 0.1039132581899431}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 44, "mcap": 169972236.0, "median": 4034481.0, "turnover": 0.12217187722937156}, "Other": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 46, "mcap": 178200960.0, "median": 4040451.5, "turnover": 0.11760752222243545}}, {"label": "$5\u201325M", "Producer": {"n": 10, "mcap": 149273190.0, "median": 16368966.5, "turnover": 0.1029514240289959}, "Developer": {"n": 1, "mcap": 24050038.0, "median": 24050038.0, "turnover": 0.3557504679202586}, "Explorer": {"n": 252, "mcap": 3234257291.0, "median": 11958072.5, "turnover": 0.12048337796981909}, "Other": {"n": 10, "mcap": 148781719.0, "median": 14479822.5, "turnover": 0.08328806524732095}, "ALL": {"n": 273, "mcap": 3556362238.0, "median": 12092598.0, "turnover": 0.1202070636883742}}, {"label": "$25\u2013100M", "Producer": {"n": 8, "mcap": 431920722.0, "median": 45277735.5, "turnover": 0.1195053938256189}, "Developer": {"n": 6, "mcap": 307267715.0, "median": 42014462.0, "turnover": 0.1175605095774607}, "Explorer": {"n": 147, "mcap": 7247779832.0, "median": 43848409.0, "turnover": 0.1370150213757899}, "Other": {"n": 5, "mcap": 213322291.0, "median": 46673550.0, "turnover": 0.0383010370137752}, "ALL": {"n": 166, "mcap": 8200290560.0, "median": 44225005.5, "turnover": 0.13510827529108016}}, {"label": "$100\u2013500M", "Producer": {"n": 32, "mcap": 7194524494.0, "median": 195507655.0, "turnover": 0.17193346585108255}, "Developer": {"n": 5, "mcap": 1400822623.0, "median": 322143180.0, "turnover": 0.1308437788267932}, "Explorer": {"n": 88, "mcap": 19891584777.0, "median": 209866340.5, "turnover": 0.14281516587056436}, "Other": {"n": 3, "mcap": 652603558.0, "median": 171827288.0, "turnover": 0.2909970919449829}, "ALL": {"n": 128, "mcap": 29139535452.0, "median": 208502368.5, "turnover": 0.14471934392216915}}, {"label": "$500M\u20132B", "Producer": {"n": 23, "mcap": 27718078842.0, "median": 1074519589.0, "turnover": 0.5185074991999459}, "Developer": {"n": 2, "mcap": 2021268165.0, "median": 1010634082.5, "turnover": 0.7749063659795535}, "Explorer": {"n": 26, "mcap": 22022801898.0, "median": 806881703.5, "turnover": 0.3355694366633635}, "Other": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 51, "mcap": 51762148905.0, "median": 841911810.0, "turnover": 0.3961110489700123}}, {"label": "> $2B", "Producer": {"n": 36, "mcap": 966859956825.0, "median": 7391957318.0, "turnover": 0.43877666633404955}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 4, "mcap": 17400160130.0, "median": 3064491023.5, "turnover": 0.3599238832149325}, "Other": {"n": 1, "mcap": 2260990940.0, "median": 2260990940.0, "turnover": 0.4042256623328176}, "ALL": {"n": 41, "mcap": 986521107895.0, "median": 7190232970.0, "turnover": 0.4318787430189933}}], "stage": [{"label": "Producer", "Producer": {"n": 115, "mcap": 1002361982797.0, "median": 646072055.0, "turnover": 0.2480873159221095}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Other": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 115, "mcap": 1002361982797.0, "median": 646072055.0, "turnover": 0.2480873159221095}}, {"label": "Developer", "Producer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Developer": {"n": 15, "mcap": 3753408541.0, "median": 97224239.5, "turnover": 0.1540416477681838}, "Explorer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Other": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 15, "mcap": 3753408541.0, "median": 97224239.5, "turnover": 0.1540416477681838}}, {"label": "Explorer", "Producer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 576, "mcap": 69966556164.0, "median": 22769443.0, "turnover": 0.1316278939136592}, "Other": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "ALL": {"n": 576, "mcap": 69966556164.0, "median": 22769443.0, "turnover": 0.1316278939136592}}, {"label": "Other", "Producer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Developer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Explorer": {"n": 0, "mcap": 0.0, "median": 0.0, "turnover": 0.0}, "Other": {"n": 20, "mcap": 3275698508.0, "median": 23959852.0, "turnover": 0.0957650421492346}, "ALL": {"n": 20, "mcap": 3275698508.0, "median": 23959852.0, "turnover": 0.0957650421492346}}], "prodshare": [{"label": "Gold", "tot": 510, "prod": 67}, {"label": "Copper", "tot": 380, "prod": 36}, {"label": "Lithium", "tot": 227, "prod": 19}, {"label": "Silver", "tot": 204, "prod": 39}, {"label": "Nickel", "tot": 199, "prod": 14}, {"label": "Rare Earths", "tot": 145, "prod": 11}, {"label": "Zinc", "tot": 133, "prod": 16}, {"label": "Lead", "tot": 103, "prod": 12}, {"label": "Iron", "tot": 94, "prod": 19}, {"label": "Uranium", "tot": 77, "prod": 6}, {"label": "Platinum/PGM", "tot": 68, "prod": 1}, {"label": "Molybdenum", "tot": 26, "prod": 3}, {"label": "Tungsten", "tot": 26, "prod": 5}, {"label": "Coal", "tot": 14, "prod": 7}, {"label": "Diamond", "tot": 10, "prod": 4}, {"label": "Potash", "tot": 10, "prod": 2}, {"label": "Cobalt", "tot": 105, "prod": 10}, {"label": "Niobium/Tantalum", "tot": 39, "prod": 2}, {"label": "Graphite", "tot": 34, "prod": 3}, {"label": "Vanadium", "tot": 33, "prod": 3}, {"label": "Manganese", "tot": 28, "prod": 5}, {"label": "Antimony", "tot": 31, "prod": 1}, {"label": "Bauxite/Alumina", "tot": 24, "prod": 5}, {"label": "Mineral Sands", "tot": 22, "prod": 3}, {"label": "Tin", "tot": 20, "prod": 4}, {"label": "Scandium", "tot": 13, "prod": 0}, {"label": "Silica", "tot": 13, "prod": 1}, {"label": "Phosphate", "tot": 9, "prod": 1}], "lines": {"years": ["2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026"], "series": [{"label": "Producer", "vals": [3, 2, 4, 3, 6, 4, 9, 9, 3, 2, 2, 5, 0, 2, 0, 1, 1, 0, 5, 0, 5, 5, 2, 1, 3, 3, 0]}, {"label": "Developer", "vals": [0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 2, 3, 0, 2, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0]}, {"label": "Explorer", "vals": [3, 5, 5, 15, 14, 20, 27, 51, 15, 13, 23, 28, 12, 5, 4, 1, 4, 25, 21, 5, 21, 96, 54, 23, 8, 15, 5]}, {"label": "Other", "vals": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 2, 7, 8]}], "total": [6, 7, 9, 18, 20, 24, 37, 61, 19, 15, 27, 36, 12, 9, 4, 2, 5, 25, 26, 5, 27, 103, 58, 24, 13, 25, 13], "before": 96}, "totals": {"Producer": {"n": 115, "mcap": 1002361982797.0, "median": 646072055.0, "turnover": 0.2480873159221095}, "Developer": {"n": 15, "mcap": 3753408541.0, "median": 97224239.5, "turnover": 0.1540416477681838}, "Explorer": {"n": 576, "mcap": 69966556164.0, "median": 22769443.0, "turnover": 0.1316278939136592}, "Other": {"n": 20, "mcap": 3275698508.0, "median": 23959852.0, "turnover": 0.0957650421492346}}, "returns": {"labels": ["7d", "1m", "3m", "6m", "1y", "2y", "3y", "5y", "7y", "10y", "15y"], "stages": {"Producer": {"median": [-0.5, -1.5, -4.9, -6.3, -11.9, -37.9, -42.1, -60.2, -60.6, -57.4, -37.0], "neg": [53.2, 54.4, 53.2, 57.0, 58.4, 70.7, 65.8, 72.5, 63.3, 65.5, 60.4], "p25": [-3.5, -10.2, -15.9, -25.6, -46.3, -66.1, -72.1, -78.0, -86.6, -92.2, -86.6], "p75": [3.0, 8.1, 13.8, 30.9, 39.5, 17.1, 26.9, 0.0, 111.9, 64.4, 274.1], "n": [79, 79, 79, 79, 77, 75, 73, 69, 60, 55, 53]}, "Developer": {"median": [-1.9, -8.2, -8.1, -32.8, -46.0, -61.7, -67.3, -74.2, null, null, null], "neg": [63.6, 72.7, 63.6, 81.8, 72.7, 90.9, 72.7, 90.0, null, null, null], "p25": [-3.4, -22.7, -17.5, -51.6, -57.5, -65.6, -78.0, -90.5, null, null, null], "p75": [2.4, 1.1, 13.1, -1.9, 24.0, -34.6, 3.5, -68.1, null, null, null], "n": [11, 11, 11, 11, 11, 11, 11, 10, 9, 9, 7]}, "Explorer": {"median": [-1.7, -5.0, -11.7, -15.6, -27.3, -48.9, -59.6, -69.0, -85.1, -91.1, -94.9], "neg": [62.0, 65.1, 66.7, 69.7, 70.5, 76.8, 79.8, 81.0, 89.7, 91.9, 93.8], "p25": [-5.3, -14.7, -26.4, -36.2, -53.7, -72.4, -81.2, -88.3, -94.6, -97.3, -99.0], "p75": [2.0, 4.6, 8.7, 9.1, 9.1, -4.6, -17.4, -21.4, -58.6, -73.6, -77.6], "n": [502, 502, 501, 499, 488, 482, 466, 353, 282, 236, 210]}, "Other": {"median": [-1.8, -3.0, 0.5, -19.5, null, null, null, null, null, null, null], "neg": [52.6, 55.6, 46.7, 91.7, null, null, null, null, null, null, null], "p25": [-11.0, -13.1, -14.7, -33.4, null, null, null, null, null, null, null], "p75": [0.5, 5.0, 12.9, -0.4, null, null, null, null, null, null, null], "n": [19, 18, 15, 12, 5, 2, 2, 2, 0, 0, 0]}}, "all": {"median": [-1.6, -4.6, -10.6, -15.0, -26.5, -47.9, -57.8, -68.1, -83.0, -88.7, -93.1], "neg": [60.6, 63.6, 64.4, 68.7, 69.2, 76.1, 77.7, 79.7, 85.5, 86.3, 86.3], "p25": [-5.1, -14.6, -24.9, -35.7, -52.5, -71.9, -80.6, -87.6, -94.2, -96.8, -98.5], "p75": [2.1, 4.9, 9.8, 13.5, 12.2, -3.5, -8.7, -18.7, -50.6, -57.4, -63.2], "n": [611, 610, 606, 601, 581, 570, 552, 434, 351, 300, 270]}, "tsx": {"median": [-1.2, -4.8, -10.3, -17.7, -26.7, -47.9, -54.2, -66.5, -79.3, -82.3, -92.6], "neg": [56.0, 58.0, 61.9, 64.4, 65.0, 72.8, 74.0, 73.5, 79.9, 82.7, 84.5], "p25": [-7.0, -17.7, -29.4, -41.3, -58.4, -74.3, -81.2, -89.0, -91.6, -95.8, -98.2], "p75": [2.8, 10.0, 17.4, 20.6, 22.0, 4.4, 1.8, 5.9, -24.5, -35.9, -66.9], "n": [595, 595, 585, 562, 532, 493, 458, 385, 303, 237, 168]}, "priced": 611, "total": 726, "no_history": 99, "shells": 16, "consolidated": 187}, "n": 726, "mcap": 1079357646010.0, "no_commodity": 11, "offshore": 336};</script>
+<script>
+(function () {
+  const D = window.__ASXVIZ__;
+  const COL = {"Producer": "#1baf7a", "Developer": "#eda100", "Explorer": "#2a78d6", "Other": "#4a3aa7"};
+  const STAGES = ["Producer", "Developer", "Explorer", "Other"];
+  const on = new Set(STAGES);
+  let measure = 'n';
+  const ADDITIVE = { n: true, mcap: true, median: false, turnover: false };
+
+  const fmtN = v => v.toLocaleString('en-US');
+  const fmtM = v => v >= 1e9 ? 'A$' + (v / 1e9).toFixed(1) + 'B'
+    : v >= 1e6 ? 'A$' + Math.round(v / 1e6).toLocaleString('en-US') + 'M'
+    : 'A$' + Math.round(v / 1e3).toLocaleString('en-US') + 'k';
+  const fmt = v => measure === 'n' ? fmtN(v)
+    : measure === 'turnover' ? Math.round(v * 100) + '%' : fmtM(v);
+
+  const tip = document.createElement('div');
+  tip.className = 'tip'; document.body.appendChild(tip);
+  function showTip(e, html) {
+    tip.innerHTML = html; tip.style.opacity = 1;
+    const r = tip.getBoundingClientRect();
+    let x = e.clientX + 14;
+    if (x + r.width > innerWidth - 8) x = e.clientX - r.width - 14;
+    tip.style.left = x + 'px';
+    tip.style.top = Math.min(e.clientY + 14, innerHeight - r.height - 8) + 'px';
+  }
+  const hideTip = () => (tip.style.opacity = 0);
+
+  const KEEP = { size: true, stage: true };
+
+  function draw(key) {
+    const host = document.getElementById('asx-' + key);
+    if (!host || !D[key]) return;
+    const additive = ADDITIVE[measure];
+    const sel = STAGES.filter(s => on.has(s));
+
+    // On the stage chart the row axis IS the stage dimension, so a deselected
+    // stage has to lose its row. Leaving it in prints a bar reading zero, which
+    // says "no producers" rather than "producers hidden".
+    const src = key === 'stage' ? D[key].filter(r => on.has(r.label)) : D[key];
+
+    const rows = src.map(r => {
+      const parts = sel.map(s => ({ st: s, v: r[s][measure], n: r[s].n }));
+      const total = additive ? parts.reduce((a, p) => a + p.v, 0)
+        : (sel.length === STAGES.length ? r.ALL[measure]
+          : Math.max(...parts.map(p => p.v)));
+      return { label: r.label, parts, total };
+    });
+    if (!KEEP[key]) rows.sort((a, b) => b.total - a.total);
+
+    const max = additive ? Math.max(...rows.map(r => r.total))
+      : Math.max(...rows.flatMap(r => r.parts.map(p => p.v)));
+
+    host.innerHTML = rows.map(r => {
+      const segs = r.parts.filter(p => additive ? p.v > 0 : p.n > 0).map(p => {
+        const w = Math.max((p.v / (max || 1)) * 100, p.v > 0 ? 0.4 : 0);
+        return `<div class="seg-fill" style="width:${w}%;background:${COL[p.st]}"
+                 data-l="${r.label}" data-s="${p.st}" data-v="${p.v}" data-n="${p.n}"></div>`;
+      }).join('');
+      return `<div class="row"><div class="cat">${r.label}</div>
+              <div class="track"><div class="bar${additive ? '' : ' grouped'}">${segs}</div></div>
+              <div class="val">${fmt(r.total)}</div></div>`;
+    }).join('');
+
+    host.querySelectorAll('.seg-fill').forEach(el => {
+      el.addEventListener('mousemove', e => showTip(e,
+        `<b>${el.dataset.l}</b><br><span class="k">${el.dataset.s}</span> ` +
+        `${fmt(+el.dataset.v)}<br><span class="k">${(+el.dataset.n).toLocaleString('en-US')} companies</span>`));
+      el.addEventListener('mouseleave', hideTip);
+    });
+
+    const tb = document.getElementById('asxtbl-' + key);
+    if (tb) tb.innerHTML = '<table><thead><tr><th></th>' +
+      sel.map(s => `<th class="num">${s}</th>`).join('') +
+      '<th class="num">Total</th></tr></thead><tbody>' +
+      rows.map(r => `<tr><td>${r.label}</td>` +
+        r.parts.map(p => `<td class="num">${fmt(p.v)}</td>`).join('') +
+        `<td class="num">${fmt(r.total)}</td></tr>`).join('') + '</tbody></table>';
+  }
+
+  function drawLines() {
+    const host = document.getElementById('asx-lines');
+    if (!host || !D.lines) return;
+    const L = D.lines, W = 900, H = 300, P = { t: 14, r: 96, b: 30, l: 46 };
+    const sel = STAGES.filter(s => on.has(s));
+    const series = L.series.filter(s => sel.includes(s.label));
+    const maxY = Math.max(1, ...series.flatMap(s => s.vals));
+    const x = i => P.l + i * (W - P.l - P.r) / Math.max(1, L.years.length - 1);
+    const y = v => H - P.b - (v / maxY) * (H - P.t - P.b);
+
+    let svg = `<svg viewBox="0 0 ${W} ${H}" role="img">`;
+    for (let g = 0; g <= 4; g++) {
+      const v = maxY * g / 4;
+      svg += `<line class="grid" x1="${P.l}" x2="${W - P.r}" y1="${y(v)}" y2="${y(v)}"/>` +
+        `<text class="axis-txt" x="${P.l - 8}" y="${y(v) + 4}" text-anchor="end">${Math.round(v)}</text>`;
+    }
+    L.years.forEach((yr, i) => {
+      if (i % 4 === 0 || i === L.years.length - 1)
+        svg += `<text class="axis-txt" x="${x(i)}" y="${H - 10}" text-anchor="middle">${yr}</text>`;
+    });
+    series.forEach(s => {
+      const d = s.vals.map((v, i) => (i ? 'L' : 'M') + x(i) + ' ' + y(v)).join(' ');
+      svg += `<path class="ser" d="${d}" stroke="${COL[s.label]}"/>`;
+      const last = s.vals.length - 1;
+      svg += `<text class="endlab" x="${x(last) + 8}" y="${y(s.vals[last]) + 4}" fill="${COL[s.label]}">${s.label}</text>`;
+    });
+    host.innerHTML = svg + '</svg>';
+  }
+
+  // ---- returns since listing ----
+  // Median, never mean: a handful of 30x survivors would drag a mean upward
+  // and hide what happens to the company in the middle.
+  let retMode = 'median';
+
+  function drawReturns() {
+    const R = D.returns;
+    if (!R) return;
+    const host = document.getElementById('asx-returns');
+    if (!host) return;
+    const spread = retMode === 'spread';
+    const series = STAGES.filter(s => on.has(s)).map(s => ({
+      label: s, colour: COL[s], vals: R.stages[s][spread ? 'median' : retMode],
+      lo: R.stages[s].p25, hi: R.stages[s].p75, n: R.stages[s].n,
+    }));
+    const ref = R.tsx ? { label: 'TSX/TSXV', colour: '#9a9a9a',
+                          vals: R.tsx[spread ? 'median' : retMode], n: R.tsx.n } : null;
+
+    const W = 860, H = 330, ml = 46, mr = 78, mt = 14, mb = 44;
+    const iw = W - ml - mr, ih = H - mt - mb;
+    const flat = series.flatMap(s => spread ? [...s.vals, ...s.lo, ...s.hi] : s.vals)
+      .concat(ref ? ref.vals : []).filter(v => v !== null);
+    if (!flat.length) { host.innerHTML = ''; return; }
+
+    // the domain always includes zero — which side of it we are on is the point
+    const step = 20;
+    const lo = Math.floor(Math.min(0, ...flat) / step) * step;
+    const rawHi = Math.ceil(Math.max(0, ...flat) / step) * step;
+    // The surviving producers' 75th percentile reaches +280% at fifteen years.
+    // Letting that set the top squashes every median line into the bottom fifth
+    // of the panel and the chart stops saying anything. The domain is capped
+    // and the band is clipped, with the overflow named on the chart rather than
+    // quietly cropped.
+    const CAP = 100;
+    const hi = rawHi > CAP ? CAP : rawHi;
+    const over = hi < rawHi
+      ? series.filter(s => spread && Math.max(...s.hi.filter(v => v !== null)) > hi)
+              .map(s => ({ label: s.label, colour: s.colour,
+                           v: Math.max(...s.hi.filter(v => v !== null)) }))
+      : [];
+    const x = i => ml + (i / (R.labels.length - 1)) * iw;
+    const y = v => mt + ih - ((v - lo) / (hi - lo)) * ih;
+
+    let g = '';
+    for (let v = lo; v <= hi; v += step) {
+      g += `<line class="grid" x1="${ml}" x2="${ml + iw}" y1="${y(v)}" y2="${y(v)}"` +
+        `${v === 0 ? ' stroke="#9a9a9a"' : ''}/>` +
+        `<text class="axis-txt" x="${ml - 8}" y="${y(v) + 4}" text-anchor="end">${v}%</text>`;
+    }
+    R.labels.forEach((lab, i) => {
+      g += `<text class="axis-txt" x="${x(i)}" y="${H - 24}" text-anchor="middle">${lab}</text>`;
+      // sample size under each tick: it falls from ~610 to ~270 across the
+      // grid, and every later point is a smaller, more selected group
+      const n = series.reduce((t, s) => t + (s.n[i] || 0), 0);
+      g += `<text class="axis-txt" x="${x(i)}" y="${H - 9}" text-anchor="middle"
+              style="font-size:10px;opacity:.7">${n}</text>`;
+    });
+
+    // interquartile band as a 12% wash, under the medians — the spread is the
+    // finding here, so it has to read as area rather than as more lines
+    const bands = !spread ? '' : series.map(s => {
+      const idx = s.lo.map((v, i) => i).filter(i => s.lo[i] !== null && s.hi[i] !== null);
+      if (idx.length < 2) return '';
+      const top = idx.map((i, k) => (k ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(s.hi[i]).toFixed(1)).join(' ');
+      const bot = idx.slice().reverse().map(i => 'L' + x(i).toFixed(1) + ' ' + y(s.lo[i]).toFixed(1)).join(' ');
+      return `<path d="${top} ${bot} Z" fill="${s.colour}" opacity=".12"/>`;
+    }).join('');
+
+    // Lines first, end labels second: several series finish within a few pixels
+    // of each other at fifteen years — Explorer at -95% and the TSX reference
+    // at -93% collided and printed on top of one another — so the labels are
+    // laid out afterwards with a minimum spacing.
+    const ends = [];
+    const line = (s, dash) => {
+      const pts = s.vals.map((v, i) => [i, v]).filter(([, v]) => v !== null);
+      if (!pts.length) return '';
+      const d = pts.map(([i, v], k) => `${k ? 'L' : 'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
+      const [li, lv] = pts[pts.length - 1];
+      ends.push({ x: x(li), y: y(lv), label: s.label, colour: s.colour });
+      return `<path class="ser" d="${d}" stroke="${s.colour}"${dash ? ' stroke-dasharray="5 4"' : ''}/>` +
+        `<circle class="dot" cx="${x(li)}" cy="${y(lv)}" r="4" fill="${s.colour}"/>`;
+    };
+    const paths = (ref ? line(ref, true) : '') + series.map(s => line(s, false)).join('');
+
+    const GAP = 13;
+    ends.sort((a, b) => a.y - b.y);
+    ends.forEach((e, i) => {
+      e.ty = i ? Math.max(e.y, ends[i - 1].ty + GAP) : e.y;
+    });
+    // if the stack has run off the bottom, push the whole run back up
+    const spill = ends.length ? ends[ends.length - 1].ty - (mt + ih) : 0;
+    if (spill > 0) ends.forEach(e => { e.ty -= spill; });
+    const endlabs = ends.map(e =>
+      // a leader line where the label had to move off its own point
+      (Math.abs(e.ty - e.y) > 2
+        ? `<line x1="${(e.x + 4).toFixed(1)}" y1="${e.y.toFixed(1)}"
+             x2="${(e.x + 8).toFixed(1)}" y2="${e.ty.toFixed(1)}"
+             stroke="${e.colour}" stroke-width="1" opacity=".5"/>` : '') +
+      `<text class="endlab" x="${(e.x + 9).toFixed(1)}" y="${(e.ty + 4).toFixed(1)}"
+         fill="${e.colour}">${e.label}</text>`).join('');
+
+    const flag = over.map((o, i) =>
+      `<text class="axis-txt" x="${ml + 6}" y="${mt + 12 + i * 13}" fill="${o.colour}"
+         style="font-size:10px">▲ ${o.label} 75th percentile reaches +${Math.round(o.v)}%</text>`).join('');
+
+    const hit = R.labels.map((_, i) =>
+      `<rect class="hit" x="${x(i) - iw / (R.labels.length - 1) / 2}" y="${mt}"
+         width="${iw / (R.labels.length - 1)}" height="${ih}" data-i="${i}"/>`).join('');
+
+    host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+        <defs><clipPath id="asx-ret-clip">
+          <rect x="${ml}" y="${mt}" width="${iw}" height="${ih}"/>
+        </clipPath></defs>
+        ${g}<g clip-path="url(#asx-ret-clip)">${bands}${paths}</g>
+        <g id="asx-ret-cross"></g>${endlabs}${flag}${hit}</svg>`;
+
+    host.querySelectorAll('.hit').forEach(r => {
+      r.addEventListener('mousemove', e => {
+        const i = +r.dataset.i;
+        document.getElementById('asx-ret-cross').innerHTML =
+          `<line class="cross" x1="${x(i)}" x2="${x(i)}" y1="${mt}" y2="${mt + ih}"/>`;
+        const rows = series.filter(s => s.vals[i] !== null).map(s => spread
+          ? `<span class="k">${s.label}</span> median ${s.vals[i]}%` +
+            `<br><span class="k">middle half ${s.lo[i]}% to ${s.hi[i]}% · n=${s.n[i]}</span>`
+          : `<span class="k">${s.label}</span> ${s.vals[i]}%` +
+            ` <span class="k">(n=${s.n[i]})</span>`).join('<br>');
+        const rr = ref && ref.vals[i] !== null
+          ? `<br><span class="k">TSX/TSXV</span> ${ref.vals[i]}% <span class="k">(n=${ref.n[i]})</span>` : '';
+        showTip(e, `<b>${R.labels[i]} after listing</b><br>` +
+          (rows || '<span class="k">too few companies</span>') + rr);
+      });
+      r.addEventListener('mouseleave', () => {
+        document.getElementById('asx-ret-cross').innerHTML = '';
+        hideTip();
+      });
+    });
+
+    const tb = document.getElementById('asxtbl-returns');
+    if (tb) tb.innerHTML = '<table><thead><tr><th>After listing</th>' +
+      series.map(s => `<th class="num">${s.label}</th><th class="num">n</th>`).join('') +
+      (ref ? '<th class="num">TSX/TSXV</th>' : '') + '</tr></thead><tbody>' +
+      R.labels.map((lab, i) => `<tr><td>${lab}</td>` +
+        series.map(s => `<td class="num">${s.vals[i] === null ? '' : s.vals[i] + '%'}</td>` +
+          `<td class="num">${s.n[i]}</td>`).join('') +
+        (ref ? `<td class="num">${ref.vals[i] === null ? '' : ref.vals[i] + '%'}</td>` : '') +
+        '</tr>').join('') + '</tbody></table>';
+  }
+
+  function all() {
+    document.querySelectorAll('.asx .legend span[data-stage]').forEach(sp => {
+      sp.style.display = on.has(sp.dataset.stage) ? '' : 'none';
+    });
+    document.querySelectorAll('.asx .measure-note').forEach(n => {
+      n.textContent = measure === 'turnover'
+        ? 'Estimated turnover: average daily volume x price x 126 trading days, over market cap. NOT the TSX turnover, which TMX reports directly as dollars traded. Stages sit side by side; a median of the parts is not the median for the whole.'
+        : measure === 'median'
+        ? 'The middle company in each group, not the total. Stages sit side by side; a median of the parts is not the median for the whole.'
+        : '';
+    });
+    ['commodity', 'extra', 'region', 'size', 'stage'].forEach(draw);
+    drawLines(); drawReturns();
+  }
+
+  document.querySelectorAll('.asx [data-ret]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      retMode = btn.dataset.ret;
+      document.querySelectorAll('.asx [data-ret]').forEach(b =>
+        b.setAttribute('aria-pressed', b.dataset.ret === retMode));
+      drawReturns();
+    });
+  });
+
+  document.querySelectorAll('.asx [data-stage]').forEach(btn => {
+    if (btn.tagName !== 'BUTTON') return;
+    btn.addEventListener('click', () => {
+      const s = btn.dataset.stage;
+      if (on.has(s)) { if (on.size === 1) return; on.delete(s); } else on.add(s);
+      btn.setAttribute('aria-pressed', on.has(s));
+      all();
+    });
+  });
+  document.querySelectorAll('.asx [data-measure]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      measure = btn.dataset.measure;
+      document.querySelectorAll('.asx [data-measure]').forEach(b =>
+        b.setAttribute('aria-pressed', b.dataset.measure === measure));
+      all();
+    });
+  });
+  all();
+})();
+</script>
+</div>
+</section></main>
 
 <footer>Rendered from stage1-dataset.md · stage1-numbers.md · stage2.md · asx-dataset.md · asx-numbers.md — edit the markdown and re-run <code>src/build_report.py</code>. TSX/TSXV size and trading as at 30 June 2026, commodity and property as at 31 July 2026; ASX as at 26 August 2026. Canadian and Australian dollars are never converted.</footer>
 

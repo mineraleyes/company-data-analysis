@@ -958,10 +958,10 @@ JS = """
       ).join('') + '</tbody></table>';
   }
 
-  document.querySelectorAll('[data-split]').forEach(btn => {
+  document.querySelectorAll('.tsx [data-split]').forEach(btn => {
     btn.addEventListener('click', () => {
       split = btn.dataset.split;
-      document.querySelectorAll('[data-split]').forEach(b =>
+      document.querySelectorAll('.tsx [data-split]').forEach(b =>
         b.setAttribute('aria-pressed', b.dataset.split === split));
       drawLines();
     });
@@ -1083,10 +1083,10 @@ JS = """
       ).join('') + '</tbody></table>';
   }
 
-  document.querySelectorAll('[data-ret]').forEach(btn => {
+  document.querySelectorAll('.tsx [data-ret]').forEach(btn => {
     btn.addEventListener('click', () => {
       retMode = btn.dataset.ret;
-      document.querySelectorAll('[data-ret]').forEach(b =>
+      document.querySelectorAll('.tsx [data-ret]').forEach(b =>
         b.setAttribute('aria-pressed', b.dataset.ret === retMode));
       drawReturns();
     });
@@ -1249,7 +1249,7 @@ JS = """
     drawReturns();
   }
 
-  document.querySelectorAll('[data-board]').forEach(btn => {
+  document.querySelectorAll('.tsx [data-board]').forEach(btn => {
     if (btn.tagName !== 'BUTTON') return;
     btn.addEventListener('click', () => {
       const b = btn.dataset.board;
@@ -1264,10 +1264,10 @@ JS = """
     });
   });
 
-  document.querySelectorAll('[data-measure]').forEach(btn => {
+  document.querySelectorAll('.tsx [data-measure]').forEach(btn => {
     btn.addEventListener('click', () => {
       measure = btn.dataset.measure;
-      document.querySelectorAll('[data-measure]').forEach(b =>
+      document.querySelectorAll('.tsx [data-measure]').forEach(b =>
         b.setAttribute('aria-pressed', b.dataset.measure === measure));
       drawAll();
     });
@@ -1330,7 +1330,7 @@ def section_html():
     geo_block = GEO_BLOCK.format(**G) if G else ""
 
     return f"""
-<div class="viz-root viz-live">
+<div class="viz-root viz-live tsx">
 
 <div class="ctrls">
   <div class="ctrl-group">
