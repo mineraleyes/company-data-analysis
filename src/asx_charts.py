@@ -315,6 +315,20 @@ CSS = """
 .asx .seg button[data-stage="Developer"] .dot{color:#eda100}
 .asx .seg button[data-stage="Explorer"] .dot{color:#2a78d6}
 .asx .seg button[data-stage="Other"] .dot{color:#4a3aa7}
+.asx .chart .derived {
+  margin: -8px 0 16px; padding: 5px 0 5px 10px;
+  border-left: 2px solid var(--line);
+  font-size: 12px; line-height: 1.55; color: var(--ink-faint);
+}
+.asx .chart .derived b { font-weight: 600; color: var(--ink-soft); }
+.asx .chart .derived code { font-size: 11.5px; background: var(--line-soft);
+  padding: 1px 4px; border-radius: 3px; }
+.asx .tab-lead {
+  margin: 0 0 20px; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: 5px;
+  font-size: 12.5px; line-height: 1.6; color: var(--ink-faint);
+}
+.asx .tab-lead b { font-weight: 600; color: var(--ink-soft); }
 """
 
 JS = """
@@ -650,6 +664,12 @@ before it. The count under each label is how quickly that thins out.
 <strong>The grey dashed line is the TSX/TSXV curve</strong>, built by the same
 script from the same milestones; a return is a ratio, so this is the one
 cross-market comparison in the report where the currencies never meet.</p>
+<p class='derived'><b>Derived</b> — every value on this chart. <code>px_base</code>
+is the mean of a company's first five Yahoo trading days from listing; a milestone
+is filled only by a quote within 10 days of its target; non-positive adjusted
+closes are dropped; and series whose prices predate the stated listing date by more
+than 90 days are excluded as backdoor listings. <code>stage</code> is derived, as
+above, and is today's stage applied to all of history.</p>
 <div class="ctrl-group" style="margin:0 0 14px">
   <span class="ctrl-label">Show</span>
   <div class="seg">
@@ -671,8 +691,9 @@ def _lg():
         for s in STAGES) + "</div>")
 
 
-def _chart(key, title, note, measure=True, keep=False):
+def _chart(key, title, note, measure=True, keep=False, derived=""):
     return (f"<div class='chart'><h3>{title}</h3><p class='note'>{note}</p>"
+            + (f"<p class='derived'>{derived}</p>" if derived else "")
             + (MEASURE if measure else "") + _lg()
             + f"<div class='rows' id='asx-{key}'></div>"
             f"<details class='tbl'><summary>Show as table</summary>"
@@ -697,33 +718,44 @@ def section_html():
   </div>
 </div>
 
+<p class="tab-lead"><b>Almost nothing on this tab is a field the exchange
+published.</b> The ASX export is five columns — code, name, GICS industry group,
+listing date, market cap. The mining population itself, and every commodity,
+region and stage below it, is inferred from Yahoo business summaries and financial
+statements. Each chart names what it derived.</p>
+
 {_chart("stage", "By stage",
         f"{d['n']} mining companies, A${d['mcap']/1e9:,.0f}B. Producer means "
         f"reported revenue; Developer means construction in progress on the "
         f"balance sheet. Switch to <strong>% traded (est)</strong> for whether "
         f"explorer trading is genuinely thinner or only looks that way.",
-        keep=True)}
+        keep=True,
+        derived="<b>Derived</b> — <code>stage</code>, assigned from financial statements; the rules and the order they are applied in are on the Dataset tab. <code>turnover_est</code> is average daily volume × price × 126 trading days ÷ market cap. Market cap and company count are the ASX export's.")}
 
 {_chart("commodity", "Commodity",
         f"Extracted from business summaries — what a company says it explores "
         f"for, which is not the same as what it holds. Companies name more than "
         f"one, so bars sum to more than {d['n']}. "
-        f"{d['no_commodity']} name none. These sixteen mirror the TSX chart.")}
+        f"{d['no_commodity']} name none. These sixteen mirror the TSX chart.",
+        derived='<b>Derived</b> — the <code>comm_*</code> flags, matched from the wording of each Yahoo business summary. They record what a company says it explores for, which is not the same as what it holds.')}
 
 {_chart("extra", "Commodities with no TSX counterpart",
         "The TMX flag set has no column for these, so they cannot be compared "
-        "like for like — shown separately rather than mixed into the chart above.")}
+        "like for like — shown separately rather than mixed into the chart above.",
+        derived='<b>Derived</b> — the <code>comm_*</code> flags, as above. These twelve have no column in the TMX flag set, so nothing here is comparable with Canada.')}
 
 {_chart("region", "Where the assets are",
         f"Regions named in the summary. Usually the flagship project and no "
         f"more, so these <strong>understate by construction</strong> — the TSX "
         f"side has a property register and this does not. "
-        f"{d['offshore']} companies name ground outside Australasia.")}
+        f"{d['offshore']} companies name ground outside Australasia.",
+        derived='<b>Derived</b> — the <code>prop_*</code> flags, matched from place names in the business summary. Summaries usually name the flagship project and stop, so every offshore count is a floor. The TSX equivalent comes from a register.')}
 
 {_chart("size", "Size distribution",
         "Australian dollars, never converted. Same numeric thresholds as the "
         "TSX chart so the shapes compare — but an A$ band is not the C$ band "
-        "with the same label.", keep=True)}
+        "with the same label.", keep=True,
+        derived="<b>Derived</b> — <code>size_band</code>, cutting the export's market cap at A$5M / 25M / 100M / 500M / 2B, and <code>stage</code> as above. Same numeric thresholds as the TSX chart, but A$ is not C$.")}
 
 
 <div class='chart'><h3>Companies by listing year</h3>
@@ -731,6 +763,10 @@ def section_html():
 today</strong>, so early years are undercounted by everything that has since
 failed or been acquired. {d['lines']['before']} surviving companies listed before
 {FIRST_YEAR} and are not shown.</p>
+<p class='derived'><b>Assumed</b> — that the survivors are the population. The
+listing date is the ASX export's own column, but companies that have since failed
+or delisted are absent from the export entirely, so every year is a count of what
+is left. <code>stage</code> is derived, as above.</p>
 {_lg()}
 <div class='linewrap' id='asx-lines'></div></div>
 

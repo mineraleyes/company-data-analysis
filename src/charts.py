@@ -643,6 +643,16 @@ CSS = """
 .chart h3 { margin: 0 0 2px; font-size: 17px; font-weight: 600; }
 .chart .note { margin: 0 0 16px; font-size: 13px; color: var(--ink-faint); }
 
+.chart .derived {
+  margin: -8px 0 16px; padding: 5px 0 5px 10px;
+  border-left: 2px solid var(--line);
+  font-size: 12px; line-height: 1.55; color: var(--ink-faint);
+}
+.chart .derived b { font-weight: 600; color: var(--ink-soft); }
+.chart .derived code { font-size: 11.5px; background: var(--line-soft);
+  padding: 1px 4px; border-radius: 3px; }
+
+
 .legend { display: flex; gap: 16px; margin: 0 0 14px; font-size: 13px; }
 .legend span { display: inline-flex; align-items: center; gap: 7px; color: var(--ink-soft); }
 .legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
@@ -1286,6 +1296,7 @@ GEO_BLOCK = """
   cells, so the grid sums to more than {companies} companies. Outlined cells are
   the diagonal — operating in the country you are based in.
   <strong>{abroad} companies hold no property in their own country of domicile.</strong></p>
+  <p class="derived"><b>Derived</b> — country resolution only. HQ arrives as a province code, a US state code or a country name, and is resolved using TMX's region column, because “CA” is California in a US row and Canada in a Canadian one.</p>
   <div class="heat" id="chart-geo"></div>
   <div class="scale">
     <span>fewer</span>
@@ -1306,6 +1317,7 @@ RETURNS_BLOCK = """
   absent from the source file, so the real picture is worse than this. Each point
   is also a different subset — only companies old enough to reach it — and the
   count under each label shows how quickly that thins out. <strong>Spread</strong> shades the middle half of companies, 25th to 75th percentile — the median alone hides how wide this gets.</p>
+  <p class="derived"><b>Derived</b> — every value on this chart. <code>px_base</code> is the mean of the first five Yahoo trading days from listing; a milestone is filled only by a quote within 10 days of its target; non-positive adjusted closes are dropped. The listing date is TMX's.</p>
   <div class="ctrl-group" style="margin:0 0 14px">
     <span class="ctrl-label">Show</span>
     <div class="seg">
@@ -1347,6 +1359,7 @@ def section_html():
   <p class="note">Companies hold more than one commodity, so the bars sum to more
   than the sector total. {g['no_commodity']} companies disclose no commodity and
   appear in none of these bars.</p>
+  <p class="derived"><b>Derived</b> — <code>% traded</code> only, which is TMX dollars traded ÷ market cap. The commodity flags and the board are TMX's own columns.</p>
   <div class="ctrl-group" style="margin:0 0 6px">
     <span class="ctrl-label">Measure</span>
     <div class="seg">
@@ -1370,6 +1383,7 @@ def section_html():
   <p class="note">Region of the company's properties, not its head office. Companies
   with ground in several regions appear in each. {g['no_property']} companies
   disclose no property location.</p>
+  <p class="derived"><b>Derived</b> — the eight regions, which group the country field of the TMX property register. Country spellings are normalised first (England → UK, Côte d'Ivoire → Ivory Coast, and similar).</p>
   <div class="ctrl-group" style="margin:0 0 6px">
     <span class="ctrl-label">Measure</span>
     <div class="seg">
@@ -1395,6 +1409,7 @@ def section_html():
   without revenue is an explorer. Switch the measure to <strong>% traded</strong>
   for the question the counts can't answer — whether explorer trading is genuinely
   thinner, or only looks that way because the companies are smaller.</p>
+  <p class="derived"><b>Derived</b> — <code>stage</code>. Producer is Yahoo-reported revenue above C$1M, Royalty/Streamer is TMX's own flag, Shell is no commodity and no property, Explorer is the residual. No exchange publishes a lifecycle stage.</p>
   <div class="ctrl-group" style="margin:0 0 6px">
     <span class="ctrl-label">Measure</span>
     <div class="seg">
@@ -1421,6 +1436,7 @@ def section_html():
   bucket: the free data will not say who has a feasibility study, but the top
   band is where the advanced projects are and the bottom band is where they
   are not.</p>
+  <p class="derived"><b>Derived</b> — <code>stage</code> as above, and <code>size_band</code>, which cuts TMX market cap at C$5M / 25M / 100M / 500M / 2B.</p>
   <div class="ctrl-group" style="margin:0 0 6px">
     <span class="ctrl-label">Measure</span>
     <div class="seg">
@@ -1445,6 +1461,7 @@ def section_html():
   commodity. Commodities with fewer than 15 companies on the selected boards are
   dropped, since a share of six is not a rate. Companies holding several
   commodities count in each, so this reads down the column, not across.</p>
+  <p class="derived"><b>Derived</b> — <code>stage</code> as above. The commodity flags are TMX's.</p>
   <div class="legend">
     <span><i style="background:var(--series-stage)"></i>Share producing</span>
   </div>
@@ -1460,6 +1477,7 @@ def section_html():
   survivorship rather than growth. {L['before']} surviving companies listed before 2000
   and are not shown; {L['missing']} TSXV companies have no listing date at all.
   {L['partial']} is a part-year — the data stops at 30 June.</p>
+  <p class="derived"><b>Assumed</b> — that the survivors are the population. The listing date is TMX's, but companies that have since failed or been acquired are absent from the source file entirely, so early years are undercounted.</p>
   <div class="ctrl-group" style="margin:0 0 14px">
     <span class="ctrl-label">Split by</span>
     <div class="seg">
@@ -1482,6 +1500,7 @@ def section_html():
   <p class="note">Number of companies holding each commodity in each region. Follows
   the board filter; company counts only, since a median or ratio on cells this small
   would be noise. A company with two commodities in two regions appears in four cells.</p>
+  <p class="derived"><b>Derived</b> — the eight regions, as above. The commodity flags are TMX's.</p>
   <div class="heat" id="chart-heat"></div>
   <div class="scale">
     <span>fewer</span>
